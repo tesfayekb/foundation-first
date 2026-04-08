@@ -261,6 +261,86 @@ _Updated as actions are added._
 
 ---
 
+## Action Quality Gate
+
+An action **cannot** be marked `Verified` unless:
+
+| Gate | Requirement |
+|------|------------|
+| Verification evidence present | Test run, log, screenshot, or monitoring link |
+| Related watchlist items verified | All matching items checked with evidence |
+| Related risks updated | Risk register reflects resolution/status change |
+| Post-deploy validation completed | If validation window defined, stability confirmed |
+| No regression introduced | Regression checks passed, no new watchlist items from this action |
+| Metrics validated | If `metrics_affected` defined, before/after values recorded |
+
+**Rule:** Quality gate is mandatory for all actions. HIGH-impact actions require all gates; LOW-impact actions require at minimum evidence + no regression.
+
+---
+
+## System-Level Action Gate
+
+Before any HIGH-impact change is finalized, the system must confirm:
+
+| Confirmation | Source |
+|-------------|--------|
+| Action recorded with full metadata | This document |
+| Evidence validated | Verification fields |
+| Regression checks passed | Regression Strategy |
+| Risk register updated | Risk Register |
+| Watchlist items verified | Regression Watchlist |
+| Metrics validated (if applicable) | Before/after values |
+| Validation window defined | For runtime/continuous verification |
+| Blast radius documented | State tracking fields |
+
+**Gate failure = action cannot be marked Verified.**
+
+---
+
+## Verification Scope Rules
+
+| Scope | Definition | Required For |
+|-------|-----------|-------------|
+| **Immediate** | One-time verification at completion | All actions |
+| **Runtime** | Verified via monitoring after deployment | Medium/High deployed changes |
+| **Continuous** | Ongoing monitoring confirms sustained correctness | HIGH impact: RBAC, RLS, auth, security changes |
+
+**Rules:**
+- HIGH impact actions must include runtime or continuous verification scope
+- Continuous verification must define what signals confirm ongoing correctness
+- Verification scope failure (e.g., runtime regression detected) → status reverts to `Completed` + new corrective action created
+
+---
+
+## Metric Correlation Enforcement
+
+When `metrics_affected` is defined, the entry must include:
+
+| Field | Example |
+|-------|---------|
+| Metric name | API p95 latency |
+| Before value | 420ms |
+| After value | 310ms |
+| Measurement method | Monitoring dashboard, load test |
+
+**Rule:** Metric claims without before/after values are not valid evidence.
+
+---
+
+## Action Drift Detection
+
+Over time, action outcomes may become invalid due to later changes:
+
+- Periodic review (quarterly) must check:
+  - Are HIGH-impact action outcomes still valid?
+  - Has subsequent work invalidated assumptions?
+  - Have metrics regressed since verification?
+- If drift detected:
+  - Create new corrective action referencing the original
+  - Update related risks and watchlist items
+
+---
+
 ## Immutability Rules
 
 - Entries are **append-only** — historical entries must never be modified
