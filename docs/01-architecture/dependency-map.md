@@ -40,7 +40,7 @@ All modules defined in `docs/04-modules/` and all approved shared services.
 | Module | Depends On | Dependency Types | Depended On By | Risk If Changed |
 |--------|-----------|-----------------|---------------|----------------|
 | auth | — | — | rbac, user-management, admin-panel, user-panel, api, audit-logging, jobs-and-scheduler | HIGH |
-| rbac | auth | Auth, Authorization | admin-panel, user-panel, api, user-management | HIGH |
+| rbac | auth, audit-logging | Auth, Authorization, Data, Event | admin-panel, user-panel, api, user-management, permission-index | HIGH |
 | user-management | auth, rbac | Auth, Authorization, Service, Data | admin-panel, user-panel | MEDIUM |
 | admin-panel | auth, rbac, user-management, audit-logging, health-monitoring | Auth, Authorization, Service, Operational | — | MEDIUM |
 | user-panel | auth, rbac, user-management | Auth, Authorization, Service | — | MEDIUM |
