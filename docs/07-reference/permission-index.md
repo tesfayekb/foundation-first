@@ -171,12 +171,15 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 
 ## Permission Registry
 
+> **Note:** Each entry includes a `Permission UUID` placeholder. Actual UUIDs are assigned at DB creation and must be recorded here for direct traceability.
+
 ### RBAC Permissions
 
 #### `roles.assign`
 
 | Field | Value |
 |-------|-------|
+| **Permission UUID** | `perm-uuid-roles-assign` (actual UUID assigned at DB creation) |
 | **Module** | rbac |
 | **Description** | Allows assigning roles to users within governance boundaries. Does not imply revoke capability. |
 | **Classification** | admin-critical |
