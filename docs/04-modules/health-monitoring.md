@@ -4,78 +4,131 @@
 
 ## Purpose
 
-Monitors system health, tracks metrics, and surfaces alerts.
+Monitors system health, tracks metrics, evaluates service status, and surfaces alerts for operational response.
 
 ## Scope
 
-Health checks, error rate tracking, performance metrics, uptime monitoring.
+Health checks, metrics, alerting, uptime, degraded-state detection, and monitoring visibility.
+
+## Enforcement Rule (CRITICAL)
+
+- All critical subsystems **MUST** have monitoring coverage
+- Missing health checks, metrics, or alerts for critical systems is an **INVALID** implementation
+- Monitoring failures must themselves be detectable
 
 ## Key Rules
 
-- Health endpoint must be unauthenticated (for external monitors)
-- Internal metrics require admin access
-- Alert thresholds are configurable
-- Monitor: error rates, response times, auth failures, job failures
+- Public health endpoint must return only minimal safe status data
+- Internal metrics and detailed diagnostics require authorized access
+- Alert thresholds are configurable and auditable
+- Monitoring must cover API, auth, database, jobs, audit pipeline, and integrations
+
+## Health Status Model
+
+| Status | Meaning |
+|--------|---------|
+| `healthy` | All critical checks passing |
+| `degraded` | Partial failure or threshold breach without full outage |
+| `unhealthy` | Critical subsystem failure or severe degradation |
+
+### Status Calculation Rules
+
+- `healthy` if all critical checks pass
+- `degraded` if one or more warning thresholds breach
+- `unhealthy` if any critical subsystem fails or repeated severe thresholds are exceeded
 
 ## Health Check Endpoint
 
 ```
 GET /health
-Response: { status: "healthy" | "degraded" | "unhealthy", checks: {...} }
+Response: { status: "healthy" | "degraded" | "unhealthy", checks: {...minimal safe subset...} }
 ```
+
+**Rule:** No sensitive internals exposed in unauthenticated health responses
+
+## Monitoring Domains
+
+- API health
+- Authentication health
+- Database health
+- Jobs/scheduler health
+- Audit logging health
+- External integration health
+
+## Alert Severity Model
+
+| Severity | Meaning |
+|----------|---------|
+| `info` | Informational, no action needed |
+| `warning` | Threshold approaching, investigation recommended |
+| `critical` | Immediate action required |
 
 ## Metrics Tracked
 
-| Metric | Source | Alert Threshold |
-|--------|--------|----------------|
-| Error rate (5xx) | API logs | > 1% in 5 min |
-| Auth failure rate | Auth events | > 10 in 1 min |
-| API response time (p95) | API logs | > 500ms |
-| Job failure rate | Job scheduler | > 3 consecutive |
-| Database connection pool | DB stats | > 80% utilized |
+| Metric | Source | Alert Threshold | Severity |
+|--------|--------|----------------|----------|
+| Error rate (5xx) | API logs | > 1% in 5 min | warning |
+| Auth failure rate | Auth events | > 10 in 1 min | warning |
+| API response time (p95) | API logs | > 500ms | warning |
+| Job failure rate | Job scheduler | > 3 consecutive | critical |
+| Database connection pool | DB stats | > 80% utilized | warning |
+| Audit write failure | Audit events | any sustained failure | critical |
 
 ## Shared Functions
 
 | Function | Purpose | Used By |
 |----------|---------|---------|
-| `getSystemHealth()` | Returns current health status | admin-panel |
-| `getMetrics(timeRange)` | Returns metrics for time range | admin-panel |
+| `getSystemHealth()` | Returns current system status | admin-panel |
+| `getMetrics(timeRange)` | Returns metrics view | admin-panel |
+| `evaluateAlerts()` | Evaluates thresholds and alert state | health jobs / monitoring flow |
 
 ## Events
 
 | Event | Emitted When | Consumed By |
 |-------|-------------|-------------|
-| `health.alert_triggered` | Metric exceeds threshold | admin notification |
-| `health.status_changed` | System status changes | audit-logging |
+| `health.alert_triggered` | Metric exceeds threshold | admin notification / on-call flow |
+| `health.status_changed` | Overall status changes | audit-logging, admin-panel |
+| `health.monitoring_failed` | Monitoring pipeline fails | admin alerts |
 
 ## Jobs
 
 | Job | Schedule | Purpose |
 |-----|----------|---------|
-| `health_check` | Every 1 min | Run health checks |
-| `metrics_aggregate` | Every 5 min | Aggregate metrics |
+| `health_check` | Every 1 min | Run subsystem checks |
+| `metrics_aggregate` | Every 5 min | Aggregate monitoring data |
+| `alert_evaluation` | Every 1 min | Evaluate alert thresholds |
 
 ## Permissions
 
 | Permission | Description |
 |-----------|-------------|
 | `monitoring.view` | Can view health dashboard |
-| `monitoring.configure` | Can configure alert thresholds |
+| `monitoring.configure` | Can configure thresholds and alerts |
+
+## Failure Handling Rules
+
+- Monitoring failure must raise an alert
+- Critical health degradation must surface prominently in admin panel
+- Repeated failures must not be silently suppressed
 
 ## Dependencies
 
-- [Audit Logging Module](audit-logging.md) — for event data
+- [API Module](api.md)
+- [Auth Module](auth.md)
+- [Audit Logging Module](audit-logging.md)
+- [Jobs and Scheduler](jobs-and-scheduler.md)
 
 ## Used By / Affects
 
-admin-panel.
+admin-panel, operational visibility, incident response.
 
 ## Risks If Modified
 
-MEDIUM — monitoring changes affect visibility into system health.
+HIGH — weak monitoring reduces visibility into outages, abuse, and security incidents.
 
 ## Related Documents
 
 - [Audit Logging Module](audit-logging.md)
 - [Admin Panel](admin-panel.md)
 - [Performance Strategy](../03-performance/performance-strategy.md)
+- [Security Architecture](../02-security/security-architecture.md)
