@@ -122,6 +122,67 @@ Every event in the registry must include:
 
 ---
 
+## Event Replay / Reprocessing Governance
+
+| Rule | Description |
+|------|-------------|
+| **Replayable events** | Job lifecycle events and domain state-change events must support replay from dead-letter or archive |
+| **Idempotency** | Replayed events must produce the same outcome as original — consumers must be idempotent |
+| **Audit** | Every replay must generate `job.replayed` event and action tracker entry with: who replayed, reason, original event timestamp |
+| **Authorization** | Replay requires operator or admin role — no automated replay without explicit approval |
+| **Scope control** | Replay must target specific events — bulk replay requires Lead approval |
+| **Non-replayable** | Security events (`auth.*`, `rbac.*`) are **not replayable** — they are historical records only |
+
+---
+
+## Event Sampling Strategy
+
+| Rule | Description |
+|------|-------------|
+| **Never sample** | `security`, `audit`, and `CRITICAL`/`HIGH` severity events must **never** be sampled — 100% capture required |
+| **Sampling allowed** | `monitoring` and `infrastructure` classified events with `LOW` severity may be sampled under load |
+| **Sample rate** | Default sample rate: 10% for eligible events; adjustable per event type |
+| **Metadata preservation** | Sampled events must still contribute to aggregate counters (total emitted vs. sampled stored) |
+| **Config** | Sampling rates are config-governed — changes follow Config Index rules |
+
+---
+
+## Event Backpressure Handling
+
+| Scenario | Behavior |
+|----------|----------|
+| **System overloaded** | Non-critical events (`LOW` severity, `monitoring` class) are buffered or dropped first |
+| **Critical preservation** | `security`, `audit`, and `CRITICAL` severity events are **never** dropped — they use reserved capacity |
+| **Backpressure signal** | When buffer exceeds 80% capacity, emit `health.alert_triggered` with `alert_type: event_backpressure` |
+| **Degradation order** | Drop order: `monitoring` → `infrastructure` → `domain` → `system` → never: `audit`/`security` |
+| **Recovery** | After pressure clears, resume normal processing; log gap period for audit |
+
+---
+
+## Event Contract Compatibility Testing
+
+| Rule | Description |
+|------|-------------|
+| **Version compatibility** | New event versions must be tested against all existing consumers before deployment |
+| **Backward compatibility** | New versions adding optional fields must not break consumers expecting the previous schema |
+| **Breaking change gate** | Breaking changes (field removal, type change) must: pass consumer migration tests, have all consumers updated, be approved via change control |
+| **CI integration** | Event contract tests must run in CI pipeline — contract violation blocks deployment |
+| **Test coverage** | Every versioned event must have a contract compatibility test |
+
+---
+
+## Event Dependency Visualization
+
+| Rule | Description |
+|------|-------------|
+| **Event flow graph** | System must maintain a visual dependency graph showing: emitters → events → consumers → downstream effects |
+| **Update requirement** | Graph must be updated when events are added, modified, or deprecated |
+| **Debugging utility** | Graph must be usable for: root cause analysis, impact assessment of event changes, onboarding |
+| **Format** | Maintained as Mermaid diagram or equivalent machine-readable format |
+| **Review** | Graph reviewed quarterly alongside event registry review |
+
+---
+
 ## Event Security Rules
 
 | Rule | Description |
