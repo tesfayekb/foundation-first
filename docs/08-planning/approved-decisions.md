@@ -4,55 +4,107 @@
 
 ## Purpose
 
-Anti-forgetting ledger. Every approved plan section and decision is recorded here with a stable ID. Future plan revisions MUST preserve these unless explicitly superseded.
+Anti-forgetting ledger.
+Every approved decision is recorded here with a stable ID.
+
+This document is the authoritative memory for all approved architecture, security, and system rules.
 
 ## Scope
 
 All approved decisions across the project lifecycle.
 
+## Decision Record Format (MANDATORY)
+
+Each decision MUST include:
+
+- **Decision ID**
+- **Plan Section**
+- **Decision Type** (architecture / security / schema / policy / feature)
+- **Date Approved**
+- **Decision**
+- **Affected Modules / Systems**
+- **Status** (active / implemented / superseded)
+- **Superseded By**
+
+If any field is missing → the decision is **INVALID**.
+
 ## Decision Records
+
+---
 
 ### DEC-001: SSOT Documentation System
 - **Plan Section:** PLAN-GOV-001
+- **Decision Type:** architecture
 - **Date Approved:** 2026-04-08
 - **Decision:** Create a 42-file SSOT documentation system across 9 directories with full governance, plan preservation, stable IDs, execution lock, and merge rules.
-- **Status:** Implemented
+- **Affected Modules / Systems:** All
+- **Status:** implemented
 - **Superseded By:** —
+
+---
 
 ### DEC-002: 10 Constitutional Rules
 - **Plan Section:** PLAN-GOV-001
+- **Decision Type:** policy
 - **Date Approved:** 2026-04-08
 - **Decision:** Constitution contains 10 non-negotiable rules including documentation phase lock, shared component protection, no silent behavior change, approved plan preservation, execution lock, and plan merge rule.
-- **Status:** Active
+- **Affected Modules / Systems:** All
+- **Status:** active
 - **Superseded By:** —
+
+---
 
 ### DEC-003: Feature Scope Lock
 - **Plan Section:** PLAN-GOV-001
+- **Decision Type:** policy
 - **Date Approved:** 2026-04-08
 - **Decision:** Feature scope locked to: Authentication (email + social + MFA), RBAC (dynamic permissions), Admin panel + User panel, Audit logging + Health monitoring, API layer, Background jobs / scheduler. No scope expansion without explicit approval.
-- **Status:** Active
+- **Affected Modules / Systems:** All modules
+- **Status:** active
 - **Superseded By:** —
+
+---
 
 ### DEC-004: Roles in Separate Table
 - **Plan Section:** PLAN-RBAC-001
+- **Decision Type:** schema
 - **Date Approved:** 2026-04-08
 - **Decision:** User roles MUST be stored in a separate `user_roles` table, never on the profile or users table. Security definer function `has_role()` used for all permission checks.
-- **Status:** Active
+- **Affected Modules / Systems:** RBAC, Auth, API
+- **Status:** active
 - **Superseded By:** —
+
+---
 
 ### DEC-005: Stable ID Convention
 - **Plan Section:** PLAN-GOV-001
+- **Decision Type:** policy
 - **Date Approved:** 2026-04-08
 - **Decision:** Plan sections use `PLAN-{MODULE}-{NNN}` format. Decisions use `DEC-{NNN}` format. IDs are permanent and never reassigned.
-- **Status:** Active
+- **Affected Modules / Systems:** All
+- **Status:** active
 - **Superseded By:** —
 
-## Rules
+---
 
-- Every approved plan section gets a `DEC-NNN` entry here
-- Entries are never deleted, only marked with `Superseded By`
-- Future plan revisions must check this ledger before modifying any approved area
-- If a decision is superseded, the new decision must reference the original `DEC-NNN`
+## Decision Integrity Rules
+
+- Every approved plan section MUST have a corresponding `DEC-NNN` entry
+- Decisions are **NEVER** deleted — only superseded
+- Superseded decisions MUST reference the original decision ID
+- New decisions that replace existing ones MUST include a `superseded-by` link
+
+## Enforcement Rule (CRITICAL)
+
+- AI MUST read this document before any plan revision or execution
+- If a proposed change conflicts with an active decision → the change is **INVALID** unless supersession is explicitly defined
+- No decision may be ignored, bypassed, or implicitly overridden
+
+## Traceability Requirement
+
+All superseded decisions MUST maintain a traceable chain:
+- Original decision → superseded-by → new decision
+- Chains must remain intact for full historical reasoning
 
 ## Dependencies
 
@@ -61,7 +113,13 @@ All approved decisions across the project lifecycle.
 
 ## Used By / Affects
 
-AI Operating Model (mandatory reading step 3). All plan revisions.
+- AI Operating Model (mandatory reading step)
+- All plan revisions
+- All execution decisions
+
+## Risks If Changed
+
+HIGH — corruption of this document breaks memory, decision integrity, and system consistency.
 
 ## Related Documents
 
