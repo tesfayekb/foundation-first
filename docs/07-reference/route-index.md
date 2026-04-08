@@ -331,6 +331,58 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Related tests** | Role assign/revoke allow/deny suite |
 | **Lifecycle** | active |
 
+#### `/admin/users/:id` — User Detail / Edit
+
+| Field | Value |
+|-------|-------|
+| **Page** | User Detail and Edit |
+| **Module** | admin-panel |
+| **Classification** | privileged |
+| **Auth required** | Yes |
+| **Permission required** | `admin.access` + `users.view_all` / `users.edit_any` |
+| **Scope** | system-wide |
+| **Panel** | admin-panel |
+| **Related functions** | `getUserProfile()`, `updateUserProfile()`, `checkPermission()` |
+| **Related events** | `user.profile_updated` |
+| **Related tests** | User detail view/edit allow/deny suite |
+| **Lifecycle** | active |
+
+#### `/admin/users/:id/deactivate` — User Deactivation
+
+| Field | Value |
+|-------|-------|
+| **Page** | User Deactivation (action within User Management) |
+| **Module** | admin-panel |
+| **Classification** | privileged, destructive |
+| **Auth required** | Yes |
+| **Permission required** | `admin.access` + `users.deactivate` |
+| **Scope** | system-wide |
+| **Panel** | admin-panel |
+| **Reauth required** | Yes |
+| **Related functions** | `deactivateUser()`, `checkPermission()`, `requireRecentAuth()` |
+| **Related events** | `user.account_deactivated`, `auth.session_revoked` |
+| **Related risks** | User access disruption |
+| **Related tests** | Deactivation allow/deny suite, post-deactivation lockout test |
+| **Lifecycle** | active |
+
+#### `/admin/users/:id/reactivate` — User Reactivation
+
+| Field | Value |
+|-------|-------|
+| **Page** | User Reactivation (action within User Management) |
+| **Module** | admin-panel |
+| **Classification** | privileged |
+| **Auth required** | Yes |
+| **Permission required** | `admin.access` + `users.reactivate` |
+| **Scope** | system-wide |
+| **Panel** | admin-panel |
+| **Reauth required** | Yes |
+| **Related functions** | `reactivateUser()`, `checkPermission()`, `requireRecentAuth()` |
+| **Related events** | `user.account_reactivated` |
+| **Related risks** | Premature access restoration |
+| **Related tests** | Reactivation allow/deny suite, post-reactivation access test |
+| **Lifecycle** | active |
+
 #### `/admin/roles` — Role Management
 
 | Field | Value |
