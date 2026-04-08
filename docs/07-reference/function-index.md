@@ -167,6 +167,66 @@ Critical shared functions must expose observability:
 
 ---
 
+## Function Versioning
+
+| Rule | Description |
+|------|-------------|
+| **Version tracking** | Critical functions may carry a version (e.g., `v1`, `v2`) when major behavioral changes occur |
+| **Successor mapping** | Deprecated or replaced functions must reference their successor: `predecessor → successor` |
+| **Parallel support** | During transition, both versions must be available until all consumers migrate |
+| **Contract stability** | Same version = same contract. Semantic changes require version bump or new function. |
+
+---
+
+## Function Execution Tracing
+
+| Rule | Description |
+|------|-------------|
+| **trace_id propagation** | All `security-critical`, `authorization-critical`, and `audit-critical` functions must propagate `trace_id` / `correlation_id` |
+| **Cross-function tracing** | When function A calls function B, trace context must be preserved for end-to-end debugging |
+| **Log correlation** | Function execution logs must include trace_id for post-incident analysis |
+| **Observability link** | Traces must be queryable in monitoring/observability system |
+
+---
+
+## Performance Budget per Function
+
+| Classification | Max Expected Latency (p95) | Alert Threshold |
+|---------------|---------------------------|-----------------|
+| **security-critical** | 50ms | > 100ms |
+| **authorization-critical** | 20ms | > 50ms |
+| **audit-critical** | 100ms (async acceptable) | > 500ms |
+| **api-critical** | 30ms | > 75ms |
+| **job-critical** | Varies by job type | > 2× expected duration |
+| **data-access** | 100ms | > 250ms |
+
+**Rule:** Functions exceeding their performance budget must be investigated. Sustained breach = action tracker entry + optimization required.
+
+---
+
+## Automatic Impact Analysis (Future-Ready)
+
+| Rule | Description |
+|------|-------------|
+| **Mapping** | Each function's `used_by`, `related_routes`, `related_tests`, and `related_permissions` fields enable automated impact graphs |
+| **Tooling goal** | System should support: `changed function → affected routes + tests + modules` automated lookup |
+| **CI integration** | Future CI pipeline should auto-select tests based on function dependency graph |
+| **Review assist** | Change reviews should surface all impacted consumers automatically |
+
+---
+
+## Function Usage Telemetry
+
+| Rule | Description |
+|------|-------------|
+| **Call tracking** | Critical functions should track invocation counts (sampled, not per-call for performance) |
+| **Dead function detection** | Functions with zero invocations over 90 days flagged for review |
+| **Hot function identification** | Heavily-used functions (top 10% by call volume) receive priority performance monitoring |
+| **Cleanup policy** | Unused functions must be reviewed → confirmed active, deprecated, or removed |
+| **Telemetry overhead** | Sampling only — telemetry must not degrade function performance |
+
+---
+
 ## Change Workflow for Indexed Functions
 
 When changing any indexed function:
