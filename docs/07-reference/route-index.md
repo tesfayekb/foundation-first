@@ -575,6 +575,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | `/admin/jobs/emergency` | privileged, destructive | `jobs.emergency` | System-wide job halt |
 | `/admin/config` | privileged, destructive | `admin.config` | System behavior changes |
 | `/admin/users/:id/roles` | privileged, destructive | `roles.assign` / `roles.revoke` | Privilege escalation risk |
+| `/admin/users/:id/deactivate` | privileged, destructive | `users.deactivate` | User access removal |
 | `/admin/jobs/deadletter` | privileged, destructive | `jobs.deadletter.manage` | Failure resolution impact |
 | `/login` | public | — | Authentication entry point |
 
@@ -594,9 +595,11 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 |-------|-----------|---------|
 | `/admin/config` | `admin.config` | Yes |
 | `/admin/users/:id/roles` | `roles.assign` / `roles.revoke` | Yes |
+| `/admin/users/:id/deactivate` | `users.deactivate` | Yes |
+| `/admin/users/:id/reactivate` | `users.reactivate` | Yes |
 | `/admin/jobs/deadletter` | `jobs.deadletter.manage` | Yes |
 | `/admin/jobs/emergency` | `jobs.emergency` | Yes |
-| `/settings/security` | *(authenticated)* | Yes |
+| `/settings/security` | `mfa.self_manage`, `session.self_manage` | Yes |
 
 ---
 
