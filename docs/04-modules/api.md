@@ -98,12 +98,17 @@ serve(async (req) => {
 - Duplicate requests must not create inconsistent state
 - Retry-safe operations required for jobs and integrations
 
+## Observability
+
+- Every request should carry or generate a **request/correlation ID** for tracing across API, audit, and monitoring layers
+
 ## Shared Functions
 
 | Function | Purpose | Used By |
 |----------|---------|---------|
 | `apiError(code, message)` | Constructs error response | All edge functions |
 | `validateRequest(schema, body)` | Validates input | All edge functions |
+| `normalizeRequest(input)` | Canonicalizes and sanitizes input before business logic | All edge functions |
 | `authenticateRequest(req)` | Validates auth token | All edge functions |
 | `checkPermission(permission)` | Enforces RBAC | All protected endpoints |
 
