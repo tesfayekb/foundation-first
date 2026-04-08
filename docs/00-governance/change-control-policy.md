@@ -32,12 +32,12 @@ Every change MUST follow this exact sequence:
 6. **Implement** changes (ONLY against approved plan baseline)
 7. **Update** ALL affected documentation (modules + reference indexes)
 8. **Update** `action-tracker.md`
-9. **Verify:**
+9. **Verify and finalize:**
    - Dependencies intact
    - Reference indexes accurate
    - No unintended behavior changes
    - Required regression checks completed
-10. **Update** `system-state.md` if system state changed
+   - Update `system-state.md` if system state changed
 
 ## Impact Classification
 
