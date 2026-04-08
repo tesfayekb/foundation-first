@@ -61,10 +61,13 @@ Each action must include:
 | Field | Required | Description |
 |-------|----------|-------------|
 | `verification_type` | Yes | Code / test / runtime / hybrid |
+| `verification_scope` | Yes | Immediate / runtime / continuous |
 | `evidence` | Yes | Test run ID, log reference, screenshot, monitoring link |
 | `verified_by` | Yes | Role or person who verified |
 | `post_deploy_validation` | For deployed changes | Pass / fail / pending |
+| `validation_window` | For Medium/High | Immediate / 1h / 24h / 7d |
 | `validation_notes` | If applicable | Additional validation context |
+| `trace_id` | If applicable | Reference to runtime logs/monitoring trace |
 
 ### State Tracking Fields
 
@@ -74,6 +77,7 @@ Each action must include:
 | `after_state` | For Medium/High | Summary of state after change |
 | `rollback_available` | For Medium/High | Yes / No |
 | `rollback_method` | If rollback available | Description of rollback approach |
+| `blast_radius` | For Medium/High | Small / medium / large / system-wide |
 
 ### Traceability Fields
 
@@ -87,13 +91,16 @@ Each action must include:
 | `related_tests` | If tests added/modified | Test file references |
 | `related_risks` | If risk resolved/mitigated | Risk register IDs |
 | `related_watchlist` | If watchlist items affected | Watchlist IDs |
+| `depends_on` | If sequencing required | Prerequisite action IDs |
+| `blocks` | If downstream dependencies | Blocked action IDs |
 
 ### Impact Fields
 
 | Field | When Required | Description |
 |-------|--------------|-------------|
-| `metrics_affected` | If measurable | Which metrics changed |
+| `metrics_affected` | If measurable | Which metrics changed (with before/after values) |
 | `health_impact` | For Medium/High | Improved / degraded / neutral |
+| `risk_delta` | If risk affected | Reduced / increased / neutral |
 | `effort_estimate` | Optional | Estimated effort |
 | `actual_effort` | Optional | Actual effort spent |
 
