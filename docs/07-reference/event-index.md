@@ -43,6 +43,9 @@ All application events.
 | `job.dead_lettered` | jobs-and-scheduler | audit-logging, health-monitoring, admin-panel | HIGH — requires operator action |
 | `job.paused` | jobs-and-scheduler | audit-logging | MEDIUM — affects scheduling |
 | `job.cancelled` | jobs-and-scheduler | audit-logging | MEDIUM — affects scheduling |
+| `job.poison_detected` | jobs-and-scheduler | audit-logging, health-monitoring, admin-panel | HIGH — systematic failure |
+| `job.replayed` | jobs-and-scheduler | audit-logging | MEDIUM — reprocessing event |
+| `job.slo_breach` | jobs-and-scheduler | health-monitoring, admin-panel | HIGH — SLO violation |
 
 ## Dependencies
 
