@@ -22,6 +22,7 @@ If ANY checklist item is not satisfied:
 - The task must **NOT** be marked as done
 - The task must **NOT** proceed to next steps
 - **No partial completion is allowed.**
+- If required documentation (module, dependency, or reference index) is missing or unclear, the task must **STOP** and request clarification instead of proceeding with assumptions.
 
 ## Core Checklist (ALL must be satisfied)
 
