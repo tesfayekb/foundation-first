@@ -479,6 +479,48 @@ Key event chains showing upstream triggers and downstream effects:
 | **Related risks** | RSK-002 |
 | **Lifecycle** | active |
 
+#### `rbac.role_created` — v1
+
+| Field | Value |
+|-------|-------|
+| **Classification** | security |
+| **Severity** | HIGH |
+| **Owner module** | rbac |
+| **Consumers** | audit-logging |
+| **Description** | New dynamic role created in the RBAC system |
+| **Payload schema** | `{ role_name: string, created_by: uuid, timestamp: datetime, permissions: string[] }` |
+| **Delivery guarantee** | at-least-once |
+| **Ordering** | strict |
+| **Idempotency** | event_id |
+| **Retry policy** | 3× exponential backoff |
+| **Failure handling** | Alert on failure |
+| **Observability** | Logged, traced |
+| **Related permissions** | `roles.create` |
+| **Related risks** | RSK-002 (privilege escalation via new role) |
+| **Related tests** | Role creation event emission test |
+| **Lifecycle** | active |
+
+#### `rbac.role_deleted` — v1
+
+| Field | Value |
+|-------|-------|
+| **Classification** | security |
+| **Severity** | HIGH |
+| **Owner module** | rbac |
+| **Consumers** | audit-logging |
+| **Description** | Dynamic role deleted from the RBAC system. Base roles cannot be deleted. |
+| **Payload schema** | `{ role_name: string, deleted_by: uuid, timestamp: datetime, affected_users: integer }` |
+| **Delivery guarantee** | at-least-once |
+| **Ordering** | strict |
+| **Idempotency** | event_id |
+| **Retry policy** | 3× exponential backoff |
+| **Failure handling** | Alert on failure |
+| **Observability** | Logged, traced |
+| **Related permissions** | `roles.delete` |
+| **Related risks** | RSK-002 (orphaned users after role deletion) |
+| **Related tests** | Role deletion event emission test, base role protection test |
+| **Lifecycle** | active |
+
 #### `rbac.permission_denied` — v1
 
 | Field | Value |
