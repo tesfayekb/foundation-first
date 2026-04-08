@@ -8,21 +8,22 @@ Manages background jobs, scheduled tasks, execution lifecycle, failure handling,
 
 ## Scope
 
-Job definitions, scheduling, execution, state management, retry logic, dead-letter handling, concurrency protection, observability, manual trigger governance, and recovery operations.
+Job definitions, scheduling, execution, state management, retry logic, dead-letter handling, concurrency protection, observability, manual trigger governance, versioning, backpressure, and recovery operations.
 
 ## Enforcement Rule (CRITICAL)
 
 - No production job may exist outside the **job registry**
-- Every job must declare concurrency policy, idempotency strategy, and failure classification
+- Every job must declare concurrency policy, idempotency strategy, execution guarantee, and failure classification
 - All job runs must be auditable and observable
 - Manual triggers must be permission-checked, audited, and input-validated
 - Terminal failures must enter dead-letter state
+- Every job execution must have a matching start and terminal audit event — missing events flag system as unhealthy
 - Any unregistered, unmonitored, or ungoverned job is an **INVALID** implementation
 
 ## Key Rules
 
 - All jobs must be idempotent
-- All jobs must declare concurrency policy and idempotency strategy
+- All jobs must declare concurrency policy, idempotency strategy, and execution guarantee
 - All jobs must log start, completion, and failure
 - Failed jobs retry with configurable exponential backoff + jitter
 - Jobs must not exceed configured timeout (default: 30s edge function limit)
@@ -32,6 +33,7 @@ Job definitions, scheduling, execution, state management, retry logic, dead-lett
 - Manual triggers must be permission-checked, audited, and validated
 - Terminal failures must enter dead-letter state
 - Jobs must fail secure and isolate downstream impact
+- Poison jobs must be auto-detected and paused
 
 ## Job Lifecycle State Model
 
@@ -47,8 +49,9 @@ Every job run passes through a defined state machine:
 | `retry_pending` | Job failed, awaiting retry |
 | `failed` | Job exhausted retries but not yet dead-lettered |
 | `dead_lettered` | Terminal failure — requires operator action |
-| `paused` | Job execution suspended by operator |
+| `paused` | Job execution suspended by operator or system |
 | `cancelled` | Job cancelled by operator or system |
+| `poison` | Job auto-paused due to repeated systematic failure |
 
 ## Job Classification and Priority
 
@@ -59,6 +62,21 @@ Every job run passes through a defined state machine:
 | `maintenance` | Normal | Standard retry, tolerant | 3 consecutive failures | Standard | `audit_cleanup` |
 | `analytics` | Low | Best-effort, limited retries | Degraded only | Minimal | Future analytics jobs |
 | `user_triggered` | Normal | Standard retry | Per-job | Full | Manual admin triggers |
+
+## Execution Guarantee Model
+
+Each job **must** declare its execution guarantee:
+
+| Guarantee | Description | Requirements |
+|-----------|-------------|-------------|
+| `at_least_once` | Job may execute more than once; consumer handles duplicates (default) | Idempotency key recommended |
+| `exactly_once` | Job executes exactly once; no duplicate side effects | **Mandatory:** idempotency key persisted at DB level, atomic write + dedup check, distributed lock OR transactional guard |
+
+Rules:
+- Default is `at_least_once`
+- Jobs with financial, ledger, or billing side effects **must** use `exactly_once`
+- `exactly_once` jobs must verify dedup before committing side effects
+- Execution guarantee must be stored in job registry and telemetry
 
 ## Concurrency and Idempotency Rules
 
@@ -89,6 +107,7 @@ Every job run passes through a defined state machine:
 - Exponential backoff must include **jitter** to prevent retry storms
 - Only transient and dependency failures should retry automatically
 - Permanent failures must fail fast, not consume retries
+- Retries must respect system load (backpressure-aware)
 
 | Attempt | Base Delay | With Jitter |
 |---------|-----------|-------------|
@@ -100,35 +119,134 @@ Every job run passes through a defined state machine:
 ### Dead-Letter Handling
 
 - After max retries, move to `dead_lettered` state
-- Preserve full failure metadata (error, stack, input, timing)
+- Preserve full failure metadata (error, stack, input, timing, job version)
 - Require admin visibility in admin panel
 - Operator action paths:
   - **Inspect** — view full failure context
-  - **Replay** — re-execute with original or modified input
+  - **Replay** — re-execute with original or modified input (see Replay Safety)
   - **Cancel** — mark as permanently abandoned
   - **Mark resolved** — close without replay
+
+### Poison Job Detection
+
+- If the **same job** fails repeatedly across **distinct executions** (not retries of one run):
+  - Mark as `poison` state
+  - Auto-pause the job
+  - Escalate to admin with full failure history
+- Poison threshold: configurable per job class (default: 5 consecutive cross-execution failures)
+- Poison jobs require explicit operator resolution before resuming
+
+## Job Versioning and Safe Deployment
+
+- Every job in the registry must declare a `job_version`
+- Every execution must store the version used at runtime
+- Retries **must** use the same version as the original attempt (or be explicitly upgraded by operator)
+- Dead-letter replay must support:
+  - **Replay with original version** — default, safe reprocessing
+  - **Replay with current version** — explicit operator decision, requires confirmation
+- Version changes require change-control entry
+
+## Replay Safety
+
+Each job must declare `replay_safe: true | false`:
+
+- `replay_safe: true` — replay permitted without additional confirmation
+- `replay_safe: false` — replay requires:
+  - Operator confirmation
+  - Impact preview (if available)
+  - Explicit acknowledgment of potential side effects
+
+All replays must log:
+- Original `execution_id`
+- Replay `execution_id`
+- Operator identity
+- Reason / justification
+- Version used (original or current)
+
+## Backpressure and Rate Limiting
+
+- Define **max concurrent jobs globally**
+- Define **max concurrent jobs per type**
+- Define **queue depth threshold** — reject or defer new submissions beyond limit
+- **Adaptive throttling**: under system degradation:
+  - Non-critical jobs slowed or paused automatically
+  - Retries respect system load — no retry storms
+  - `system_critical` jobs maintain priority execution
+- Circuit breaker integration: repeated failures from external dependencies trigger automatic pause
+
+## Priority Queue Execution Model
+
+Scheduler must execute based on:
+
+| Factor | Behavior |
+|--------|----------|
+| **Priority** | Higher priority jobs preempt lower priority in queue |
+| **Aging** | Jobs waiting beyond threshold get priority boost (prevent starvation) |
+| **System load** | Under degradation, only `system_critical` and `operational` execute; lower classes deferred |
+
+- `system_critical` always preempts all other classes
+- Lower priority jobs delayed if system under load
+- Priority is **enforced at execution time**, not just documentation
+
+## Cross-System Dependency Declaration
+
+Each job must declare its **runtime dependencies**:
+
+| Dependency Type | Examples |
+|----------------|---------|
+| Database | Primary DB, read replicas |
+| External APIs | Third-party services, webhooks |
+| Internal services | Auth, audit logging |
+| Other jobs | Upstream data producers |
+
+Behavior:
+- If a declared dependency is **degraded**: job auto-paused or downgraded
+- Dependency status integrates with health monitoring
+- Dependency failure triggers appropriate error classification
+
+## SLO Definitions
+
+Each job must declare service-level objectives:
+
+| Job | SLO Success Rate | SLO Latency | SLO Freshness |
+|-----|-----------------|-------------|---------------|
+| `health_check` | ≥ 99.9% | ≤ 2s | ≤ 3 min |
+| `metrics_aggregate` | ≥ 99.5% | ≤ 15s | ≤ 10 min |
+| `audit_cleanup` | ≥ 99.0% | ≤ 25s | ≤ 8 days |
+
+SLO enforcement:
+- Automated health scoring based on SLO compliance
+- SLO breach triggers alert at severity defined by job class
+- Persistent SLO breach escalates to operator action
 
 ## Job Registry (SSOT)
 
 | Field | `audit_cleanup` | `health_check` | `metrics_aggregate` |
 |-------|----------------|----------------|---------------------|
 | **Job ID** | `audit_cleanup` | `health_check` | `metrics_aggregate` |
+| **Version** | `1.0.0` | `1.0.0` | `1.0.0` |
 | **Owner Module** | audit-logging | health-monitoring | health-monitoring |
 | **Purpose** | Archive old audit logs | Run health checks | Aggregate metrics |
 | **Schedule** | Weekly | Every 1 min | Every 5 min |
 | **Trigger Type** | scheduled | scheduled | scheduled |
 | **Class** | maintenance | system_critical | operational |
 | **Priority** | Normal | Highest | High |
+| **Execution Guarantee** | at_least_once | at_least_once | at_least_once |
 | **Timeout (seconds)** | 25 | 10 | 20 |
 | **Max Retries** | 3 | 3 | 3 |
 | **Retry Policy** | Standard backoff | Aggressive | Standard backoff |
 | **Concurrency Policy** | forbid | forbid | forbid |
 | **Idempotency Strategy** | Time-window dedup | Execution-id based | Time-window dedup |
 | **Failure Classification** | Transient/dependency | Transient | Transient/dependency |
+| **Replay Safe** | true | true | true |
 | **Alert Severity** | Low | Critical | High |
 | **Health Impact** | None | System health degrades | Metrics staleness |
 | **Audit Required** | Yes | Yes | Yes |
 | **Run Principal** | `svc:audit-cleanup` | `svc:health-check` | `svc:metrics-aggregate` |
+| **Dependencies** | DB | DB, monitored services | DB, metrics sources |
+| **SLO Success Rate** | ≥ 99.0% | ≥ 99.9% | ≥ 99.5% |
+| **SLO Latency** | ≤ 25s | ≤ 2s | ≤ 15s |
+| **SLO Freshness** | ≤ 8 days | ≤ 3 min | ≤ 10 min |
 | **Status** | Not started | Not started | Not started |
 
 ### Recovery and Reconciliation Jobs (Planned)
@@ -139,6 +257,31 @@ Every job run passes through a defined state machine:
 | `job_dead_letter_scan` | Scan and surface unresolved dead-lettered jobs | operational | Planned |
 | `job_health_backfill` | Backfill missing health metrics after outage | maintenance | Planned |
 | `job_audit_integrity_check` | Verify audit log completeness and consistency | maintenance | Planned |
+| `job_poison_scan` | Detect and flag poison jobs across the registry | system_critical | Planned |
+
+## Formal Job Execution Contract
+
+Every job **must** implement the following interface:
+
+```typescript
+interface JobContract {
+  jobId: string;
+  version: string;
+  executionId: string;
+  idempotencyKey?: string;
+  executionGuarantee: 'at_least_once' | 'exactly_once';
+
+  execute(context: JobContext): Promise<JobResult>;
+}
+```
+
+Every job **must** use the following shared functions:
+- `executeWithRetry` — retry wrapper
+- `classifyError` — error categorization
+- `emitJobTelemetry` — observability emission
+- `acquireJobLock` — if concurrency policy requires it
+
+Zero deviation between jobs is required — consistent observability, retry, and audit behavior.
 
 ## Manual Trigger Governance
 
@@ -170,7 +313,9 @@ Every job run passes through a defined state machine:
 | Field | Description |
 |-------|-------------|
 | `job_id` | Job identifier |
+| `job_version` | Version executed |
 | `execution_id` | Unique run identifier |
+| `execution_guarantee` | at_least_once or exactly_once |
 | `scheduled_time` | When the run was scheduled |
 | `actual_start_time` | When execution began |
 | `end_time` | When execution completed |
@@ -186,13 +331,16 @@ Every job run passes through a defined state machine:
 
 | Metric | Purpose |
 |--------|---------|
-| Success rate | Job reliability |
-| p95 runtime | Performance tracking |
+| Success rate | Job reliability (SLO tracking) |
+| p95 runtime | Performance tracking (SLO tracking) |
 | Retry rate | Stability indicator |
 | Dead-letter count | Unresolved failure volume |
 | Consecutive failures | Degradation detection |
 | Missed schedule count | Scheduler reliability |
-| Stale-last-success age | Freshness tracking |
+| Stale-last-success age | Freshness tracking (SLO tracking) |
+| Poison job count | Systematic failure detection |
+| Queue depth | Backpressure indicator |
+| SLO compliance % | Per-job health scoring |
 
 ## Stale / Missed Run Detection
 
@@ -209,6 +357,15 @@ Freshness thresholds:
 | `metrics_aggregate` | 10 minutes | Raise warning alert |
 | `audit_cleanup` | 8 days | Raise info alert |
 
+## Audit Integrity Verification
+
+- Every job execution **must** have:
+  - A `job.started` event
+  - A terminal event (`job.completed`, `job.failed`, or `job.dead_lettered`)
+- If a terminal event is missing for a completed execution → flag system as unhealthy
+- `job_audit_integrity_check` reconciliation job verifies completeness
+- Missing audit events must be surfaced in health monitoring and admin panel
+
 ## Partial Failure and Resumability
 
 For tasks split into smaller jobs:
@@ -216,7 +373,7 @@ For tasks split into smaller jobs:
 - Define **chunking strategy** (batch size, partition key)
 - Support **checkpointing** (last processed marker)
 - Define **replay boundary** (from checkpoint, not from start)
-- Declare **delivery guarantee**: exactly-once vs at-least-once
+- Declare **execution guarantee**: exactly-once vs at-least-once
 - Support **resume-from-last-checkpoint** behavior
 
 ## Downstream Failure Isolation
@@ -239,6 +396,7 @@ For tasks split into smaller jobs:
 
 - No production job may exist outside this registry
 - Every job must have a **stable ID** (never reassigned)
+- Every job must declare a **version**
 - Schedule changes require **change-control entry**
 - New jobs require **dependency and health impact review**
 - Removed jobs require **decommission note**
@@ -253,6 +411,8 @@ For tasks split into smaller jobs:
 | `acquireJobLock(jobId, executionId)` | Distributed lock for singleton jobs | Concurrent job protection |
 | `classifyError(error)` | Categorize error for retry/dead-letter routing | All jobs |
 | `emitJobTelemetry(runContext)` | Emit standardized observability data | All jobs |
+| `detectPoisonJob(jobId)` | Check cross-execution failure pattern | Scheduler, reconciliation |
+| `enforceBackpressure(queue)` | Apply rate limiting and adaptive throttling | Scheduler |
 
 ## Events
 
@@ -266,6 +426,9 @@ For tasks split into smaller jobs:
 | `job.dead_lettered` | Job enters terminal failure | audit-logging, health-monitoring, admin-panel |
 | `job.paused` | Job execution suspended | audit-logging |
 | `job.cancelled` | Job execution cancelled | audit-logging |
+| `job.poison_detected` | Job flagged as poison | audit-logging, health-monitoring, admin-panel |
+| `job.replayed` | Dead-lettered job replayed | audit-logging |
+| `job.slo_breach` | Job SLO threshold violated | health-monitoring, admin-panel |
 
 ## Permissions
 
@@ -283,6 +446,7 @@ For tasks split into smaller jobs:
 - [Auth Module](auth.md) — for service-level auth and service principals
 - [Audit Logging Module](audit-logging.md) — for job event logging
 - [Input Validation](../02-security/input-validation-and-sanitization.md) — for manual trigger input governance
+- [Health Monitoring](health-monitoring.md) — for dependency status and SLO alerting
 
 ## Used By / Affects
 
