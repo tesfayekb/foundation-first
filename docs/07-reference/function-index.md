@@ -771,8 +771,12 @@ When changing any indexed function:
 | `authenticateRequest()` | security-critical | system-wide | All API auth depends on this |
 | `getCurrentUser()` | security-critical | system-wide | All authenticated features depend on this |
 | `requireAuth()` | security-critical | system-wide | All route protection depends on this |
+| `requireVerifiedEmail()` | security-critical | system-wide | Email verification gate for all protected routes |
+| `requireRecentAuth()` | security-critical | large | Re-auth gate for sensitive/destructive actions |
+| `getSessionContext()` | security-critical | system-wide | Session metadata for all modules |
 | `has_role()` | authorization-critical | system-wide | All RLS policies depend on this |
 | `checkPermission()` | authorization-critical | system-wide | All permission checks depend on this |
+| `requireSelfScope()` | authorization-critical | large | Self-scope enforcement for user-owned resources |
 | `logAuditEvent()` | audit-critical | system-wide | Entire audit trail depends on this |
 | `validateRequest()` | api-critical | system-wide | All input validation depends on this |
 
