@@ -4,20 +4,48 @@
 
 ## Purpose
 
-Records all significant actions for security auditing and compliance.
+Records significant actions for security auditing, compliance, operational visibility, and incident investigation.
 
 ## Scope
 
-Audit trail: who did what, when, from where.
+Audit trail for:
+
+- Auth events
+- Privileged/admin actions
+- Role and permission changes
+- Significant data mutations
+- Security-sensitive system events
+
+## Enforcement Rule (CRITICAL)
+
+- Required audit events **MUST** be logged
+- Bypassing required audit logging is an **INVALID** implementation
+- High-risk actions must not silently proceed without required audit coverage
 
 ## Key Rules
 
-- All write operations must be logged
-- All auth events must be logged
-- All admin actions must be logged
-- Logs are immutable — no updates or deletes
-- Logs include: actor, action, target, timestamp, IP, user agent
-- Retention: minimum 90 days, configurable
+- All privileged/admin actions must be logged
+- All auth lifecycle events must be logged
+- All role/permission changes must be logged
+- Significant write operations must be logged
+- Logs are **append-only** and immutable from application paths
+- No update/delete paths from application logic
+- Logs must include: actor, action, target, timestamp, IP, user agent
+- Logs must **never** include passwords, tokens, MFA secrets, or unnecessary sensitive data
+- Retention: minimum 90 days, configurable by policy
+- Archive/retention handling must follow policy — no silent removal
+
+## Standardized Action Naming
+
+Use consistent action keys:
+
+- `auth.signed_in`
+- `auth.signed_out`
+- `auth.password_reset`
+- `rbac.role_assigned`
+- `rbac.permission_revoked`
+- `admin.config_updated`
+- `user.deactivated`
 
 ## Audit Log Schema
 
@@ -33,27 +61,34 @@ CREATE TABLE public.audit_logs (
     user_agent TEXT,
     created_at TIMESTAMPTZ DEFAULT now()
 );
--- RLS: admins and moderators can read; no one can update/delete
 ```
+
+**Rules:**
+
+- No update/delete paths from app logic
+- Read access restricted by permission
+- DB permissions must enforce append-only behavior
 
 ## Shared Functions
 
 | Function | Purpose | Used By |
 |----------|---------|---------|
-| `logAuditEvent(params)` | Creates an audit log entry | All modules |
-| `queryAuditLogs(filters)` | Queries audit logs with filtering | admin-panel |
+| `logAuditEvent(params)` | Writes standardized audit entry | All modules |
+| `queryAuditLogs(filters)` | Reads logs with filtering | admin-panel |
+| `exportAuditLogs(filters)` | Controlled export path | admin-panel |
 
 ## Events
 
 | Event | Emitted When | Consumed By |
 |-------|-------------|-------------|
-| `audit.logged` | New audit entry created | health-monitoring (metrics) |
+| `audit.logged` | New audit entry created | health-monitoring |
+| `audit.write_failed` | Audit write fails | health-monitoring, admin alerts |
 
 ## Jobs
 
 | Job | Schedule | Purpose |
 |-----|----------|---------|
-| `audit_cleanup` | Weekly | Archive logs older than retention period |
+| `audit_cleanup` | Weekly | Archive or apply retention policy safely |
 
 ## Permissions
 
@@ -62,20 +97,29 @@ CREATE TABLE public.audit_logs (
 | `audit.view` | Can view audit logs |
 | `audit.export` | Can export audit logs |
 
+**Rule:** `audit.export` is higher sensitivity than `audit.view`
+
+## Failure Handling
+
+- High-risk actions should not silently succeed if required audit logging fails
+- Audit write failures must be monitored and surfaced
+
 ## Dependencies
 
-- [Auth Module](auth.md) — for actor identity
+- [Auth Module](auth.md)
+- [Security Architecture](../02-security/security-architecture.md)
 
 ## Used By / Affects
 
-admin-panel, health-monitoring.
+admin-panel, health-monitoring, auth, rbac, user-management, api, jobs-and-scheduler.
 
 ## Risks If Modified
 
-HIGH — audit logging is a compliance and security requirement.
+HIGH — audit logging is a security, compliance, and incident-response control.
 
 ## Related Documents
 
 - [Security Architecture](../02-security/security-architecture.md)
 - [Admin Panel](admin-panel.md)
 - [Health Monitoring](health-monitoring.md)
+- [Authorization Security](../02-security/authorization-security.md)
