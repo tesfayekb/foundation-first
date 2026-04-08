@@ -110,6 +110,68 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 
 ---
 
+## API Route Versioning
+
+| Rule | Description |
+|------|-------------|
+| **Version format** | API routes use path-based versioning: `/v1/...`, `/v2/...` |
+| **Default version** | All current endpoints are `v1` (implicit — explicit prefix added when `v2` is introduced) |
+| **Breaking changes** | Breaking API changes (request/response schema, auth model, behavior) require new version |
+| **Parallel support** | Old versions remain active during transition with documented sunset date |
+| **Deprecation** | Deprecated versions return `Sunset` header and are removed after all consumers migrate |
+
+---
+
+## Route Latency Budget
+
+| Route Classification | Max Expected Latency (p95) | Alert Threshold |
+|---------------------|---------------------------|-----------------|
+| **Public pages** | 200ms | > 500ms |
+| **Authenticated pages** | 300ms | > 750ms |
+| **Admin pages** | 500ms | > 1000ms |
+| **API — read** | 100ms | > 250ms |
+| **API — write** | 200ms | > 500ms |
+| **Health check** | 50ms | > 100ms |
+
+**Rule:** Routes exceeding their latency budget must be investigated. Sustained breach = action tracker entry.
+
+---
+
+## Route Access Telemetry
+
+| Rule | Description |
+|------|-------------|
+| **Access frequency** | Track request counts per route (sampled for high-volume) |
+| **Permission denial rate** | Track 401/403 rates per route — anomalies trigger alerts |
+| **Anomaly detection** | Unusual patterns (traffic spike, off-hours access to admin routes, repeated denials) trigger security review |
+| **Dead route detection** | Routes with zero traffic over 90 days flagged for review |
+| **Dashboard** | Route telemetry visible in admin monitoring panel |
+
+---
+
+## Route Dependency Graph (Future-Ready)
+
+| Rule | Description |
+|------|-------------|
+| **Mapping** | Each route's `related_functions`, `related_events`, and downstream job triggers enable automated dependency graphs |
+| **Visualization** | System should support: `route → function → event → job` visual mapping |
+| **Impact analysis** | Route changes should surface all downstream dependencies automatically |
+| **Debugging utility** | Graph usable for root cause analysis and incident response |
+
+---
+
+## Canary / Rollout Control
+
+| Rule | Description |
+|------|-------------|
+| **Critical routes** | Destructive and system-wide privileged routes should support staged rollout for major changes |
+| **Canary phase** | Route changes deployed to small percentage of traffic first; monitored for errors, latency, and denial rates |
+| **Monitoring** | During rollout: error rate, latency budget, permission denial anomalies tracked |
+| **Rollback** | Automatic rollback if error rate exceeds threshold during canary |
+| **Full deploy** | Only after canary phase passes with clean metrics |
+
+---
+
 ## Frontend Route Registry
 
 ### Public Routes
