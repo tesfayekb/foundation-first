@@ -46,6 +46,9 @@ All application events.
 | `job.poison_detected` | jobs-and-scheduler | audit-logging, health-monitoring, admin-panel | HIGH — systematic failure |
 | `job.replayed` | jobs-and-scheduler | audit-logging | MEDIUM — reprocessing event |
 | `job.slo_breach` | jobs-and-scheduler | health-monitoring, admin-panel | HIGH — SLO violation |
+| `job.kill_switch_activated` | jobs-and-scheduler | audit-logging, health-monitoring, admin-panel | CRITICAL — emergency stop |
+| `job.schedule_missed` | jobs-and-scheduler | health-monitoring | MEDIUM — scheduler reliability |
+| `job.resource_budget_exceeded` | jobs-and-scheduler | health-monitoring | MEDIUM — resource governance |
 
 ## Dependencies
 
