@@ -61,6 +61,7 @@ Examples:
 | `jobs.resume` | jobs-and-scheduler | admin-panel (job control) | MEDIUM — affects scheduling |
 | `jobs.retry` | jobs-and-scheduler | admin-panel (failure management) | MEDIUM — affects execution |
 | `jobs.deadletter.manage` | jobs-and-scheduler | admin-panel (dead-letter management) | HIGH — affects failure resolution |
+| `jobs.emergency` | jobs-and-scheduler | admin-panel (kill switch) | CRITICAL — halts all job execution |
 
 ## Superadmin Rule
 

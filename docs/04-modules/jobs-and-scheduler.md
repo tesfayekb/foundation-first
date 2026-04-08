@@ -8,7 +8,7 @@ Manages background jobs, scheduled tasks, execution lifecycle, failure handling,
 
 ## Scope
 
-Job definitions, scheduling, execution, state management, retry logic, dead-letter handling, concurrency protection, observability, manual trigger governance, versioning, backpressure, and recovery operations.
+Job definitions, scheduling, execution, state management, retry logic, dead-letter handling, concurrency protection, observability, manual trigger governance, versioning, backpressure, recovery operations, deterministic scheduling, resource budgeting, security isolation, and emergency controls.
 
 ## Enforcement Rule (CRITICAL)
 
@@ -18,6 +18,7 @@ Job definitions, scheduling, execution, state management, retry logic, dead-lett
 - Manual triggers must be permission-checked, audited, and input-validated
 - Terminal failures must enter dead-letter state
 - Every job execution must have a matching start and terminal audit event — missing events flag system as unhealthy
+- All scheduling and telemetry timestamps must use **UTC from a consistent time source** — no local/system time usage allowed
 - Any unregistered, unmonitored, or ungoverned job is an **INVALID** implementation
 
 ## Key Rules
@@ -34,6 +35,7 @@ Job definitions, scheduling, execution, state management, retry logic, dead-lett
 - Terminal failures must enter dead-letter state
 - Jobs must fail secure and isolate downstream impact
 - Poison jobs must be auto-detected and paused
+- Critical jobs must validate pre-conditions and post-conditions
 
 ## Job Lifecycle State Model
 
@@ -63,6 +65,28 @@ Every job run passes through a defined state machine:
 | `analytics` | Low | Best-effort, limited retries | Degraded only | Minimal | Future analytics jobs |
 | `user_triggered` | Normal | Standard retry | Per-job | Full | Manual admin triggers |
 
+## Deterministic Scheduling Model
+
+Scheduler must guarantee:
+- **No duplicate execution** for the same schedule window
+- **No missed execution** without detection and compensating action
+
+Rules:
+- Each scheduled run must have a `schedule_window_id` (e.g., minute bucket, hour bucket)
+- Before execution: check if window already executed → **skip** (dedup at schedule level)
+- If a scheduled window is missed:
+  - Enqueue **compensating run** for the missed window
+  - Log missed window in telemetry
+  - Flag in health monitoring if repeated
+- Scheduler must handle **clock drift** — all scheduling decisions use the authoritative UTC time source
+- Scheduler must handle **duplicate trigger** (e.g., multi-node race) via `schedule_window_id` dedup
+
+## Time Source Standardization
+
+- All scheduling, telemetry, SLO measurement, and retry timing must use **UTC from a single authoritative time source**
+- No local system time or non-UTC timestamps allowed in any job-related operation
+- Time source must be consistent across all execution nodes/functions
+
 ## Execution Guarantee Model
 
 Each job **must** declare its execution guarantee:
@@ -77,6 +101,15 @@ Rules:
 - Jobs with financial, ledger, or billing side effects **must** use `exactly_once`
 - `exactly_once` jobs must verify dedup before committing side effects
 - Execution guarantee must be stored in job registry and telemetry
+
+### Global Idempotency Registry
+
+For `exactly_once` jobs:
+- Idempotency keys must be stored in a **central idempotency store** (dedicated DB table)
+- Must enforce **unique constraint** on idempotency key
+- Must use **atomic insert-or-ignore** (no race conditions)
+- Idempotency records must include: `idempotency_key`, `job_id`, `execution_id`, `created_at`, `result_hash`
+- Retention policy: idempotency records retained for configurable window (minimum: 7 days)
 
 ## Concurrency and Idempotency Rules
 
@@ -219,6 +252,113 @@ SLO enforcement:
 - SLO breach triggers alert at severity defined by job class
 - Persistent SLO breach escalates to operator action
 
+## Resource Budgeting
+
+Each job must define resource limits:
+
+| Resource | Constraint |
+|----------|-----------|
+| Max DB operations | Per-execution cap on queries/writes |
+| Max API calls | Per-execution cap on external calls |
+| Max execution time | Timeout budget (soft + hard) |
+| Max memory / payload size | Where applicable |
+
+Behavior:
+- If resource budget exceeded: job fails gracefully or degrades
+- Repeated budget overuse → flagged in health system
+- Resource consumption included in telemetry for trend analysis
+
+## Data Integrity Safeguards
+
+Critical jobs **must** implement:
+
+- **Pre-condition validation**: verify expected data state before execution
+- **Post-condition validation**: verify data consistency after execution
+- If post-condition fails:
+  - Log integrity violation
+  - Flag in health monitoring
+  - Do **not** silently proceed
+
+Examples:
+- `audit_cleanup`: verify record count matches expected archival window
+- `metrics_aggregate`: verify aggregated totals are consistent with source data
+
+## Security Boundary and Isolation
+
+- Jobs must **only** access resources via the permission system
+- Jobs must **never** bypass the API layer unless explicitly documented and approved
+- DB access must respect **RLS** and **scoped service identity** — no direct unrestricted DB access
+- A compromised job must not be able to:
+  - Escalate privileges
+  - Access data outside its declared scope
+  - Affect other jobs' execution
+- Job execution environment must enforce least-privilege at every layer
+
+## Emergency Controls
+
+### Global Kill Switch
+
+- Immediately stops **all** new job executions and retries system-wide
+- Preserves audit trail of activation
+- Requires `jobs.emergency` permission
+
+### Per-Job Kill Switch
+
+- Immediately stops new executions and retries for a specific job
+- Job moves to `paused` state
+- Requires `jobs.pause` permission
+
+### Class-Level Pause
+
+- Pause all jobs of a given class (e.g., all `analytics` or `maintenance` jobs)
+- `system_critical` class can only be paused via global kill switch
+- Requires `jobs.pause` permission
+
+All emergency controls must:
+- Take effect **instantly** (no queue drain delay)
+- Be audited with actor identity, reason, and timestamp
+- Be surfaceable in admin panel
+
+## Job Lineage and Causality Tracking
+
+Required telemetry fields for chained/triggered jobs:
+
+| Field | Description |
+|-------|-------------|
+| `parent_execution_id` | Execution ID of the job that triggered this one |
+| `root_execution_id` | Original execution ID at the start of the chain |
+
+Rules:
+- Chained jobs **must** propagate lineage fields
+- Lineage must be queryable for debugging and audit trails
+- Root-to-leaf execution chains must be reconstructible
+
+## Multi-Region and Failover Awareness
+
+> Note: Deferred for future implementation, but architecture must not preclude.
+
+- Scheduler must support **single-leader execution** model
+- Failover must not produce **duplicate execution** for the same schedule window
+- `schedule_window_id` dedup provides the foundation for safe failover
+- When multi-region is activated, leader election and fencing must be documented
+
+## Action Tracker Integration
+
+The following job events **must** automatically create action tracker items:
+
+| Trigger Event | Severity | Follow-Up Window | Owner |
+|--------------|----------|-----------------|-------|
+| `job.dead_lettered` | High | 4 hours | Module owner |
+| `job.poison_detected` | Critical | 1 hour | Module owner + platform lead |
+| `job.slo_breach` | Per job class | 8 hours | Module owner |
+| Repeated retries (≥ 3 consecutive) | Medium | 24 hours | Module owner |
+| Dependency failure (persistent) | High | 4 hours | Module owner + dependency owner |
+
+Rules:
+- Action items must include: job ID, execution ID, failure context, and recommended action
+- Unresolved action items must escalate per the action tracker escalation policy
+- Resolution must be logged
+
 ## Job Registry (SSOT)
 
 | Field | `audit_cleanup` | `health_check` | `metrics_aggregate` |
@@ -244,6 +384,7 @@ SLO enforcement:
 | **Audit Required** | Yes | Yes | Yes |
 | **Run Principal** | `svc:audit-cleanup` | `svc:health-check` | `svc:metrics-aggregate` |
 | **Dependencies** | DB | DB, monitored services | DB, metrics sources |
+| **Resource Budget** | ≤ 1000 DB ops | ≤ 50 DB ops | ≤ 500 DB ops |
 | **SLO Success Rate** | ≥ 99.0% | ≥ 99.9% | ≥ 99.5% |
 | **SLO Latency** | ≤ 25s | ≤ 2s | ≤ 15s |
 | **SLO Freshness** | ≤ 8 days | ≤ 3 min | ≤ 10 min |
@@ -258,6 +399,7 @@ SLO enforcement:
 | `job_health_backfill` | Backfill missing health metrics after outage | maintenance | Planned |
 | `job_audit_integrity_check` | Verify audit log completeness and consistency | maintenance | Planned |
 | `job_poison_scan` | Detect and flag poison jobs across the registry | system_critical | Planned |
+| `job_idempotency_cleanup` | Prune expired idempotency records | maintenance | Planned |
 
 ## Formal Job Execution Contract
 
@@ -270,8 +412,12 @@ interface JobContract {
   executionId: string;
   idempotencyKey?: string;
   executionGuarantee: 'at_least_once' | 'exactly_once';
+  parentExecutionId?: string;
+  rootExecutionId?: string;
 
+  validatePreConditions(context: JobContext): Promise<boolean>;
   execute(context: JobContext): Promise<JobResult>;
+  validatePostConditions(context: JobContext, result: JobResult): Promise<boolean>;
 }
 ```
 
@@ -316,15 +462,19 @@ Zero deviation between jobs is required — consistent observability, retry, and
 | `job_version` | Version executed |
 | `execution_id` | Unique run identifier |
 | `execution_guarantee` | at_least_once or exactly_once |
-| `scheduled_time` | When the run was scheduled |
-| `actual_start_time` | When execution began |
-| `end_time` | When execution completed |
+| `schedule_window_id` | Schedule dedup window identifier |
+| `parent_execution_id` | Parent job execution (if chained) |
+| `root_execution_id` | Root of execution chain |
+| `scheduled_time` | When the run was scheduled (UTC) |
+| `actual_start_time` | When execution began (UTC) |
+| `end_time` | When execution completed (UTC) |
 | `duration_ms` | Total execution time |
 | `queue_delay_ms` | Time between scheduled and actual start |
 | `retry_count` | Number of retries for this run |
 | `final_state` | Terminal state of this run |
 | `failure_type` | Error classification if failed |
 | `affected_records` | Count of records processed |
+| `resource_usage` | DB ops, API calls consumed |
 | `correlation_id` | Trace ID for cross-system correlation |
 
 ### Health Monitoring Metrics
@@ -341,6 +491,7 @@ Zero deviation between jobs is required — consistent observability, retry, and
 | Poison job count | Systematic failure detection |
 | Queue depth | Backpressure indicator |
 | SLO compliance % | Per-job health scoring |
+| Resource budget utilization | Cost/capacity tracking |
 
 ## Stale / Missed Run Detection
 
@@ -413,6 +564,9 @@ For tasks split into smaller jobs:
 | `emitJobTelemetry(runContext)` | Emit standardized observability data | All jobs |
 | `detectPoisonJob(jobId)` | Check cross-execution failure pattern | Scheduler, reconciliation |
 | `enforceBackpressure(queue)` | Apply rate limiting and adaptive throttling | Scheduler |
+| `checkScheduleWindow(jobId, windowId)` | Dedup check for deterministic scheduling | Scheduler |
+| `checkIdempotencyKey(key)` | Central idempotency registry lookup | exactly_once jobs |
+| `activateKillSwitch(scope)` | Emergency stop for global/job/class | Admin panel, emergency ops |
 
 ## Events
 
@@ -429,6 +583,9 @@ For tasks split into smaller jobs:
 | `job.poison_detected` | Job flagged as poison | audit-logging, health-monitoring, admin-panel |
 | `job.replayed` | Dead-lettered job replayed | audit-logging |
 | `job.slo_breach` | Job SLO threshold violated | health-monitoring, admin-panel |
+| `job.kill_switch_activated` | Emergency stop triggered | audit-logging, health-monitoring, admin-panel |
+| `job.schedule_missed` | Scheduled window missed | health-monitoring |
+| `job.resource_budget_exceeded` | Resource limit breached | health-monitoring |
 
 ## Permissions
 
@@ -440,6 +597,7 @@ For tasks split into smaller jobs:
 | `jobs.resume` | Resume a paused job |
 | `jobs.retry` | Retry a failed job |
 | `jobs.deadletter.manage` | Inspect, replay, cancel, or resolve dead-lettered jobs |
+| `jobs.emergency` | Activate global kill switch |
 
 ## Dependencies
 
@@ -447,10 +605,11 @@ For tasks split into smaller jobs:
 - [Audit Logging Module](audit-logging.md) — for job event logging
 - [Input Validation](../02-security/input-validation-and-sanitization.md) — for manual trigger input governance
 - [Health Monitoring](health-monitoring.md) — for dependency status and SLO alerting
+- [Action Tracker](../06-tracking/action-tracker.md) — for operational follow-up on failures
 
 ## Used By / Affects
 
-health-monitoring, admin-panel, audit-logging, operational visibility, incident response.
+health-monitoring, admin-panel, audit-logging, action-tracker, operational visibility, incident response.
 
 ## Risks If Modified
 
@@ -463,3 +622,4 @@ HIGH — job changes can affect data consistency, monitoring reliability, system
 - [Admin Panel](admin-panel.md)
 - [Permission Index](../07-reference/permission-index.md)
 - [Event Index](../07-reference/event-index.md)
+- [Action Tracker](../06-tracking/action-tracker.md)
