@@ -1,6 +1,6 @@
 # Config Index
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-08 | **Status:** Living Document
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-09 | **Status:** Living Document
 
 ## Purpose
 
@@ -232,7 +232,7 @@ Every config must define:
 | **Audit required** | Yes |
 | **Used by** | auth flows, user registration |
 | **Related tests** | Password validation boundary tests |
-| **Related risks** | RSK-001 (credential compromise) |
+| **Related risks** | RISK-001 (credential compromise) |
 | **Lifecycle** | active |
 
 #### `auth.max_login_attempts`
@@ -254,7 +254,7 @@ Every config must define:
 | **Audit required** | Yes |
 | **Used by** | auth flows, health-monitoring |
 | **Related tests** | Lockout threshold tests |
-| **Related risks** | RSK-001, RSK-002 |
+| **Related risks** | RISK-001, RISK-002 |
 | **Lifecycle** | active |
 
 #### `auth.lockout_duration`
@@ -276,7 +276,7 @@ Every config must define:
 | **Audit required** | Yes |
 | **Used by** | auth flows |
 | **Related tests** | Lockout duration enforcement tests |
-| **Related risks** | RSK-001 |
+| **Related risks** | RISK-001 |
 | **Lifecycle** | active |
 
 #### `auth.mfa_required_roles`
@@ -298,7 +298,7 @@ Every config must define:
 | **Used by** | auth flows, RBAC enforcement |
 | **Related permissions** | All role-gated permissions |
 | **Related tests** | MFA enforcement tests |
-| **Related risks** | RSK-002 (privilege escalation) |
+| **Related risks** | RISK-002 (privilege escalation) |
 | **Related watchlist** | RW-001 |
 | **Lifecycle** | active |
 
@@ -324,7 +324,7 @@ Every config must define:
 | **Used by** | all authenticated flows |
 | **Related routes** | All authenticated routes |
 | **Related tests** | Token expiration tests |
-| **Related risks** | RSK-003 (session hijacking) |
+| **Related risks** | RISK-003 (session hijacking) |
 | **Lifecycle** | active |
 
 #### `session.refresh_token_rotation`
@@ -345,7 +345,7 @@ Every config must define:
 | **Audit required** | Yes |
 | **Used by** | all authenticated flows |
 | **Related tests** | Token rotation tests |
-| **Related risks** | RSK-003 |
+| **Related risks** | RISK-003 |
 | **Lifecycle** | active |
 
 ### API Configs
@@ -369,7 +369,7 @@ Every config must define:
 | **Audit required** | Yes |
 | **Used by** | all API calls |
 | **Related tests** | Rate limit enforcement tests |
-| **Related risks** | RSK-005 (DoS) |
+| **Related risks** | RISK-005 (DoS) |
 | **Lifecycle** | active |
 
 ### Audit Configs
@@ -461,7 +461,7 @@ Every config must define:
 | **Audit required** | Yes |
 | **Used by** | all jobs |
 | **Related tests** | Retry contract tests |
-| **Related risks** | RSK-007 (job failure cascade) |
+| **Related risks** | RISK-007 (job failure cascade) |
 | **Lifecycle** | active |
 
 #### `jobs.retry_backoff_base`

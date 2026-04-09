@@ -1,6 +1,6 @@
 # Permission Index
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-08 | **Status:** Living Document | **Index Version:** `perm-v1.0`
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-09 | **Status:** Living Document | **Index Version:** `perm-v1.1`
 
 ## Purpose
 
@@ -193,7 +193,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Related routes** | `/admin/users/:id/roles` |
 | **Related functions** | `has_role()`, `checkPermission()` |
 | **Related events** | `rbac.role_assigned` |
-| **Related risks** | RSK-002 (privilege escalation) |
+| **Related risks** | RISK-002 (privilege escalation) |
 | **Related watchlist** | RW-001 |
 | **Related tests** | Role assignment allow/deny suite |
 | **Lifecycle** | active |
@@ -202,6 +202,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 
 | Field | Value |
 |-------|-------|
+| **Permission UUID** | `perm-uuid-roles-revoke` (actual UUID assigned at DB creation) |
 | **Module** | rbac |
 | **Description** | Allows revoking roles from users. Separate from assign to enable split governance. |
 | **Classification** | admin-critical, destructive |
@@ -215,7 +216,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Related routes** | `/admin/users/:id/roles` |
 | **Related functions** | `has_role()`, `checkPermission()` |
 | **Related events** | `rbac.role_revoked` |
-| **Related risks** | RSK-002 |
+| **Related risks** | RISK-002 |
 | **Related tests** | Role revocation allow/deny suite |
 | **Lifecycle** | active |
 
@@ -223,6 +224,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 
 | Field | Value |
 |-------|-------|
+| **Permission UUID** | `perm-uuid-roles-view` (actual UUID assigned at DB creation) |
 | **Module** | rbac |
 | **Description** | Allows viewing role assignments and role definitions |
 | **Classification** | read-only |
@@ -255,7 +257,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Related routes** | `/admin/roles` (POST) |
 | **Related functions** | `checkPermission()` |
 | **Related events** | `rbac.role_created` |
-| **Related risks** | RSK-002 (privilege escalation via new role) |
+| **Related risks** | RISK-002 (privilege escalation via new role) |
 | **Related tests** | Role creation allow/deny suite |
 | **Lifecycle** | active |
 
@@ -277,7 +279,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Related routes** | `/admin/roles/:id` (DELETE) |
 | **Related functions** | `checkPermission()` |
 | **Related events** | `rbac.role_deleted` |
-| **Related risks** | RSK-002 (orphaned users after role deletion) |
+| **Related risks** | RISK-002 (orphaned users after role deletion) |
 | **Related tests** | Role deletion allow/deny suite, base role protection tests |
 | **Lifecycle** | active |
 
@@ -307,6 +309,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 
 | Field | Value |
 |-------|-------|
+| **Permission UUID** | `perm-uuid-users-edit-any` (actual UUID assigned at DB creation) |
 | **Module** | user-management |
 | **Description** | Allows editing any user's profile data. Does not include role changes or account lifecycle. |
 | **Classification** | admin-critical |
@@ -363,6 +366,113 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Related tests** | Reactivation allow/deny suite, post-reactivation access tests |
 | **Lifecycle** | active |
 
+### Self-Scope Permissions
+
+#### `users.view_self`
+
+| Field | Value |
+|-------|-------|
+| **Permission UUID** | `perm-uuid-users-view-self` (actual UUID assigned at DB creation) |
+| **Module** | user-management |
+| **Description** | Allows a user to view their own profile data. Self-scope only — cannot view other users. |
+| **Classification** | read-only |
+| **Scope** | self |
+| **Default roles** | user, admin, superadmin |
+| **Used by** | user-panel (profile view) |
+| **Blast radius** | small |
+| **Approval required** | No |
+| **Audit required** | No |
+| **Reauth required** | No |
+| **Related routes** | `/settings`, `/dashboard` |
+| **Related functions** | `requireSelfScope()`, `getUserProfile()` |
+| **Related tests** | Self-view allow test, cross-user deny test |
+| **Lifecycle** | active |
+
+#### `users.edit_self`
+
+| Field | Value |
+|-------|-------|
+| **Permission UUID** | `perm-uuid-users-edit-self` (actual UUID assigned at DB creation) |
+| **Module** | user-management |
+| **Description** | Allows a user to edit their own profile data. Self-scope only — cannot edit other users. |
+| **Classification** | operational |
+| **Scope** | self |
+| **Default roles** | user, admin, superadmin |
+| **Used by** | user-panel (profile edit) |
+| **Blast radius** | small |
+| **Approval required** | No |
+| **Audit required** | No |
+| **Reauth required** | No |
+| **Related routes** | `/settings` |
+| **Related functions** | `requireSelfScope()`, `updateUserProfile()` |
+| **Related events** | `user.profile_updated` |
+| **Related tests** | Self-edit allow test, cross-user deny test |
+| **Lifecycle** | active |
+
+#### `profile.self_manage`
+
+| Field | Value |
+|-------|-------|
+| **Permission UUID** | `perm-uuid-profile-self-manage` (actual UUID assigned at DB creation) |
+| **Module** | user-panel |
+| **Description** | Allows a user to manage their own profile and settings. Composite permission covering self-view and self-edit in user panel context. |
+| **Classification** | operational |
+| **Scope** | self |
+| **Default roles** | user, admin, superadmin |
+| **Used by** | user-panel (settings page) |
+| **Blast radius** | small |
+| **Approval required** | No |
+| **Audit required** | No |
+| **Reauth required** | No |
+| **Related routes** | `/settings` |
+| **Related functions** | `requireSelfScope()`, `checkPermission()` |
+| **Related events** | `user_panel.settings_changed` |
+| **Related tests** | Self-manage allow test, cross-user deny test |
+| **Lifecycle** | active |
+
+#### `mfa.self_manage`
+
+| Field | Value |
+|-------|-------|
+| **Permission UUID** | `perm-uuid-mfa-self-manage` (actual UUID assigned at DB creation) |
+| **Module** | user-panel |
+| **Description** | Allows a user to manage their own MFA settings (enroll, disable, reconfigure). Self-scope only. |
+| **Classification** | operational |
+| **Scope** | self |
+| **Default roles** | user, admin, superadmin |
+| **Used by** | user-panel (MFA settings) |
+| **Blast radius** | small |
+| **Approval required** | No |
+| **Audit required** | Yes |
+| **Reauth required** | Yes |
+| **Related routes** | `/settings/security` |
+| **Related functions** | `requireSelfScope()`, `requireRecentAuth()`, `checkPermission()` |
+| **Related events** | `user_panel.mfa_updated`, `auth.mfa_enrolled` |
+| **Related risks** | RISK-001 (credential compromise — MFA downgrade) |
+| **Related tests** | MFA self-manage allow test, re-auth enforcement test, cross-user deny test |
+| **Lifecycle** | active |
+
+#### `session.self_manage`
+
+| Field | Value |
+|-------|-------|
+| **Permission UUID** | `perm-uuid-session-self-manage` (actual UUID assigned at DB creation) |
+| **Module** | user-panel |
+| **Description** | Allows a user to view and revoke their own active sessions. Self-scope only. |
+| **Classification** | operational |
+| **Scope** | self |
+| **Default roles** | user, admin, superadmin |
+| **Used by** | user-panel (security settings) |
+| **Blast radius** | small |
+| **Approval required** | No |
+| **Audit required** | Yes |
+| **Reauth required** | Yes |
+| **Related routes** | `/settings/security` |
+| **Related functions** | `requireSelfScope()`, `requireRecentAuth()`, `checkPermission()` |
+| **Related events** | `auth.session_revoked` |
+| **Related tests** | Session self-manage allow test, re-auth enforcement test, cross-user deny test |
+| **Lifecycle** | active |
+
 ### Admin Permissions
 
 #### `admin.access`
@@ -381,7 +491,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Reauth required** | No |
 | **Related routes** | `/admin/*` |
 | **Related functions** | `requireRole()`, `checkPermission()` |
-| **Related risks** | RSK-002 (privilege escalation) |
+| **Related risks** | RISK-002 (privilege escalation) |
 | **Related tests** | Admin access allow/deny suite |
 | **Lifecycle** | active |
 
@@ -593,7 +703,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Reauth required** | Yes |
 | **Related routes** | `/admin/jobs/deadletter` |
 | **Related events** | `job.replayed`, `job.dead_lettered` |
-| **Related risks** | RSK-007 (job failure cascade) |
+| **Related risks** | RISK-007 (job failure cascade) |
 | **Related tests** | Dead-letter management allow/deny suite |
 | **Lifecycle** | active |
 
@@ -614,7 +724,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Related routes** | `/admin/jobs/emergency` |
 | **Related functions** | Kill switch function |
 | **Related events** | `job.kill_switch_activated` |
-| **Related risks** | RSK-007 (job failure cascade) |
+| **Related risks** | RISK-007 (job failure cascade) |
 | **Related tests** | Kill switch allow/deny suite, emergency flow tests |
 | **Lifecycle** | active |
 

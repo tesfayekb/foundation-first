@@ -1,6 +1,6 @@
 # Event Index
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-08 | **Status:** Living Document | **Event Schema Version:** `evt-v1.0`
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-09 | **Status:** Living Document | **Event Schema Version:** `evt-v1.1`
 
 ## Purpose
 
@@ -228,11 +228,11 @@ Events that must automatically create action tracker entries:
 
 | Event Pattern | Risk | Description |
 |--------------|------|-------------|
-| `auth.failed_attempt` spike | RSK-001 (credential compromise) | Brute-force indicator |
-| `rbac.permission_denied` spike | RSK-002 (privilege escalation) | Unauthorized access attempts |
-| `job.failed` / `job.dead_lettered` | RSK-007 (job failure cascade) | System reliability risk |
-| `health.alert_triggered` | RSK-004 (infrastructure failure) | System health degradation |
-| `api.rate_limited` spike | RSK-005 (DoS) | Potential attack |
+| `auth.failed_attempt` spike | RISK-001 (credential compromise) | Brute-force indicator |
+| `rbac.permission_denied` spike | RISK-002 (privilege escalation) | Unauthorized access attempts |
+| `job.failed` / `job.dead_lettered` | RISK-007 (job failure cascade) | System reliability risk |
+| `health.alert_triggered` | RISK-004 (infrastructure failure) | System health degradation |
+| `api.rate_limited` spike | RISK-005 (DoS) | Potential attack |
 
 ---
 
@@ -302,7 +302,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Retry policy** | 3× exponential backoff |
 | **Failure handling** | Alert on failure; must not be lost |
 | **Observability** | Logged, traced (correlation_id), counted |
-| **Related risks** | RSK-001 |
+| **Related risks** | RISK-001 |
 | **Related tests** | Signup emission test, payload validation test |
 | **Lifecycle** | active |
 
@@ -359,7 +359,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Retry policy** | 3× exponential backoff |
 | **Failure handling** | Alert on failure |
 | **Observability** | Logged, traced |
-| **Related risks** | RSK-001 |
+| **Related risks** | RISK-001 |
 | **Lifecycle** | active |
 
 #### `auth.mfa_enrolled` — v1
@@ -396,7 +396,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Retry policy** | 3× exponential backoff |
 | **Failure handling** | Alert — must not be lost (security signal) |
 | **Observability** | Logged, traced, rate-monitored, anomaly detection |
-| **Related risks** | RSK-001 (credential compromise) |
+| **Related risks** | RISK-001 (credential compromise) |
 | **Related tests** | Failed attempt emission, threshold alerting test |
 | **Lifecycle** | active |
 
@@ -416,7 +416,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Retry policy** | 3× exponential backoff |
 | **Failure handling** | Alert on failure — security event must not be lost |
 | **Observability** | Logged, traced, rate-monitored, anomaly detection |
-| **Related risks** | RSK-001 (credential compromise) |
+| **Related risks** | RISK-001 (credential compromise) |
 | **Related tests** | MFA recovery emission test, payload validation test |
 | **Lifecycle** | active |
 
@@ -457,7 +457,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Retry policy** | 3× exponential backoff |
 | **Failure handling** | Alert on failure |
 | **Observability** | Logged, traced |
-| **Related risks** | RSK-002 (privilege escalation) |
+| **Related risks** | RISK-002 (privilege escalation) |
 | **Related tests** | Role assignment emission, audit consumer test |
 | **Lifecycle** | active |
 
@@ -477,7 +477,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Retry policy** | 3× exponential backoff |
 | **Failure handling** | Alert on failure |
 | **Observability** | Logged, traced |
-| **Related risks** | RSK-002 |
+| **Related risks** | RISK-002 |
 | **Lifecycle** | active |
 
 #### `rbac.role_created` — v1
@@ -497,7 +497,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Failure handling** | Alert on failure |
 | **Observability** | Logged, traced |
 | **Related permissions** | `roles.create` |
-| **Related risks** | RSK-002 (privilege escalation via new role) |
+| **Related risks** | RISK-002 (privilege escalation via new role) |
 | **Related tests** | Role creation event emission test |
 | **Lifecycle** | active |
 
@@ -518,7 +518,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Failure handling** | Alert on failure |
 | **Observability** | Logged, traced |
 | **Related permissions** | `roles.delete` |
-| **Related risks** | RSK-002 (orphaned users after role deletion) |
+| **Related risks** | RISK-002 (orphaned users after role deletion) |
 | **Related tests** | Role deletion event emission test, base role protection test |
 | **Lifecycle** | active |
 
@@ -538,7 +538,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Retry policy** | 3× exponential backoff |
 | **Failure handling** | Log warning; alert on spike |
 | **Observability** | Logged, traced, rate-monitored |
-| **Related risks** | RSK-002 (privilege escalation) |
+| **Related risks** | RISK-002 (privilege escalation) |
 | **Lifecycle** | active |
 
 #### `rbac.permission_assigned` — v1
@@ -557,7 +557,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Retry policy** | 3× exponential backoff |
 | **Failure handling** | Alert on failure |
 | **Observability** | Logged, traced |
-| **Related risks** | RSK-002 (privilege escalation) |
+| **Related risks** | RISK-002 (privilege escalation) |
 | **Related tests** | Permission assignment emission, audit consumer test |
 | **Lifecycle** | active |
 
@@ -577,7 +577,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Retry policy** | 3× exponential backoff |
 | **Failure handling** | Alert on failure |
 | **Observability** | Logged, traced |
-| **Related risks** | RSK-002 (privilege escalation) |
+| **Related risks** | RISK-002 (privilege escalation) |
 | **Related tests** | Permission revocation emission, audit consumer test |
 | **Lifecycle** | active |
 
@@ -714,7 +714,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Retry policy** | 3× exponential backoff |
 | **Failure handling** | Alert on failure — MFA changes are security-relevant |
 | **Observability** | Logged, traced |
-| **Related risks** | RSK-001 (credential compromise — MFA downgrade) |
+| **Related risks** | RISK-001 (credential compromise — MFA downgrade) |
 | **Related tests** | MFA update emission test, payload validation test |
 | **Lifecycle** | active |
 
@@ -755,7 +755,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Failure handling** | Must not be lost — multi-channel alert; fallback to secondary log store |
 | **Observability** | Logged, traced, alerted |
 | **Action tracker** | Yes — creates entry (audit integrity failure) |
-| **Related risks** | RSK-004 (infrastructure failure) |
+| **Related risks** | RISK-004 (infrastructure failure) |
 | **Related tests** | Audit write failure emission, fallback store test |
 | **Lifecycle** | active |
 
@@ -778,7 +778,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Failure handling** | Must not be lost — fallback to secondary notification channel |
 | **Observability** | Logged, traced, alerted |
 | **Action tracker** | Yes — creates entry |
-| **Related risks** | RSK-004 (infrastructure failure) |
+| **Related risks** | RISK-004 (infrastructure failure) |
 | **Lifecycle** | active |
 
 #### `health.status_changed` — v1
@@ -816,7 +816,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Failure handling** | Must not be lost — multi-channel alert (monitoring the monitor) |
 | **Observability** | Logged, alerted via independent channel |
 | **Action tracker** | Yes — creates entry (monitoring blind spot) |
-| **Related risks** | RSK-004 (infrastructure failure) |
+| **Related risks** | RISK-004 (infrastructure failure) |
 | **Related tests** | Monitor failure emission, independent alert channel test |
 | **Lifecycle** | active |
 
@@ -856,7 +856,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Retry policy** | No retry |
 | **Failure handling** | Log only |
 | **Observability** | Logged, rate-monitored |
-| **Related risks** | RSK-005 (DoS) |
+| **Related risks** | RISK-005 (DoS) |
 | **Lifecycle** | active |
 
 ### Job Events
@@ -913,7 +913,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Retry policy** | 3× exponential backoff |
 | **Failure handling** | Alert; escalate if repeated |
 | **Observability** | Logged, traced, alerted |
-| **Related risks** | RSK-007 (job failure cascade) |
+| **Related risks** | RISK-007 (job failure cascade) |
 | **Lifecycle** | active |
 
 #### `job.queued` — v1
@@ -969,7 +969,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Failure handling** | Must not be lost — alert + action tracker entry |
 | **Observability** | Logged, traced, alerted |
 | **Action tracker** | Yes — creates entry |
-| **Related risks** | RSK-007 |
+| **Related risks** | RISK-007 |
 | **Lifecycle** | active |
 
 #### `job.paused` — v1
@@ -1025,7 +1025,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Failure handling** | Must not be lost — alert + action tracker entry |
 | **Observability** | Logged, traced, alerted |
 | **Action tracker** | Yes — creates entry |
-| **Related risks** | RSK-007 |
+| **Related risks** | RISK-007 |
 | **Lifecycle** | active |
 
 #### `job.replayed` — v1
@@ -1063,7 +1063,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Failure handling** | Alert |
 | **Observability** | Logged, traced, alerted |
 | **Action tracker** | Yes — creates entry |
-| **Related risks** | RSK-007 |
+| **Related risks** | RISK-007 |
 | **Lifecycle** | active |
 
 #### `job.kill_switch_activated` — v1
@@ -1083,7 +1083,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Failure handling** | Must not be lost — multi-channel alert |
 | **Observability** | Logged, traced, alerted, dashboard-visible |
 | **Action tracker** | Yes — creates entry |
-| **Related risks** | RSK-007 |
+| **Related risks** | RISK-007 |
 | **Lifecycle** | active |
 
 #### `job.schedule_missed` — v1

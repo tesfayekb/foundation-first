@@ -1,6 +1,6 @@
 # Function Index
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-08 | **Status:** Living Document | **Index Version:** `fn-v1.0`
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-09 | **Status:** Living Document | **Index Version:** `fn-v1.1`
 
 ## Purpose
 
@@ -266,7 +266,7 @@ When changing any indexed function:
 | **Approval required** | Yes — Lead |
 | **Callable from** | request-path, ui |
 | **Related routes** | All authenticated routes |
-| **Related risks** | RSK-001 (credential compromise), RSK-003 (session hijacking) |
+| **Related risks** | RISK-001 (credential compromise), RISK-003 (session hijacking) |
 | **Related tests** | Auth unit tests, session validation tests |
 | **Observability** | Latency, error rate |
 | **Lifecycle** | active |
@@ -292,7 +292,7 @@ When changing any indexed function:
 | **Upstream deps** | `getCurrentUser()` |
 | **Related routes** | All protected routes |
 | **Related events** | `auth.failed_attempt` |
-| **Related risks** | RSK-001 |
+| **Related risks** | RISK-001 |
 | **Related tests** | Auth guard tests, 401 response tests |
 | **Observability** | Denial rate, error rate |
 | **Lifecycle** | active |
@@ -340,7 +340,7 @@ When changing any indexed function:
 | **Upstream deps** | `getCurrentUser()` |
 | **Related routes** | All protected API routes |
 | **Related events** | `auth.failed_attempt` |
-| **Related risks** | RSK-001 (auth bypass), RSK-003 (token misuse) |
+| **Related risks** | RISK-001 (auth bypass), RISK-003 (token misuse) |
 | **Related tests** | API auth tests, token validation tests, 401 response tests |
 | **Observability** | Latency (p95/p99), error rate, denial rate |
 | **Lifecycle** | active |
@@ -366,7 +366,7 @@ When changing any indexed function:
 | **Upstream deps** | `requireAuth()` |
 | **Related routes** | All protected routes |
 | **Related events** | `auth.failed_attempt` |
-| **Related risks** | RSK-001 (unverified account abuse) |
+| **Related risks** | RISK-001 (unverified account abuse) |
 | **Related tests** | Email verification enforcement tests, 403 response tests |
 | **Observability** | Denial rate, error rate |
 | **Lifecycle** | active |
@@ -393,7 +393,7 @@ When changing any indexed function:
 | **Related routes** | Destructive routes, admin-critical routes |
 | **Related permissions** | Admin-critical permissions |
 | **Related events** | `auth.failed_attempt` |
-| **Related risks** | RSK-001 (session hijacking mitigation), RSK-003 |
+| **Related risks** | RISK-001 (session hijacking mitigation), RISK-003 |
 | **Related tests** | Re-auth enforcement tests, stale session tests |
 | **Observability** | Denial rate, re-auth frequency |
 | **Lifecycle** | active |
@@ -418,7 +418,7 @@ When changing any indexed function:
 | **Callable from** | request-path |
 | **Upstream deps** | `requireAuth()` |
 | **Related routes** | All authenticated routes |
-| **Related risks** | RSK-003 (session hijacking) |
+| **Related risks** | RISK-003 (session hijacking) |
 | **Related tests** | Session context tests, metadata accuracy tests |
 | **Observability** | Latency, session validity check rate |
 | **Lifecycle** | active |
@@ -444,7 +444,7 @@ When changing any indexed function:
 | **Approval required** | Yes — Lead |
 | **Callable from** | request-path, job-path |
 | **Related permissions** | All role-gated permissions |
-| **Related risks** | RSK-002 (privilege escalation), RLS bypass |
+| **Related risks** | RISK-002 (privilege escalation), RLS bypass |
 | **Related watchlist** | RW-001 |
 | **Related tests** | RLS policy tests, RBAC unit tests |
 | **Observability** | Error rate, denial rate anomaly detection |
@@ -493,7 +493,7 @@ When changing any indexed function:
 | **Upstream deps** | `has_role()`, `requireAuth()` |
 | **Related permissions** | Role-gated permissions |
 | **Related events** | `rbac.permission_denied` |
-| **Related risks** | RSK-002 |
+| **Related risks** | RISK-002 |
 | **Related tests** | Role gate tests, 403 response tests |
 | **Observability** | Denial rate, error rate |
 | **Lifecycle** | active |
@@ -519,7 +519,7 @@ When changing any indexed function:
 | **Upstream deps** | `getCurrentUser()`, `has_role()` |
 | **Related permissions** | All permission index entries |
 | **Related events** | `rbac.permission_denied` |
-| **Related risks** | RSK-002 (privilege escalation) |
+| **Related risks** | RISK-002 (privilege escalation) |
 | **Related watchlist** | RW-001 |
 | **Related tests** | Permission check tests, RBAC integration tests |
 | **Observability** | Denial rate, anomaly detection |
@@ -546,7 +546,7 @@ When changing any indexed function:
 | **Upstream deps** | `requireAuth()`, `getCurrentUser()` |
 | **Related permissions** | `users.view_self`, `users.edit_self`, `profile.self_manage` |
 | **Related events** | `rbac.permission_denied` |
-| **Related risks** | RSK-002 (privilege escalation — cross-user access) |
+| **Related risks** | RISK-002 (privilege escalation — cross-user access) |
 | **Related tests** | Self-scope enforcement tests, cross-user denial tests |
 | **Observability** | Denial rate, anomaly detection |
 | **Lifecycle** | active |
@@ -902,7 +902,7 @@ When changing any indexed function:
 | **Callable from** | job-path |
 | **Related configs** | `jobs.max_retries`, `jobs.retry_backoff_base` |
 | **Related events** | `job.retry_scheduled`, `job.failed`, `job.dead_lettered` |
-| **Related risks** | RSK-007 (job failure cascade) |
+| **Related risks** | RISK-007 (job failure cascade) |
 | **Related tests** | Retry behavior tests, backoff tests, max retry tests |
 | **Observability** | Retry rate, failure rate, execution duration |
 | **Lifecycle** | active |

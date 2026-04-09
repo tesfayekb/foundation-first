@@ -1,6 +1,6 @@
 # Environment Variable Index
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-08 | **Status:** Living Document | **Env Version:** `env-v1.0`
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-09 | **Status:** Living Document | **Env Version:** `env-v1.1`
 
 ## Purpose
 
@@ -279,7 +279,7 @@ Before any deployment proceeds, the system must confirm:
 | **Startup behavior** | `fail-fast` |
 | **Related configs** | All Supabase-dependent configs |
 | **Related routes** | All API routes |
-| **Related risks** | RSK-004 (infrastructure failure) |
+| **Related risks** | RISK-004 (infrastructure failure) |
 | **Related tests** | Startup validation, connectivity tests |
 | **Lifecycle** | active |
 
@@ -301,7 +301,7 @@ Before any deployment proceeds, the system must confirm:
 | **Startup behavior** | `fail-fast` |
 | **Related configs** | All frontend API configs |
 | **Related routes** | All frontend routes |
-| **Related risks** | RSK-004 |
+| **Related risks** | RISK-004 |
 | **Related tests** | Startup validation, API connectivity tests |
 | **Lifecycle** | active |
 
@@ -324,7 +324,7 @@ Before any deployment proceeds, the system must confirm:
 | **Startup behavior** | `fail-fast` |
 | **Related configs** | All server-side configs |
 | **Related routes** | All edge function routes |
-| **Related risks** | RSK-001 (credential compromise), RSK-002 (privilege escalation) |
+| **Related risks** | RISK-001 (credential compromise), RISK-002 (privilege escalation) |
 | **Related tests** | Startup validation, exposure prevention tests |
 | **Lifecycle** | active |
 
@@ -347,7 +347,7 @@ Before any deployment proceeds, the system must confirm:
 | **Startup behavior** | `fail-fast` |
 | **Related configs** | `session.access_token_ttl`, `session.refresh_token_rotation` |
 | **Related routes** | All authenticated routes |
-| **Related risks** | RSK-001, RSK-003 (session hijacking) |
+| **Related risks** | RISK-001, RISK-003 (session hijacking) |
 | **Related tests** | Startup validation, token verification tests, exposure prevention tests |
 | **Lifecycle** | active |
 

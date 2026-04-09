@@ -1,6 +1,6 @@
 # Regression Watchlist
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-08
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-09
 
 ## Purpose
 
@@ -154,6 +154,27 @@ Each watchlist item must include:
 | **Last Verified** | — |
 | **Status** | Active |
 
+### RW-006: Health Monitoring Blind Spot
+
+| Field | Value |
+|-------|-------|
+| **Area** | Health / Monitoring |
+| **Risk Description** | Health monitoring system change causes false positives, missed alerts, or monitoring blind spots — system health appears healthy when degraded |
+| **Regression Class** | Observability |
+| **Priority** | High |
+| **Affected Modules** | health-monitoring, admin-panel |
+| **Trigger Conditions** | Any change to: health check logic, alert thresholds, monitoring config, `evaluateAlerts()`, `getSystemHealth()`, health endpoint |
+| **Detection** | Health check endpoint tests, alert threshold evaluation tests, monitoring self-check (monitor-the-monitor) |
+| **Required Checks** | 1) Health endpoint returns correct status. 2) Alert thresholds trigger correctly at boundary values. 3) `health.monitoring_failed` event emits when monitoring system fails. 4) Dashboard reflects actual system state |
+| **Verification Type** | Automated test + runtime |
+| **Related Tests** | Health check tests, alert evaluation tests, monitoring failure emission tests |
+| **Related Risk** | RISK-009 |
+| **Recurrence Count** | 0 |
+| **Owner** | Project Lead |
+| **Added Date** | 2026-04-09 |
+| **Last Verified** | — |
+| **Status** | Active |
+
 ---
 
 ## Pre-Change Verification Workflow
@@ -192,6 +213,7 @@ Each watchlist item should define early warning and post-occurrence signals:
 | RW-003 | Function signature change detected, no cross-module test update | Downstream module failures, unexpected behavior |
 | RW-004 | Retry config change without test, DLQ depth trend increasing | Duplicate execution, retry storm, job cascade |
 | RW-005 | Audit emission logic changed, error handling path modified | Missing audit entries in reconciliation |
+| RW-006 | Health check logic changed, alert threshold modified, monitoring config updated | False positive/negative alerts, monitoring blind spot, dashboard shows incorrect state |
 
 **Rule:** Leading indicators should be monitored proactively — catching them prevents the regression from materializing.
 
@@ -208,6 +230,7 @@ Each watchlist item should map to specific SSOT artifacts for instant test targe
 | RW-003 | Routes consuming shared functions | Per function | All shared functions (function-index) | — |
 | RW-004 | Admin job management routes | `jobs.*` | Job execution functions | `job.failed`, `job.dead_lettered` |
 | RW-005 | All mutation routes | `audit.view`, `audit.export` | `logAuditEvent()` | `audit.logged`, `audit.write_failed` |
+| RW-006 | `/admin/monitoring`, `/admin/monitoring/config`, `GET /health` | `monitoring.view`, `monitoring.configure` | `getSystemHealth()`, `evaluateAlerts()`, `getMetrics()` | `health.alert_triggered`, `health.status_changed`, `health.monitoring_failed` |
 
 **Rule:** When reviewing a change, match changed SSOT artifacts against watchlist traceability to identify all relevant items.
 
@@ -321,7 +344,7 @@ The system should support automatic mapping of changed modules to relevant watch
 | Caching | ≥ 1 item | RW-001 (via cache) |
 | Shared Functions | ≥ 1 item | RW-003 |
 | Admin Panel | Covered via module items | RW-001, RW-005 |
-| Health Monitoring | Should add when system active | — |
+| Health Monitoring | ≥ 1 item | RW-006 |
 
 **Gap Detection:** Absence of watchlist item for a fragile module = coverage gap → must be addressed.
 
@@ -404,6 +427,7 @@ The following **MUST** create Action Tracker entries:
 | 3 | RW-003 | Shared function changes | High | 0 |
 | 4 | RW-004 | Job retry configuration | High | 0 |
 | 5 | RW-005 | Audit event completeness | High | 0 |
+| 6 | RW-006 | Health monitoring blind spot | High | 0 |
 
 _Updated as items are added, triggered, or resolved._
 

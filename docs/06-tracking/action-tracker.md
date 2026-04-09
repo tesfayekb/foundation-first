@@ -1,6 +1,6 @@
 # Action Tracker
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-08
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-09
 
 ## Purpose
 
@@ -216,6 +216,26 @@ Each action must include:
 | **Health Impact** | Improved |
 | **Status** | Verified |
 
+### ACT-006: Pre-Implementation Audit Fixes (v3 → v4)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-09 |
+| **Type** | Documentation |
+| **Impact** | HIGH |
+| **Modules Affected** | All (governance, reference indexes, tracking, planning) |
+| **Docs Updated** | function-index.md, permission-index.md, route-index.md, event-index.md, config-index.md, env-var-index.md, open-questions.md, approved-decisions.md, plan-changelog.md, plan-review-log.md, regression-watchlist.md, risk-register.md, action-tracker.md, system-state.md |
+| **Verification Type** | Manual review + automated grep verification |
+| **Evidence** | All RSK→RISK mismatches resolved (0 remaining); 3 open questions resolved (DEC-017/018/019); 5 self-scope permissions added; 3 missing UUID placeholders added; RW-006 created; all Last Reviewed dates updated; changelog v2→v3 wording corrected |
+| **Verified By** | Project Lead |
+| **Before State** | 10 audit issues (2 critical blockers, 5 medium, 3 low); plan baseline v3 |
+| **After State** | 0 remaining issues; all cross-references consistent; plan baseline v4 |
+| **Rollback Available** | Yes |
+| **Rollback Method** | Revert to v3 baseline, remove DEC-017/018/019, restore original index versions |
+| **Blast Radius** | System-wide (documentation governance) |
+| **Health Impact** | Improved |
+| **Status** | Verified |
+
 ---
 
 ## Risk and Regression Integration
@@ -255,7 +275,7 @@ Each action must include:
 | Type | Count | High Impact |
 |------|-------|-------------|
 | Feature | 1 | 1 |
-| Documentation | 4 | 4 |
+| Documentation | 5 | 5 |
 | Fix | 0 | 0 |
 | Security | 0 | 0 |
 | Performance | 0 | 0 |
@@ -265,7 +285,7 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 5 |
+| Verified | 6 |
 | Completed (unverified) | 0 |
 | In Progress | 0 |
 | Rolled Back | 0 |
@@ -275,7 +295,7 @@ Each action must include:
 - Regressions introduced: 0
 - Regressions resolved: 0
 - Open (unverified) actions: 0
-- High-impact actions this period: 5
+- High-impact actions this period: 6
 
 _Updated as actions are added._
 
