@@ -1,6 +1,6 @@
 # Regression Watchlist
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-08
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-09
 
 ## Purpose
 
@@ -151,6 +151,27 @@ Each watchlist item must include:
 | **Recurrence Count** | 0 |
 | **Owner** | Project Lead |
 | **Added Date** | 2026-04-08 |
+| **Last Verified** | — |
+| **Status** | Active |
+
+### RW-006: Health Monitoring Blind Spot
+
+| Field | Value |
+|-------|-------|
+| **Area** | Health / Monitoring |
+| **Risk Description** | Health monitoring system change causes false positives, missed alerts, or monitoring blind spots — system health appears healthy when degraded |
+| **Regression Class** | Observability |
+| **Priority** | High |
+| **Affected Modules** | health-monitoring, admin-panel |
+| **Trigger Conditions** | Any change to: health check logic, alert thresholds, monitoring config, `evaluateAlerts()`, `getSystemHealth()`, health endpoint |
+| **Detection** | Health check endpoint tests, alert threshold evaluation tests, monitoring self-check (monitor-the-monitor) |
+| **Required Checks** | 1) Health endpoint returns correct status. 2) Alert thresholds trigger correctly at boundary values. 3) `health.monitoring_failed` event emits when monitoring system fails. 4) Dashboard reflects actual system state |
+| **Verification Type** | Automated test + runtime |
+| **Related Tests** | Health check tests, alert evaluation tests, monitoring failure emission tests |
+| **Related Risk** | RISK-009 |
+| **Recurrence Count** | 0 |
+| **Owner** | Project Lead |
+| **Added Date** | 2026-04-09 |
 | **Last Verified** | — |
 | **Status** | Active |
 
