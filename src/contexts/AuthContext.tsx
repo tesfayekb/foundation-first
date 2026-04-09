@@ -1,6 +1,13 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import type { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  emitSignedUp,
+  emitSignedIn,
+  emitSignedOut,
+  emitFailedAttempt,
+  emitPasswordReset,
+} from '@/lib/auth-events';
 
 type MfaStatus = 'none' | 'enrolled' | 'challenge_required';
 
@@ -87,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, displayName?: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -95,12 +102,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: window.location.origin,
       },
     });
+
+    if (!error && data.user) {
+      emitSignedUp(data.user.id, 'email');
+    }
+
     return { error };
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { error, mfaChallengeRequired: false };
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      // Determine failure reason for event emission
+      const reason = error.message?.toLowerCase().includes('invalid')
+        ? 'invalid_password'
+        : 'unknown_user';
+      emitFailedAttempt(reason as 'invalid_password' | 'unknown_user');
+      return { error, mfaChallengeRequired: false };
+    }
+
+    if (data.user) {
+      emitSignedIn(data.user.id, 'password');
+    }
 
     const status = await getMfaStatus();
     setState(prev => ({ ...prev, mfaStatus: status }));
@@ -108,20 +132,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
+    const userId = state.user?.id;
     await supabase.auth.signOut();
-  }, []);
+    if (userId) {
+      emitSignedOut(userId);
+    }
+  }, [state.user?.id]);
 
   const resetPassword = useCallback(async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
+    if (!error) {
+      emitPasswordReset('unknown', 'requested');
+    }
     return { error };
   }, []);
 
   const updatePassword = useCallback(async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password });
+    if (!error && state.user) {
+      emitPasswordReset(state.user.id, 'completed');
+    }
     return { error };
-  }, []);
+  }, [state.user]);
 
   const completeMfaChallenge = useCallback(() => {
     setState(prev => ({ ...prev, mfaStatus: 'enrolled' }));

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RequireAuth } from "@/components/auth/RequireAuth";
+import { RequireVerifiedEmail } from "@/components/auth/RequireVerifiedEmail";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import SignIn from "./pages/SignIn";
@@ -31,9 +32,19 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/mfa-challenge" element={<MfaChallenge />} />
 
-            {/* Protected routes */}
-            <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />
-            <Route path="/mfa-enroll" element={<RequireAuth><MfaEnroll /></RequireAuth>} />
+            {/* Protected routes — require auth + verified email */}
+            <Route path="/" element={
+              <RequireAuth>
+                <RequireVerifiedEmail>
+                  <Index />
+                </RequireVerifiedEmail>
+              </RequireAuth>
+            } />
+            <Route path="/mfa-enroll" element={
+              <RequireAuth>
+                <MfaEnroll />
+              </RequireAuth>
+            } />
 
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
