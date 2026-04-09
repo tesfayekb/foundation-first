@@ -31,23 +31,39 @@ Authorization is enforced in three layers:
 | Role | Description |
 |------|-------------|
 | `superadmin` | Full access to all current and future permissions |
+| `admin` | Administrative access — provisioned as a seed role during initial setup |
 | `user` | Default role with baseline access |
 
 - Base roles cannot be deleted or modified
-- `superadmin` automatically inherits all permissions (including newly created ones)
+- `superadmin` automatically inherits all permissions (including newly created ones) via logical enforcement in `has_permission()` — not via seeded permission rows
+- `admin` is provisioned during system bootstrap and receives permissions as defined in [permission-index.md](../07-reference/permission-index.md)
 
 ### Dynamic Roles
 
-- Additional roles can be created, updated, and deleted at runtime
-- Dynamic roles are assigned permissions explicitly
+- The schema is dynamic-role-capable: roles can be created, updated, and deleted at runtime
+- Phase 2 delivers the foundation; operational dynamic-role CRUD is deferred to Phase 4
+- Dynamic roles are assigned permissions explicitly via privileged server-side RPCs
 - Role changes are HIGH impact and must be audited
 
 ```sql
+CREATE TABLE public.roles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    key TEXT UNIQUE NOT NULL,           -- e.g. 'admin', 'moderator'
+    name TEXT NOT NULL,
+    description TEXT,
+    is_base BOOLEAN NOT NULL DEFAULT false,
+    is_immutable BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE public.user_roles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-    role app_role NOT NULL,
-    UNIQUE (user_id, role)
+    role_id UUID REFERENCES public.roles(id) ON DELETE CASCADE NOT NULL,
+    assigned_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    assigned_by UUID REFERENCES auth.users(id),
+    UNIQUE (user_id, role_id)
 );
 ```
 
@@ -74,15 +90,16 @@ Examples: `user.read`, `user.create`, `user.update`, `user.delete`, `audit.view`
 ```sql
 CREATE TABLE public.permissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    key TEXT UNIQUE NOT NULL,        -- e.g. 'user.read'
-    description TEXT
+    key TEXT UNIQUE NOT NULL,        -- e.g. 'users.view_all'
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE public.role_permissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    role app_role NOT NULL,
+    role_id UUID REFERENCES public.roles(id) ON DELETE CASCADE NOT NULL,
     permission_id UUID REFERENCES public.permissions(id) ON DELETE CASCADE NOT NULL,
-    UNIQUE (role, permission_id)
+    UNIQUE (role_id, permission_id)
 );
 ```
 
@@ -107,25 +124,54 @@ CREATE TABLE public.role_permissions (
 ## Permission Checking
 
 ```sql
-CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role app_role)
+CREATE OR REPLACE FUNCTION public.is_superadmin(_user_id UUID)
 RETURNS BOOLEAN
 LANGUAGE sql STABLE SECURITY DEFINER
 SET search_path = public
 AS $$
   SELECT EXISTS (
     SELECT 1
-    FROM public.user_roles
-    WHERE user_id = _user_id AND role = _role
+    FROM public.user_roles ur
+    JOIN public.roles r ON r.id = ur.role_id
+    WHERE ur.user_id = _user_id AND r.key = 'superadmin'
   )
 $$;
-```
 
-Optional future extension:
+CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role_key TEXT)
+RETURNS BOOLEAN
+LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.user_roles ur
+    JOIN public.roles r ON r.id = ur.role_id
+    WHERE ur.user_id = _user_id AND r.key = _role_key
+  )
+$$;
 
-```sql
 CREATE OR REPLACE FUNCTION public.has_permission(_user_id UUID, _permission_key TEXT)
 RETURNS BOOLEAN
-...
+LANGUAGE plpgsql STABLE SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF _user_id IS NULL OR _permission_key IS NULL THEN
+    RETURN false;
+  END IF;
+  -- Superadmin inherits all permissions logically
+  IF public.is_superadmin(_user_id) THEN
+    RETURN true;
+  END IF;
+  RETURN EXISTS (
+    SELECT 1
+    FROM public.user_roles ur
+    JOIN public.role_permissions rp ON rp.role_id = ur.role_id
+    JOIN public.permissions p ON p.id = rp.permission_id
+    WHERE ur.user_id = _user_id AND p.key = _permission_key
+  );
+END;
+$$;
 ```
 
 **Permission Check Rules:**
@@ -174,10 +220,14 @@ The following are HIGH impact and require strict controls:
 | `users.view_all` | View all user profiles | admin, superadmin |
 | `users.edit_any` | Edit any user's profile | admin, superadmin |
 | `users.deactivate` | Deactivate user accounts | admin, superadmin |
+| `users.reactivate` | Reactivate user accounts | admin, superadmin |
 | `roles.assign` | Assign roles to users | admin, superadmin |
 | `roles.revoke` | Revoke roles from users | admin, superadmin |
+| `roles.view` | View role assignments and definitions | admin, superadmin |
 | `roles.create` | Create dynamic roles | admin, superadmin |
 | `roles.delete` | Delete dynamic roles (destructive) | admin, superadmin |
+| `permissions.assign` | Assign permissions to roles | admin, superadmin |
+| `permissions.revoke` | Revoke permissions from roles | admin, superadmin |
 | `admin.access` | Access admin panel | admin, superadmin |
 | `admin.config` | Modify system configuration | admin, superadmin |
 | `audit.view` | View audit logs | admin, superadmin |
@@ -185,8 +235,12 @@ The following are HIGH impact and require strict controls:
 | `monitoring.view` | View health dashboards | admin, superadmin |
 | `monitoring.configure` | Configure alert thresholds | admin, superadmin |
 | `jobs.view` | View job status | admin, superadmin |
-| `jobs.manage` | Manage job lifecycle | admin, superadmin |
-| `jobs.emergency` | Emergency job controls | admin, superadmin |
+| `jobs.trigger` | Manually trigger jobs | admin, superadmin |
+| `jobs.pause` | Pause scheduled jobs | admin, superadmin |
+| `jobs.resume` | Resume paused jobs | admin, superadmin |
+| `jobs.retry` | Retry failed jobs | admin, superadmin |
+| `jobs.deadletter.manage` | Manage dead-lettered jobs | admin, superadmin |
+| `jobs.emergency` | Emergency job controls (kill switch) | superadmin |
 
 Authorization is **permission-driven**, not role-name-driven. Business logic must check permission keys, not role names.
 

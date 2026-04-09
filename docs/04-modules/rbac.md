@@ -29,22 +29,25 @@ Authorization consists of:
 
 | Role | Description |
 |------|-------------|
-| `superadmin` | Full access to all current and future permissions |
+| `superadmin` | Full access to all current and future permissions (logical inheritance — no seeded permission rows) |
 | `admin` | Administrative access — provisioned as a seed role during initial setup |
 | `user` | Default role with baseline access |
 
 **Rules:**
 
-- Base roles cannot be deleted
-- Base roles cannot be modified
-- `superadmin` automatically has all permissions (including newly created ones)
+- Base roles cannot be deleted (enforced by DB trigger on `is_immutable`)
+- Base roles' `key`, `is_base`, `is_immutable` columns cannot be modified (enforced by DB trigger)
+- `superadmin` automatically has all permissions via logical inheritance in `has_permission()` — not via seeded role_permissions rows
 - `admin` is provisioned during system bootstrap and receives permissions as defined in [permission-index.md](../07-reference/permission-index.md)
 - `moderator` role is deferred to v2 (see DEC-018)
+- Last superadmin assignment cannot be deleted (enforced by DB trigger)
 
 ## Dynamic Roles
 
-- Roles can be created, updated, and deleted at runtime
-- Roles are assigned permissions dynamically
+- The schema and backend are **dynamic-role-capable**: roles can be created, updated, and deleted at runtime via the `roles` table
+- **Phase 2** delivers the dynamic-role-capable foundation (schema, helpers, RPCs)
+- **Operational creation/deletion of dynamic roles** via admin UI is deferred to Phase 4
+- Roles are assigned permissions dynamically via privileged server-side RPCs (not direct client writes)
 - Role changes are HIGH impact and must be audited
 
 ## Permission Model
@@ -76,20 +79,41 @@ Permission scope is governed by [permission-index.md](../07-reference/permission
 | **tenant-scoped** | Access within tenant boundary | Future implementation |
 | **system-wide** | Unrestricted scope | `system.kill_switch` |
 
-### Permission Tables (Conceptual)
+### Schema
 
 ```sql
+roles (
+  id UUID PRIMARY KEY,
+  key TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  is_base BOOLEAN NOT NULL DEFAULT false,
+  is_immutable BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ
+)
+
 permissions (
   id UUID PRIMARY KEY,
   key TEXT UNIQUE NOT NULL,
-  description TEXT
+  description TEXT,
+  created_at TIMESTAMPTZ
+)
+
+user_roles (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  role_id UUID REFERENCES roles(id) ON DELETE CASCADE,
+  assigned_at TIMESTAMPTZ,
+  assigned_by UUID REFERENCES auth.users(id),
+  UNIQUE (user_id, role_id)
 )
 
 role_permissions (
   id UUID PRIMARY KEY,
-  role app_role NOT NULL,
+  role_id UUID REFERENCES roles(id) ON DELETE CASCADE,
   permission_id UUID REFERENCES permissions(id) ON DELETE CASCADE,
-  UNIQUE (role, permission_id)
+  UNIQUE (role_id, permission_id)
 )
 ```
 
@@ -120,11 +144,18 @@ role_permissions (
 
 | Function | Purpose | Used By |
 |----------|---------|---------|
-| `has_role(user_id, role)` | SQL security definer function | RLS policies |
-| `checkPermission(permission)` | Default permission enforcement | All modules |
+| `is_superadmin(user_id)` | SQL security definer — fast-path superadmin check | RLS policies, `has_permission()` |
+| `has_role(user_id, role_key)` | SQL security definer — check role by key | RLS policies |
+| `has_permission(user_id, permission_key)` | SQL security definer — logical superadmin inheritance, else explicit mapping | RLS policies, edge functions |
+| `get_my_authorization_context()` | SQL security definer — returns caller's effective roles + permissions | `useUserRoles()` hook |
+| `checkPermission(permission)` | Default permission enforcement (client-side UX) | All modules |
 | `requireRole(role)` | Base-role bootstrap gating only | Admin panel initial access |
 | `requireSelfScope(userId)` | Self-scope resource enforcement | user-panel, user-management |
-| `useUserRole()` | Fetch current user role | UI components |
+| `useUserRoles()` | Fetch current user's roles, permissions, superadmin status | UI components |
+| `assign_role(target_user_id, role_id)` | Privileged RPC — assign role to user | Edge function |
+| `revoke_role(target_user_id, role_id)` | Privileged RPC — revoke role from user | Edge function |
+| `assign_permission_to_role(role_id, permission_id)` | Privileged RPC — assign permission to role | Edge function |
+| `revoke_permission_from_role(role_id, permission_id)` | Privileged RPC — revoke permission from role | Edge function |
 
 ## Events
 
