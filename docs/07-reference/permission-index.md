@@ -193,7 +193,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Related routes** | `/admin/users/:id/roles` |
 | **Related functions** | `has_role()`, `checkPermission()` |
 | **Related events** | `rbac.role_assigned` |
-| **Related risks** | RSK-002 (privilege escalation) |
+| **Related risks** | RISK-002 (privilege escalation) |
 | **Related watchlist** | RW-001 |
 | **Related tests** | Role assignment allow/deny suite |
 | **Lifecycle** | active |
@@ -215,7 +215,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Related routes** | `/admin/users/:id/roles` |
 | **Related functions** | `has_role()`, `checkPermission()` |
 | **Related events** | `rbac.role_revoked` |
-| **Related risks** | RSK-002 |
+| **Related risks** | RISK-002 |
 | **Related tests** | Role revocation allow/deny suite |
 | **Lifecycle** | active |
 
@@ -255,7 +255,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Related routes** | `/admin/roles` (POST) |
 | **Related functions** | `checkPermission()` |
 | **Related events** | `rbac.role_created` |
-| **Related risks** | RSK-002 (privilege escalation via new role) |
+| **Related risks** | RISK-002 (privilege escalation via new role) |
 | **Related tests** | Role creation allow/deny suite |
 | **Lifecycle** | active |
 
@@ -277,7 +277,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Related routes** | `/admin/roles/:id` (DELETE) |
 | **Related functions** | `checkPermission()` |
 | **Related events** | `rbac.role_deleted` |
-| **Related risks** | RSK-002 (orphaned users after role deletion) |
+| **Related risks** | RISK-002 (orphaned users after role deletion) |
 | **Related tests** | Role deletion allow/deny suite, base role protection tests |
 | **Lifecycle** | active |
 
@@ -381,7 +381,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Reauth required** | No |
 | **Related routes** | `/admin/*` |
 | **Related functions** | `requireRole()`, `checkPermission()` |
-| **Related risks** | RSK-002 (privilege escalation) |
+| **Related risks** | RISK-002 (privilege escalation) |
 | **Related tests** | Admin access allow/deny suite |
 | **Lifecycle** | active |
 
@@ -593,7 +593,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Reauth required** | Yes |
 | **Related routes** | `/admin/jobs/deadletter` |
 | **Related events** | `job.replayed`, `job.dead_lettered` |
-| **Related risks** | RSK-007 (job failure cascade) |
+| **Related risks** | RISK-007 (job failure cascade) |
 | **Related tests** | Dead-letter management allow/deny suite |
 | **Lifecycle** | active |
 
@@ -614,7 +614,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Related routes** | `/admin/jobs/emergency` |
 | **Related functions** | Kill switch function |
 | **Related events** | `job.kill_switch_activated` |
-| **Related risks** | RSK-007 (job failure cascade) |
+| **Related risks** | RISK-007 (job failure cascade) |
 | **Related tests** | Kill switch allow/deny suite, emergency flow tests |
 | **Lifecycle** | active |
 

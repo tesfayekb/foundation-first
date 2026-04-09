@@ -200,7 +200,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Related functions** | `authenticateRequest()` |
 | **Related events** | `auth.signed_in`, `auth.failed_attempt` |
 | **Related tests** | Login flow tests, failed login tests |
-| **Related risks** | RSK-001 (credential compromise) |
+| **Related risks** | RISK-001 (credential compromise) |
 | **Lifecycle** | active |
 
 #### `/signup` — Sign Up
@@ -227,7 +227,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Panel** | public |
 | **Related events** | `auth.password_reset` |
 | **Related tests** | Password reset flow tests |
-| **Related risks** | RSK-001 |
+| **Related risks** | RISK-001 |
 | **Lifecycle** | active |
 
 ### User Panel Routes (Authenticated)
@@ -294,7 +294,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Panel** | admin-panel |
 | **Related functions** | `requireAuth()`, `checkPermission()` |
 | **Related tests** | Admin access allow/deny suite |
-| **Related risks** | RSK-002 (privilege escalation) |
+| **Related risks** | RISK-002 (privilege escalation) |
 | **Lifecycle** | active |
 
 #### `/admin/users` — User Management
@@ -326,7 +326,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Reauth required** | Yes |
 | **Related functions** | `has_role()`, `checkPermission()` |
 | **Related events** | `rbac.role_assigned`, `rbac.role_revoked` |
-| **Related risks** | RSK-002 (privilege escalation) |
+| **Related risks** | RISK-002 (privilege escalation) |
 | **Related watchlist** | RW-001 |
 | **Related tests** | Role assign/revoke allow/deny suite |
 | **Lifecycle** | active |
@@ -518,7 +518,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Reauth required** | Yes |
 | **Audit required** | Yes |
 | **Related events** | `job.replayed`, `job.dead_lettered` |
-| **Related risks** | RSK-007 (job failure cascade) |
+| **Related risks** | RISK-007 (job failure cascade) |
 | **Related tests** | Dead-letter management allow/deny suite |
 | **Lifecycle** | active |
 
@@ -536,7 +536,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Reauth required** | Yes |
 | **Audit required** | Yes |
 | **Related events** | `job.kill_switch_activated` |
-| **Related risks** | RSK-007 |
+| **Related risks** | RISK-007 |
 | **Related tests** | Kill switch allow/deny suite, emergency flow E2E |
 | **Lifecycle** | active |
 
