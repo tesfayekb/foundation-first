@@ -230,6 +230,50 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Related risks** | RISK-001 |
 | **Lifecycle** | active |
 
+#### `/reset-password` — Password Reset Completion
+
+| Field | Value |
+|-------|-------|
+| **Page** | Reset Password |
+| **Module** | auth |
+| **Classification** | public |
+| **Auth required** | No (token-based) |
+| **Panel** | public |
+| **Related events** | `auth.password_reset` |
+| **Related tests** | Password reset completion tests |
+| **Related risks** | RISK-001 |
+| **Lifecycle** | active |
+
+#### `/mfa-challenge` — MFA Verification
+
+| Field | Value |
+|-------|-------|
+| **Page** | MFA Challenge |
+| **Module** | auth |
+| **Classification** | public |
+| **Auth required** | No (partial session — AAL1 with MFA pending) |
+| **Panel** | public |
+| **Related functions** | `checkMfaStatus()` |
+| **Related events** | `auth.signed_in` (on MFA completion), `auth.failed_attempt` (on MFA failure) |
+| **Related tests** | MFA challenge flow tests |
+| **Lifecycle** | active |
+
+#### `/mfa-enroll` — MFA Enrollment
+
+| Field | Value |
+|-------|-------|
+| **Page** | MFA Enroll |
+| **Module** | auth |
+| **Classification** | authenticated |
+| **Auth required** | Yes |
+| **Permission required** | *(authenticated + verified email — no specific permission)* |
+| **Scope** | self |
+| **Panel** | user-panel |
+| **Related functions** | `requireAuth()`, `requireVerifiedEmail()`, `checkMfaStatus()` |
+| **Related events** | `auth.mfa_enrolled` |
+| **Related tests** | MFA enrollment flow tests, unauthenticated deny test |
+| **Lifecycle** | active |
+
 ### User Panel Routes (Authenticated)
 
 #### `/dashboard` — User Dashboard
