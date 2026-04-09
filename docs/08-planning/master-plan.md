@@ -226,12 +226,12 @@ Implement role-based access control.
 - All auth events emitting correctly
 
 **Phase Gate — must ALL pass before advancing:**
-- [ ] All auth user flows pass E2E tests
-- [ ] Auth failure modes tested (invalid session, expired token, failed MFA)
-- [ ] Auth events verified against event-index.md
-- [ ] Auth shared functions verified against function-index.md
-- [ ] Auth security validated per auth-security.md
-- [ ] No security scan findings on auth module
+- [x] All auth user flows pass E2E tests — *ACT-011: Browser E2E 2026-04-09 (sign-in, sign-up, forgot-password, MFA-challenge, MFA-enroll tested)*
+- [ ] Auth failure modes tested (invalid session, expired token, failed MFA) — *Partial: failed sign-in tested (ACT-011); expired token + failed MFA not yet tested*
+- [x] Auth events verified against event-index.md — *ACT-011: `auth.failed_attempt` emission runtime-verified via console*
+- [x] Auth shared functions verified against function-index.md — *ACT-011: getSessionContext, isEmailVerified, isRecentlyAuthenticated, requiresReauthentication implemented*
+- [ ] Auth security validated per auth-security.md — *Not yet performed (formal security validation distinct from scan)*
+- [x] No security scan findings on auth module — *Security scan 2026-04-09: zero findings*
 
 ---
 
