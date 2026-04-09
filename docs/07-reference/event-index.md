@@ -450,7 +450,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Owner module** | rbac |
 | **Consumers** | audit-logging |
 | **Description** | Role assigned to user |
-| **Payload schema** | `{ user_id: uuid, role: app_role, assigned_by: uuid, timestamp: datetime }` |
+| **Payload schema** | `{ user_id: uuid, role_key: string, role_id: uuid, assigned_by: uuid, timestamp: datetime }` |
 | **Delivery guarantee** | at-least-once |
 | **Ordering** | strict |
 | **Idempotency** | event_id |
@@ -470,7 +470,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Owner module** | rbac |
 | **Consumers** | audit-logging |
 | **Description** | Role revoked from user |
-| **Payload schema** | `{ user_id: uuid, role: app_role, revoked_by: uuid, timestamp: datetime, reason: string }` |
+| **Payload schema** | `{ user_id: uuid, role_key: string, role_id: uuid, revoked_by: uuid, timestamp: datetime, reason: string }` |
 | **Delivery guarantee** | at-least-once |
 | **Ordering** | strict |
 | **Idempotency** | event_id |
@@ -550,7 +550,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Owner module** | rbac |
 | **Consumers** | audit-logging |
 | **Description** | Permission granted to user |
-| **Payload schema** | `{ user_id: uuid, permission: string, assigned_by: uuid, timestamp: datetime }` |
+| **Payload schema** | `{ role_id: uuid, permission_key: string, permission_id: uuid, assigned_by: uuid, timestamp: datetime }` |
 | **Delivery guarantee** | at-least-once |
 | **Ordering** | strict |
 | **Idempotency** | event_id |
@@ -570,7 +570,7 @@ Key event chains showing upstream triggers and downstream effects:
 | **Owner module** | rbac |
 | **Consumers** | audit-logging |
 | **Description** | Permission revoked from user |
-| **Payload schema** | `{ user_id: uuid, permission: string, revoked_by: uuid, timestamp: datetime, reason: string }` |
+| **Payload schema** | `{ role_id: uuid, permission_key: string, permission_id: uuid, revoked_by: uuid, timestamp: datetime, reason: string }` |
 | **Delivery guarantee** | at-least-once |
 | **Ordering** | strict |
 | **Idempotency** | event_id |
