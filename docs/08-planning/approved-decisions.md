@@ -1,6 +1,6 @@
 # Approved Decisions
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-08
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-09
 
 ## Purpose
 
@@ -203,6 +203,39 @@ If any field is missing → the decision is **INVALID**.
 - **Date Approved:** 2026-04-09
 - **Decision:** Jobs and Scheduler module approved for implementation, subject to existing dependencies, change control, and SSOT indexes.
 - **Affected Modules / Systems:** jobs-and-scheduler
+- **Status:** active
+- **Superseded By:** —
+
+---
+
+### DEC-017: MFA Recovery Code Format
+- **Plan Section:** PLAN-AUTH-001
+- **Decision Type:** architecture
+- **Date Approved:** 2026-04-09
+- **Decision:** MFA recovery codes: 10 codes generated per user, 8 alphanumeric characters each, single-use, regeneratable. Codes must be cryptographically random. User can regenerate full set (invalidates previous). Codes stored hashed (never plaintext). Resolves OQ-002.
+- **Affected Modules / Systems:** auth, user-panel
+- **Status:** active
+- **Superseded By:** —
+
+---
+
+### DEC-018: Moderator Role Deferred to v2
+- **Plan Section:** PLAN-RBAC-001
+- **Decision Type:** policy
+- **Date Approved:** 2026-04-09
+- **Decision:** Moderator role deferred to v2. V1 role set: `superadmin`, `admin`, `user`. All provisional moderator references must be removed from v1 documentation. `app_role` enum in v1: `('superadmin', 'admin', 'user')`. Resolves OQ-004.
+- **Affected Modules / Systems:** rbac, permission-index
+- **Status:** active
+- **Superseded By:** —
+
+---
+
+### DEC-019: Job Scheduling via pg_cron
+- **Plan Section:** PLAN-JOBS-001
+- **Decision Type:** architecture
+- **Date Approved:** 2026-04-09
+- **Decision:** Job scheduling uses pg_cron via Lovable Cloud (Supabase). No external scheduling dependencies. pg_cron manages periodic job execution; edge functions handle job logic. Resolves OQ-005.
+- **Affected Modules / Systems:** jobs-and-scheduler, health-monitoring
 - **Status:** active
 - **Superseded By:** —
 
