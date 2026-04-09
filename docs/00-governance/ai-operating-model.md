@@ -92,6 +92,15 @@ Before accepting any revised plan, the AI must produce a diff against the approv
 - Removed sections (by ID with justification)
 - Conflicts with previously approved decisions (by decision ID)
 
+## AI Agent Bootstrap Files
+
+| Platform | File | Auto-Loaded |
+|----------|------|-------------|
+| **Lovable** | `.lovable/rules.md` | Yes |
+| **Cursor** | `.cursorrules` | Yes |
+
+These files duplicate the mandatory reading order, execution gates, change control workflow, output formats, and non-negotiable rules into platform-native formats so that AI agents are constrained **before** they can act — closing the bootstrap gap.
+
 ## Dependencies
 
 - [Constitution](constitution.md)
