@@ -72,7 +72,7 @@ Implement authentication system.
 ---
 
 ### PLAN-RBAC-001: RBAC Module
-**Status:** `implemented`
+**Status:** `approved-partial`
 **Risk Level:** HIGH
 **Module Doc:** [rbac.md](../04-modules/rbac.md)
 

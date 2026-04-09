@@ -443,7 +443,7 @@ Each action must include:
 | **Related Risks** | RISK-002 (privilege escalation) |
 | **Related Watchlist** | RW-001 |
 | **Depends On** | ACT-010, ACT-011 (Phase 1 Auth) |
-| **Status** | Verified |
+| **Status** | Verified (foundation — Phase 2 gate open; 4 of 12 items unchecked) |
 
 ---
 
