@@ -8,6 +8,8 @@ Structured intake for unplanned features. Any feature not already in `master-pla
 
 This document prevents scope creep, unauthorized feature additions, and AI drift.
 
+**Scope boundary:** This document is ONLY for new features or capability expansion. Modifications to existing approved plan sections must follow the change-control workflow, not the feature proposal protocol.
+
 ## Scope
 
 All new feature ideas, enhancements, and capability requests that are NOT currently tracked in the approved master plan.
@@ -18,6 +20,7 @@ All new feature ideas, enhancements, and capability requests that are NOT curren
 - **NO** proposal may be executed until it reaches `approved` status
 - **NO** proposal may bypass the master plan — approved proposals MUST be added to `master-plan.md` before implementation begins
 - If an AI agent identifies a useful feature during any task → it MUST log a proposal here and **STOP** — it must NOT implement it
+- **No partial implementation, schema creation, or preparatory work** for a proposed feature is allowed before approval
 - Violations = **INVALID** change subject to revert
 
 ## Feature Proposal Protocol
@@ -30,7 +33,7 @@ Do NOT implement. Do NOT modify the master plan. Do NOT create code or schema.
 
 ### Step 2 — Create Proposal Entry
 
-Add an entry to the Proposal Register below using the mandatory schema.
+Add an entry to the Proposal Register below using the mandatory schema. Must assess impact on `dependency-map.md` and all reference indexes (function, event, permission, route, config, env-var).
 
 ### Step 3 — Notify
 
@@ -47,7 +50,7 @@ Once approved:
 2. Create a `DEC-NNN` entry in `approved-decisions.md`
 3. Log the change in `plan-changelog.md`
 4. Update `system-state.md` if the plan version changes
-5. Follow all Constitution rules (especially Rules 8, 9, 10)
+5. Follow all applicable Constitution rules
 
 ### Step 6 — Implement via Normal Workflow
 
@@ -68,11 +71,13 @@ Only after the feature exists in the approved master plan may implementation beg
 | `dependencies` | Yes | What must exist before this can be built |
 | `estimated_impact` | Yes | LOW / MEDIUM / HIGH |
 | `risk_assessment` | Yes | What risks does this introduce |
+| `reference_impact` | Yes | Impact on reference indexes (functions/events/routes/permissions/config/env) |
 | `status` | Yes | proposed / under-review / approved / rejected / deferred |
 | `reviewed_by` | When reviewed | Who reviewed the proposal |
 | `review_date` | When reviewed | Date of review |
 | `decision_id` | When approved | Reference to DEC-NNN in approved-decisions.md |
 | `plan_section_id` | When approved | Reference to PLAN-XXX-NNN in master-plan.md |
+| `implemented_in_version` | When implemented | Plan version or release where this was delivered |
 | `rejection_reason` | If rejected | Why it was not accepted |
 
 ## Proposal Register
@@ -93,7 +98,7 @@ _No proposals yet._
 
 ## Escalation Rule
 
-- Proposals that remain in `proposed` status for more than 2 plan revisions must be escalated or explicitly deferred
+- Proposals that remain in `proposed` status for more than 2 consecutive plan versions must be escalated or explicitly deferred
 - Rejected proposals must NOT be re-proposed without new justification
 
 ## Dependencies
