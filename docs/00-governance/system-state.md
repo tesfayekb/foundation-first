@@ -75,7 +75,7 @@ If inconsistency is detected → execution must **STOP** and be corrected.
 
 | Module | Status | Last Updated |
 |--------|--------|-------------|
-| auth | not started | — |
+| auth | in progress (A+D implemented, B+C deferred) | 2026-04-09 |
 | rbac | not started | — |
 | user-management | not started | — |
 | admin-panel | not started | — |
