@@ -32,6 +32,7 @@ If ANY checklist item is not satisfied:
 - [ ] `regression-watchlist.md` checked (for MEDIUM/HIGH impact OR shared component changes)
 - [ ] Mandatory AI output format included in response
 - [ ] `system-state.md` updated if system state changed
+- [ ] **Phase gate checkboxes** in `master-plan.md` updated if work satisfies any phase gate condition (with evidence reference)
 - [ ] Plan artifacts updated if plan-level changes occurred
 - [ ] Execution performed ONLY against approved plan baseline (no proposed sections used)
 - [ ] No Constitution rule violated
@@ -95,11 +96,18 @@ For MEDIUM/HIGH impact OR shared component changes:
 ## Plan Integrity Requirement
 
 Plan-related changes MUST update:
-- `master-plan.md`
+- `master-plan.md` (including **phase gate checkboxes** with evidence references)
 - `approved-decisions.md` (if applicable)
 - `plan-changelog.md`
 
 No change may bypass approved plan baseline.
+
+## Reference Index Reconciliation Requirement
+
+When implementing code that corresponds to reference index entries (routes, functions, events, permissions):
+- The **actual implementation** must match the reference index contract
+- If the implementation uses different names/paths than the index, the index MUST be updated to reflect the actual implementation
+- Mismatches between reference indexes and code are **INVALID** — they must be caught and corrected during Step 9 (verification)
 
 ## Dependencies
 

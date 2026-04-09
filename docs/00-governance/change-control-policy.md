@@ -34,10 +34,11 @@ Every change MUST follow this exact sequence:
 8. **Update** `action-tracker.md`
 9. **Verify and finalize:**
    - Dependencies intact
-   - Reference indexes accurate
+   - Reference indexes accurate **and reconciled against actual implementation** (routes, functions, events, permissions match code)
    - No unintended behavior changes
    - Required regression checks completed
    - Update `system-state.md` if system state changed
+   - **Update phase gate checkboxes** in `master-plan.md` if work satisfies any gate condition (with ACT-NNN evidence reference)
 
 ## Impact Classification
 
