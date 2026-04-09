@@ -36,6 +36,18 @@ If ANY checklist item is not satisfied:
 - [ ] Execution performed ONLY against approved plan baseline (no proposed sections used)
 - [ ] No Constitution rule violated
 
+## Quality Checklist (ALL must be satisfied for implementation tasks)
+
+- [ ] **End-to-end tested** — feature verified in its complete flow, not just the changed file
+- [ ] **Security assessed** — no new attack surfaces, no permission gaps, no data leaks
+- [ ] **Performance assessed** — no regressions in latency, bundle size, or query performance
+- [ ] **All tests pass** — if any test fails, fix and retest until ALL pass. No partial passes.
+- [ ] **Code is auditable** — clear audit trail: who did what, when, why. Structured logging.
+- [ ] **Code is diagnosable** — no silent failures, no swallowed errors, clear error paths
+- [ ] **Code is testable** — unit, integration, and E2E testable. Separation of concerns maintained.
+- [ ] **Testing strategy followed** — coverage targets met per `testing-strategy.md`
+- [ ] **Regression strategy followed** — baseline comparisons done per `regression-strategy.md`
+
 ## Verification Requirements (CLARIFIED)
 
 Verification must include:

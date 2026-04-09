@@ -1,21 +1,27 @@
-## Governance Redundancy Fixes
+## Fix Plan: Institutional-Grade Quality Enforcement
 
-### Fix 1 — Strengthen Memory Index as Backup Governance Layer
-Update `mem://index.md` Core section to include binding hard stops (not just notes):
-- "STOP: Read docs/00-governance/constitution.md + system-state.md before ANY action"
-- "Code generation: blocked. Phase: documentation-only. Violations = INVALID."
-- "Unplanned features → docs/08-planning/feature-proposals.md. Do NOT implement."
+### 1. Add QUALITY MANDATE section to `.lovable/rules.md` and `.cursorrules`
+New section covering:
+- **Institutional-grade standard**: Every output must be A+, 100/100, production-grade
+- **Security-first**: Every task must consider security implications, follow `docs/02-security/` guidelines
+- **Performance-aware**: Every task must consider performance, follow `docs/03-performance/` guidelines
+- **End-to-end verification**: After every implementation task, test end-to-end. If it fails, fix and retest until it passes
+- **Auditable, diagnosable, testable**: Every piece of code must be auditable (clear trail), diagnosable (clear error paths), and testable (unit/integration/E2E ready)
+- **Mandatory testing docs**: Link to `testing-strategy.md` and `regression-strategy.md` as required reading for implementation tasks
 
-This ensures that even if `.lovable/rules.md` isn't loaded, the memory (which is ALWAYS in Lovable context) catches the AI.
+### 2. Strengthen Definition of Done
+Add to the core checklist:
+- End-to-end verification completed (tested, not assumed)
+- Security implications assessed
+- Performance implications assessed
+- Code is auditable, diagnosable, and testable
+- If tests fail → fix and retest until all pass (no partial passes accepted)
 
-### Fix 2 — Add governance memory file
-Create `mem://governance/bootstrap-backup` with the critical execution gates and reading order — a compressed version of the rules file that memory can reference.
+### 3. Update memory index
+Add quality mandate to Core section so it's always in context.
 
-### Fix 3 — Strengthen README as universal fallback
-Add a more prominent "STOP" block at the very top of README.md so ANY AI tool (not just Lovable/Cursor) sees governance before acting.
-
-### Result: 4 redundant layers
-1. `.lovable/rules.md` → auto-loaded, full rules
-2. `.cursorrules` → auto-loaded, full rules  
-3. `mem://index.md` → always in context, hard stops + pointers
-4. `README.md` → universal fallback with STOP block
+### Files Modified:
+- `.lovable/rules.md`
+- `.cursorrules`
+- `docs/00-governance/definition-of-done.md`
+- `mem://index.md`
