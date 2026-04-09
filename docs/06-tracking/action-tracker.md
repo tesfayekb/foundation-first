@@ -345,7 +345,31 @@ Each action must include:
 | **Related Events** | auth.signed_up, auth.signed_in, auth.signed_out, auth.failed_attempt, auth.password_reset, auth.mfa_enrolled |
 | **Status** | Verified |
 
-**Remaining Phase 1 items:** OAuth (B+C deferred), MFA recovery codes (planned), security scan.
+**Remaining Phase 1 items:** OAuth (B+C deferred), MFA recovery codes (planned), auth failure modes testing (expired token, failed MFA), auth-security.md formal validation.
+
+### ACT-012: Governance Enforcement Gap Fix (Phase Gate + Route Index + DoD)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-09 |
+| **Type** | Fix |
+| **Impact** | HIGH |
+| **Modules Affected** | governance (all), auth (route index) |
+| **Docs Updated** | master-plan.md, definition-of-done.md, change-control-policy.md, route-index.md, action-tracker.md, .lovable/rules.md |
+| **Verification Type** | Manual review + cross-reference audit |
+| **Verification Scope** | Immediate |
+| **Evidence** | **Root cause analysis:** 5 governance rules violated (Constitution Rules 2/7, DoD item 36, Change Control Steps 7/9, AI Operating Model Rule 5). **Gaps identified:** (A) No phase gate verification step in workflow, (B) No cross-reference between action tracker and phase gates, (C) No route-index-to-code reconciliation. **Fixes applied:** (1) master-plan.md Phase 1 gate checkboxes updated with evidence references; (2) DoD Core Checklist expanded with mandatory phase gate checkbox update; (3) DoD Reference Index Reconciliation Requirement added; (4) Change Control Step 9 expanded with phase gate and reconciliation requirements; (5) Route index corrected: `/login`→`/sign-in`, `/signup`→`/sign-up`, added `/reset-password`, `/mfa-challenge`, `/mfa-enroll`; (6) Bootstrap rules updated with Phase Gate Verification Protocol. |
+| **Verified By** | AI Agent + Project Lead review |
+| **Before State** | Phase gate checkboxes all unchecked despite work done; route index mismatched code; no forcing function for phase gate updates |
+| **After State** | Phase gates accurately reflect verified work; route index matches implementation; DoD and Change Control have explicit phase gate and reconciliation requirements |
+| **Rollback Available** | Yes |
+| **Rollback Method** | Revert governance doc changes |
+| **Blast Radius** | System-wide (governance enforcement) |
+| **Health Impact** | Improved — closes systemic enforcement gap |
+| **Related Functions** | N/A |
+| **Related Events** | N/A |
+| **Related Routes** | /sign-in, /sign-up, /forgot-password, /reset-password, /mfa-challenge, /mfa-enroll |
+| **Status** | Verified |
 
 ---
 
@@ -385,7 +409,7 @@ Each action must include:
 |------|-------|-------------|
 | Feature | 2 | 2 |
 | Documentation | 8 | 8 |
-| Fix | 0 | 0 |
+| Fix | 1 | 1 |
 | Security | 1 | 1 |
 | Performance | 0 | 0 |
 | Regression | 0 | 0 |
@@ -394,7 +418,7 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 11 |
+| Verified | 12 |
 | Completed (unverified) | 0 |
 | In Progress | 0 |
 | Rolled Back | 0 |
@@ -404,7 +428,7 @@ Each action must include:
 - Regressions introduced: 0
 - Regressions resolved: 0
 - Open (unverified) actions: 0
-- High-impact actions this period: 11
+- High-impact actions this period: 12
 
 _Updated as actions are added._
 
