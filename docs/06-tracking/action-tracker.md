@@ -394,6 +394,29 @@ Each action must include:
 | **Related Routes** | / |
 | **Status** | Verified |
 
+### ACT-014: Phase 1 Gate Completion — Failure Modes + Auth Security Validation
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-09 |
+| **Type** | Security |
+| **Impact** | HIGH |
+| **Modules Affected** | auth |
+| **Docs Updated** | master-plan.md, auth-security.md, action-tracker.md |
+| **Verification Type** | Runtime E2E testing + systematic doc validation |
+| **Verification Scope** | Immediate + Runtime |
+| **Evidence** | **Failure mode testing (browser E2E):** (1) Invalid credentials → sign-in stays on page, error toast shown, `auth.failed_attempt` event emitted with structured payload (event_id, correlation_id, timestamp); (2) Expired/invalid reset token → `/reset-password` renders "Invalid reset link" page with "Request new reset" CTA — no form exposed; (3) MFA challenge without enrollment → error toast "Could not load MFA factors", verify button disabled — no bypass path. **Auth security validation against auth-security.md:** Password policy: min 12 chars enforced client-side (SignIn, SignUp, ResetPassword all use `minLength={12}`); Session management: Supabase JWT with refresh token rotation (per config-index); MFA: TOTP enrollment + challenge fully operational; Sensitive flows: `requiresReauthentication()` utility available; Rate limiting: Supabase-managed; Audit events: all 8 auth events defined and emitting; auth-security.md status table updated from "Not started" to "Implemented". **Security scan:** zero findings. |
+| **Verified By** | AI Agent (runtime browser testing) |
+| **Before State** | 2 Phase 1 gate items unchecked; auth-security.md status table outdated |
+| **After State** | All 6 Phase 1 gate items checked with evidence; auth-security.md status accurate |
+| **Rollback Available** | Yes |
+| **Rollback Method** | Revert doc changes |
+| **Blast Radius** | Medium (documentation + gate verification) |
+| **Health Impact** | Improved — Phase 1 fully gated |
+| **Related Events** | auth.failed_attempt |
+| **Related Risks** | RISK-001 (credential compromise) |
+| **Status** | Verified |
+
 ---
 
 ### Risk Resolution Tracking
@@ -433,7 +456,7 @@ Each action must include:
 | Feature | 2 | 2 |
 | Documentation | 9 | 9 |
 | Fix | 1 | 1 |
-| Security | 1 | 1 |
+| Security | 2 | 2 |
 | Performance | 0 | 0 |
 | Regression | 0 | 0 |
 
@@ -441,7 +464,7 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 13 |
+| Verified | 14 |
 | Completed (unverified) | 0 |
 | In Progress | 0 |
 | Rolled Back | 0 |
@@ -451,7 +474,7 @@ Each action must include:
 - Regressions introduced: 0
 - Regressions resolved: 0
 - Open (unverified) actions: 0
-- High-impact actions this period: 13
+- High-impact actions this period: 14
 
 _Updated as actions are added._
 
