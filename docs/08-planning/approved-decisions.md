@@ -109,6 +109,105 @@ If any field is missing → the decision is **INVALID**.
 
 ---
 
+### DEC-008: Authentication Module Approved
+- **Plan Section:** PLAN-AUTH-001
+- **Decision Type:** policy
+- **Date Approved:** 2026-04-09
+- **Decision:** Authentication module approved for implementation, subject to existing dependencies, change control, and SSOT indexes.
+- **Affected Modules / Systems:** auth, RBAC, user-management, admin-panel, user-panel
+- **Status:** active
+- **Superseded By:** —
+
+---
+
+### DEC-009: RBAC Module Approved
+- **Plan Section:** PLAN-RBAC-001
+- **Decision Type:** policy
+- **Date Approved:** 2026-04-09
+- **Decision:** RBAC module approved for implementation, subject to existing dependencies, change control, and SSOT indexes.
+- **Affected Modules / Systems:** RBAC, admin-panel, API, user-management
+- **Status:** active
+- **Superseded By:** —
+
+---
+
+### DEC-010: User Management Module Approved
+- **Plan Section:** PLAN-USRMGMT-001
+- **Decision Type:** policy
+- **Date Approved:** 2026-04-09
+- **Decision:** User Management module approved for implementation, subject to existing dependencies, change control, and SSOT indexes.
+- **Affected Modules / Systems:** user-management, admin-panel, user-panel
+- **Status:** active
+- **Superseded By:** —
+
+---
+
+### DEC-011: Admin Panel Approved
+- **Plan Section:** PLAN-ADMIN-001
+- **Decision Type:** policy
+- **Date Approved:** 2026-04-09
+- **Decision:** Admin Panel approved for implementation, subject to existing dependencies, change control, and SSOT indexes.
+- **Affected Modules / Systems:** admin-panel, all modules (management interface)
+- **Status:** active
+- **Superseded By:** —
+
+---
+
+### DEC-012: User Panel Approved
+- **Plan Section:** PLAN-USRPNL-001
+- **Decision Type:** policy
+- **Date Approved:** 2026-04-09
+- **Decision:** User Panel approved for implementation, subject to existing dependencies, change control, and SSOT indexes.
+- **Affected Modules / Systems:** user-panel, auth
+- **Status:** active
+- **Superseded By:** —
+
+---
+
+### DEC-013: Audit Logging Module Approved
+- **Plan Section:** PLAN-AUDIT-001
+- **Decision Type:** policy
+- **Date Approved:** 2026-04-09
+- **Decision:** Audit Logging module approved for implementation, subject to existing dependencies, change control, and SSOT indexes.
+- **Affected Modules / Systems:** audit-logging, all modules (logging targets)
+- **Status:** active
+- **Superseded By:** —
+
+---
+
+### DEC-014: Health Monitoring Module Approved
+- **Plan Section:** PLAN-HEALTH-001
+- **Decision Type:** policy
+- **Date Approved:** 2026-04-09
+- **Decision:** Health Monitoring module approved for implementation, subject to existing dependencies, change control, and SSOT indexes.
+- **Affected Modules / Systems:** health-monitoring
+- **Status:** active
+- **Superseded By:** —
+
+---
+
+### DEC-015: API Layer Approved
+- **Plan Section:** PLAN-API-001
+- **Decision Type:** policy
+- **Date Approved:** 2026-04-09
+- **Decision:** API Layer approved for implementation, subject to existing dependencies, change control, and SSOT indexes.
+- **Affected Modules / Systems:** API, auth, RBAC
+- **Status:** active
+- **Superseded By:** —
+
+---
+
+### DEC-016: Jobs and Scheduler Module Approved
+- **Plan Section:** PLAN-JOBS-001
+- **Decision Type:** policy
+- **Date Approved:** 2026-04-09
+- **Decision:** Jobs and Scheduler module approved for implementation, subject to existing dependencies, change control, and SSOT indexes.
+- **Affected Modules / Systems:** jobs-and-scheduler
+- **Status:** active
+- **Superseded By:** —
+
+---
+
 ## Decision Integrity Rules
 
 - Every approved plan section MUST have a corresponding `DEC-NNN` entry
