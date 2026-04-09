@@ -1,6 +1,6 @@
 # Plan Changelog
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-08
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-09
 
 ## Purpose
 
@@ -103,11 +103,28 @@ Each entry MUST align with the required plan diff:
 | Section IDs Changed | PLAN-AUTH-001, PLAN-RBAC-001, PLAN-USRMGMT-001, PLAN-ADMIN-001, PLAN-USRPNL-001, PLAN-AUDIT-001, PLAN-HEALTH-001, PLAN-API-001, PLAN-JOBS-001 |
 | Decision IDs Affected | DEC-008, DEC-009, DEC-010, DEC-011, DEC-012, DEC-013, DEC-014, DEC-015, DEC-016 |
 | What Changed | Execution status only — all 9 sections moved from `proposed` to `approved` |
-| Why | All module documentation scored 100/100; governance system complete; no remaining blockers |
+| Why | All module documentation scored 100/100; governance system complete; OQ-002 and OQ-005 remain open (resolved in v4) |
 | What Stayed | All module definitions, dependencies, acceptance criteria, subsections unchanged |
 | What Was Added | DEC-008 through DEC-016 (implementation approvals) |
 | What Was Removed | None |
 | Approval Status | Approved (Review Round 2) |
+| Supersession Links | None |
+
+### v3 → v4 (2026-04-09)
+
+**Type:** Corrective alignment — pre-implementation audit fixes
+
+| Field | Value |
+|-------|-------|
+| Plan Version | v3 → v4 |
+| Section IDs Changed | None (no plan section definitions changed) |
+| Decision IDs Affected | DEC-017 (new), DEC-018 (new), DEC-019 (new) |
+| What Changed | Resolved OQ-002 (MFA recovery codes → DEC-017), OQ-004 (moderator deferred to v2 → DEC-018), OQ-005 (pg_cron → DEC-019). Fixed RSK→RISK ID mismatch across 6 reference indexes. Added missing permission entries (self-scope permissions). Added missing Permission UUID placeholders. Added RW-006 (health monitoring watchlist item). Updated Last Reviewed dates. Fixed v2→v3 changelog wording. |
+| Why | Pre-implementation audit identified 10 issues (2 critical blockers, 5 medium, 3 low). All resolved. |
+| What Stayed | All plan section definitions, dependencies, acceptance criteria, module docs unchanged |
+| What Was Added | DEC-017, DEC-018, DEC-019, RW-006, 3 self-scope permission entries, Permission UUID placeholders |
+| What Was Removed | Provisional moderator references (per DEC-018) |
+| Approval Status | Approved |
 | Supersession Links | None |
 
 ## Supersession Chain Requirement
