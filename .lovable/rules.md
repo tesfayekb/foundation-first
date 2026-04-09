@@ -1,0 +1,160 @@
+# Lovable AI Rules — Mandatory Governance Bootstrap
+# ================================================
+# This file is a BINDING CONTRACT. Lovable MUST obey these rules before ANY action.
+# Violation = invalid work product. No exceptions.
+
+## STOP — READ BEFORE DOING ANYTHING
+
+Before writing, modifying, or deleting ANY file (code or documentation), you MUST:
+
+1. Read `docs/00-governance/system-state.md` — this defines what is allowed RIGHT NOW
+2. Read `docs/00-governance/constitution.md` — these are the 11 non-negotiable rules
+3. Read `docs/08-planning/approved-decisions.md` — these are binding decisions
+4. Read `docs/08-planning/master-plan.md` — this is the approved execution plan
+
+## EXECUTION GATES (HARD BLOCKS)
+
+Check `system-state.md` YAML block. Obey these gates absolutely:
+
+- If `code_generation: blocked` → **DO NOT generate any code.** Documentation tasks only.
+- If `phase: documentation-only` → **DO NOT create implementation files.** Docs only.
+- If `approved_plan_baseline: none` → **DO NOT implement anything.** No baseline = no execution.
+- Execution MUST use the `approved_plan_baseline` version defined in system-state.md.
+- Only plan sections with status `approved` or `approved-partial` may be executed.
+
+## MANDATORY READING ORDER (Every Task)
+
+For every task — no matter how small — read these in order:
+
+1. `docs/00-governance/constitution.md` (11 rules)
+2. `docs/00-governance/system-state.md` (current phase + gates)
+3. `docs/08-planning/approved-decisions.md` (binding decisions: DEC-001 through DEC-019+)
+4. `docs/08-planning/master-plan.md` (plan sections with stable IDs)
+5. Relevant module docs from `docs/04-modules/` (for the module you're working on)
+6. `docs/01-architecture/dependency-map.md` (if shared logic is involved)
+7. Relevant reference indexes from `docs/07-reference/` (if shared components involved)
+
+If ANY required document is missing or unclear → **STOP and ask for clarification.** Do not assume.
+
+## CHANGE CONTROL (9-Step Workflow)
+
+Every change must follow the 9-step workflow in `docs/00-governance/change-control-policy.md`:
+
+1. **Identify** — What is being changed and why?
+2. **Classify** — Impact: Low / Medium / High
+3. **Assess Dependencies** — Check `dependency-map.md` and module cross-references
+4. **Check Constraints** — Verify against constitution, approved decisions, system state
+5. **Plan** — Define scope, affected modules, documentation updates needed
+6. **Execute** — Make the change
+7. **Update Documentation** — Update ALL affected docs (module docs, reference indexes, tracking)
+8. **Verify** — Record evidence of correctness
+9. **Log** — Create action tracker entry in `docs/06-tracking/action-tracker.md`
+
+HIGH-impact changes require pre/post state tracking, blast radius assessment, and rollback plan.
+
+## OUTPUT FORMAT (Mandatory After Every Task)
+
+After completing any task, produce this output:
+
+```
+## Change Summary
+[What was done]
+
+## Modules Impacted
+[List of affected modules]
+
+## Docs Updated
+[List of documentation files modified]
+
+## References Updated
+[List of reference index files modified]
+
+## Verification Status
+[How the change was verified]
+
+## Risks / Follow-up
+[Any outstanding risks or required follow-up]
+```
+
+## PLAN REVISION FORMAT (When Modifying master-plan.md)
+
+```
+## Plan Version
+[New version identifier]
+
+## Sections Preserved (unchanged, listed by ID)
+[e.g., PLAN-AUTH-001, PLAN-RBAC-001]
+
+## Sections Modified (ID, reason, superseded-by link)
+[Table of modifications]
+
+## New Sections Added (with new IDs)
+[List]
+
+## Sections Removed (ID, justification, prior approval reference)
+[List]
+
+## Approved Decisions Affected (by DEC-NNN ID)
+[List]
+
+## Review Required (yes/no, which section IDs)
+[List]
+```
+
+## NON-NEGOTIABLE RULES (from Constitution)
+
+1. Every document has exactly one owner
+2. No undocumented features — code without docs is invalid
+3. Every change follows the change control workflow
+4. Approved plan sections cannot be dropped without explicit supersession
+5. Execution only from approved baseline
+6. Plan revisions are merges, not rewrites — stable IDs preserved
+7. Roles MUST be in a separate `user_roles` table — NEVER on profile/users table
+8. If required documents are missing or unclear → STOP, do not assume
+9. Feature scope is locked (auth, RBAC, admin/user panels, audit, monitoring, API, jobs) — no expansion without approval
+10. Moderator role is deferred to v2 (DEC-018) — do not implement
+11. MFA recovery: 10 codes, 8 alphanumeric characters (DEC-017)
+
+## REFERENCE INDEX MAINTENANCE
+
+When modifying code that affects shared components, you MUST update the relevant indexes:
+
+- `docs/07-reference/function-index.md` — shared/reusable functions
+- `docs/07-reference/permission-index.md` — RBAC permissions
+- `docs/07-reference/route-index.md` — API and UI routes
+- `docs/07-reference/event-index.md` — system events
+- `docs/07-reference/config-index.md` — configuration keys
+- `docs/07-reference/env-var-index.md` — environment variables
+
+## DEPENDENCY ORDER (Implementation Sequence)
+
+Implementation MUST follow this dependency chain:
+
+1. ~~PLAN-GOV-001~~ (implemented)
+2. PLAN-AUTH-001 (Authentication)
+3. PLAN-RBAC-001 (RBAC — depends on Auth)
+4. PLAN-USRMGMT-001, PLAN-AUDIT-001, PLAN-API-001 (parallel, after RBAC)
+5. PLAN-ADMIN-001 (after RBAC + User Management)
+6. PLAN-USRPNL-001 (after Auth)
+7. PLAN-HEALTH-001, PLAN-JOBS-001 (independent, any time after GOV)
+
+Do NOT implement a module before its dependencies are complete.
+
+## DOCUMENTATION LOCATIONS
+
+```
+docs/
+├── 00-governance/    — Constitution, change control, system state, AI rules
+├── 01-architecture/  — Architecture overview, dependency map, design principles
+├── 02-security/      — Auth security, authorization, input validation
+├── 03-performance/   — Caching, DB performance, strategy
+├── 04-modules/       — Module specs (auth, rbac, admin, user, audit, health, api, jobs)
+├── 05-quality/       — Testing strategy, regression strategy
+├── 06-tracking/      — Action tracker, risk register, regression watchlist
+├── 07-reference/     — Function, permission, route, event, config, env var indexes
+└── 08-planning/      — Master plan, approved decisions, changelog, review log
+```
+
+## FINAL WARNING
+
+If you skip reading governance docs, generate code when blocked, drop plan sections, or fail to update documentation — the work is INVALID and must be reverted. This is not advisory. This is mandatory.
