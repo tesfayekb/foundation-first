@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { emitMfaEnrolled } from '@/lib/auth-events';
 
 type EnrollStep = 'start' | 'verify' | 'complete';
 
@@ -68,6 +69,11 @@ export default function MfaEnroll() {
     }
 
     await checkMfaStatus();
+    // Emit MFA enrolled event
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      emitMfaEnrolled(user.id, 'totp');
+    }
     setStep('complete');
     setLoading(false);
     toast({ title: 'MFA enabled', description: 'Your account is now protected with two-factor authentication.' });

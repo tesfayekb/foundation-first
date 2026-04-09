@@ -331,8 +331,8 @@ Each action must include:
 | **Impact** | HIGH |
 | **Modules Affected** | auth |
 | **Docs Updated** | system-state.md, action-tracker.md |
-| **Verification Type** | Code review |
-| **Verification Scope** | Immediate |
+| **Verification Type** | Code review + runtime (pending live E2E) |
+| **Verification Scope** | Runtime |
 | **Evidence** | Implemented: `getSessionContext()` in `src/lib/auth-guards.ts`; `isEmailVerified()` / `requireVerifiedEmail` component guard in `src/components/auth/RequireVerifiedEmail.tsx`; `isRecentlyAuthenticated()` / `requiresReauthentication()` in `src/lib/auth-guards.ts`; Auth event emission system in `src/lib/auth-events.ts` (emitSignedUp, emitSignedIn, emitSignedOut, emitFailedAttempt, emitPasswordReset, emitMfaEnrolled, emitMfaRecovered, emitSessionRevoked); AuthContext wired to emit events on all auth actions; `RequireVerifiedEmail` guard wraps protected routes in App.tsx |
 | **Verified By** | AI Agent |
 | **Before State** | Shared functions documented but not implemented; no event emission; no email verification enforcement |
@@ -343,9 +343,10 @@ Each action must include:
 | **Health Impact** | Improved — closes docs-to-code gap |
 | **Related Functions** | getSessionContext, isEmailVerified, isRecentlyAuthenticated, requiresReauthentication, emitSignedUp, emitSignedIn, emitSignedOut, emitFailedAttempt, emitPasswordReset, emitMfaEnrolled |
 | **Related Events** | auth.signed_up, auth.signed_in, auth.signed_out, auth.failed_attempt, auth.password_reset, auth.mfa_enrolled |
-| **Status** | Verified |
+| **Status** | Completed |
 
 **Remaining Phase 1 items:** OAuth (B+C deferred), MFA recovery codes (planned), live E2E testing, security scan.
+**Note:** Downgraded from Verified to Completed — original evidence was code-review only; HIGH-impact security item requires runtime verification per tracker rules. Will be promoted to Verified after live E2E confirmation.
 
 ---
 
@@ -386,7 +387,7 @@ Each action must include:
 | Feature | 2 | 2 |
 | Documentation | 7 | 7 |
 | Fix | 0 | 0 |
-| Security | 0 | 0 |
+| Security | 1 | 1 |
 | Performance | 0 | 0 |
 | Regression | 0 | 0 |
 
@@ -394,7 +395,7 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 9 |
+| Verified | 11 |
 | Completed (unverified) | 0 |
 | In Progress | 0 |
 | Rolled Back | 0 |
@@ -404,7 +405,7 @@ Each action must include:
 - Regressions introduced: 0
 - Regressions resolved: 0
 - Open (unverified) actions: 0
-- High-impact actions this period: 9
+- High-impact actions this period: 11
 
 _Updated as actions are added._
 

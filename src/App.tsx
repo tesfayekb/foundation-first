@@ -42,7 +42,9 @@ const App = () => (
             } />
             <Route path="/mfa-enroll" element={
               <RequireAuth>
-                <MfaEnroll />
+                <RequireVerifiedEmail>
+                  <MfaEnroll />
+                </RequireVerifiedEmail>
               </RequireAuth>
             } />
 
