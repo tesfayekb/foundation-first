@@ -172,6 +172,50 @@ If you identify a feature, enhancement, or capability that is NOT in the approve
 
 This applies to ALL unplanned features — no matter how small, useful, or obvious they seem. Scope is locked. No exceptions.
 
+## QUALITY MANDATE — INSTITUTIONAL GRADE (NON-NEGOTIABLE)
+
+This is an institutional-grade project. Every output must meet A+ / 100/100 standard. "Good enough" is not acceptable.
+
+### Quality Standard (Every Task)
+
+1. **Security-first**: Every task must assess security implications. Read and follow `docs/02-security/` guidelines. Auth, RBAC, input validation, and data access are never optional considerations.
+2. **Performance-aware**: Every task must assess performance implications. Read and follow `docs/03-performance/` guidelines. No unoptimized queries, unbounded lists, or missing indexes.
+3. **Auditable**: Every piece of code must have a clear audit trail — who did what, when, why. Logging, structured errors, and action tracking are mandatory.
+4. **Diagnosable**: Every failure path must be clear and traceable. No silent failures, no swallowed errors, no ambiguous states. Errors must be structured, logged, and actionable.
+5. **Testable**: Every piece of code must be testable at unit, integration, and E2E levels. No tightly coupled, untestable logic. Separation of concerns is mandatory.
+
+### End-to-End Verification (Every Implementation Task)
+
+After completing any implementation task:
+
+1. **Test end-to-end** — verify the feature works in its complete flow, not just the changed file
+2. **Verify security** — confirm no new attack surfaces, no permission gaps, no data leaks
+3. **Verify performance** — confirm no regressions in latency, bundle size, or query performance
+4. **If ANY test fails → FIX and RETEST** — repeat until ALL tests pass. No partial passes accepted. Do not declare done with known failures.
+5. **Verify documentation alignment** — confirm all docs reflect the implementation accurately
+
+### Mandatory Testing Reading (Implementation Tasks)
+
+For any implementation task, you MUST also read:
+
+- `docs/05-quality/testing-strategy.md` — testing governance, coverage targets, test pyramid
+- `docs/05-quality/regression-strategy.md` — regression prevention, baselines, cross-module checks
+
+These are not optional. They define the testing contract for this project.
+
+### Code Quality Non-Negotiables
+
+- No `any` types in TypeScript (use proper typing)
+- No disabled ESLint rules without documented justification
+- No hardcoded secrets, tokens, or credentials
+- No console.log in production code (use structured logging)
+- No TODO/FIXME without a tracked action item
+- No dead code or unused imports
+- Error boundaries on all major UI sections
+- Loading and error states for all async operations
+- Input validation on all user-facing forms (client + server)
+- Proper HTTP status codes and error responses
+
 ## FINAL WARNING
 
-If you skip reading governance docs, generate code when blocked, drop plan sections, or fail to update documentation — the work is INVALID and must be reverted. This is not advisory. This is mandatory.
+If you skip reading governance docs, generate code when blocked, drop plan sections, fail to update documentation, skip testing, or produce code that is not auditable/diagnosable/testable — the work is INVALID and must be reverted. This is not advisory. This is mandatory.
