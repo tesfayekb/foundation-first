@@ -93,6 +93,23 @@ Each entry MUST align with the required plan diff:
 | Approval Status | Approved |
 | Supersession Links | DEC-002 → DEC-006 |
 
+### v2 → v3 (2026-04-09)
+
+**Type:** Governance transition — plan approval (Review Round 2)
+
+| Field | Value |
+|-------|-------|
+| Plan Version | v2 → v3 |
+| Section IDs Changed | PLAN-AUTH-001, PLAN-RBAC-001, PLAN-USRMGMT-001, PLAN-ADMIN-001, PLAN-USRPNL-001, PLAN-AUDIT-001, PLAN-HEALTH-001, PLAN-API-001, PLAN-JOBS-001 |
+| Decision IDs Affected | DEC-008, DEC-009, DEC-010, DEC-011, DEC-012, DEC-013, DEC-014, DEC-015, DEC-016 |
+| What Changed | Execution status only — all 9 sections moved from `proposed` to `approved` |
+| Why | All module documentation scored 100/100; governance system complete; no remaining blockers |
+| What Stayed | All module definitions, dependencies, acceptance criteria, subsections unchanged |
+| What Was Added | DEC-008 through DEC-016 (implementation approvals) |
+| What Was Removed | None |
+| Approval Status | Approved (Review Round 2) |
+| Supersession Links | None |
+
 ## Supersession Chain Requirement
 
 For any modification to an approved section:
