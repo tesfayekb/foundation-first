@@ -30,7 +30,7 @@ export default function ResetPassword() {
     if (password !== confirmPassword) {
       toast({
         variant: 'destructive',
-        title: 'Passwords don't match',
+        title: 'Passwords do not match',
         description: 'Please make sure both passwords are the same.',
       });
       return;
