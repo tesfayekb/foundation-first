@@ -328,8 +328,8 @@ At each phase boundary (before advancing to the next phase):
 | DW-011 | Distributed Rate Limiting | Phase 3 | Phase 6 | `assigned` |
 | DW-012 | Authenticated lifecycle test infrastructure | Phase 3 | Phase 6 | `assigned` |
 | DW-013 | Orphaned test-user cleanup automation | Phase 3 | Phase 6 | `assigned` |
-| DW-014 | Denial audit logging | Phase 3 | Phase 6 | `assigned` |
-| DW-015 | Superadmin high-risk action explicit permission | Phase 3 | Phase 6 | `assigned` |
+| DW-014 | Denial audit logging | Phase 3 | Phase 3.5 | `implemented` |
+| DW-015 | Superadmin guardrails | Phase 3 | Phase 3.5 | `implemented` |
 
 ## Registry (continued)
 
@@ -415,19 +415,20 @@ At each phase boundary (before advancing to the next phase):
 | **Reason Deferred** | Gate 1 reviewer noted denied actions are enforced but not logged to audit trail. Current behavior is fail-secure (403 returned) but denials are not auditable. |
 | **Blocking Dependencies** | None — logAuditEvent infrastructure exists; requires adding calls on PermissionDeniedError catch paths |
 | **Impact on Source Phase** | No impact — Phase 3 gates passed. This is a hardening improvement. |
-| **Future Owner Phase** | Phase 6 — Hardening & System Validation |
+| **Future Owner Phase** | Phase 3.5 — Security Hardening |
 | **Future Owner Module** | PLAN-AUDIT-001, PLAN-API-001 |
 | **Required Plan Realignment** | Phase 6 must add denial logging to handler.ts PermissionDeniedError catch path with user_id, permission, resource, correlation_id |
 | **Related Decisions** | — |
 | **Related Actions** | ACT-035 (Gate 1 reviewer note) |
-| **Required Tests for Closure** | Denied request → audit_logs entry with action='rbac.permission_denied'; log contains user_id, permission_key, correlation_id; no sensitive data in denial metadata |
-| **Status** | `assigned` |
-| **Implemented by Action** | — |
-| **Implemented in Plan Version** | — |
+| **Required Tests for Closure** | Denied request → audit_logs entry with action='auth.permission_denied'; log contains actor_id, permission_key, correlation_id; no sensitive data in denial metadata |
+| **Status** | `implemented` |
+| **Implemented by Action** | Phase 3.5A — Stage 3.5 plan execution |
+| **Implemented in Plan Version** | v9 |
+| **Resolution Note** | Centralized denial interception in handler.ts. PermissionDeniedError enriched with userId (authoritative) and reason. JWT fallback as best-effort enrichment only. actor_id nullable (no fake sentinels). Event: auth.permission_denied with metadata including permission_key, reason, endpoint, actor_known, correlation_id. Runtime-verified: permission denial + cross-user access both produce correct audit rows. |
 
 ---
 
-### DW-015: Superadmin High-Risk Action Explicit Permission
+### DW-015: Superadmin Guardrails
 
 | Field | Value |
 |-------|-------|
@@ -435,19 +436,20 @@ At each phase boundary (before advancing to the next phase):
 | **Date Deferred** | 2026-04-10 |
 | **Source Plan Section** | PLAN-RBAC-001 |
 | **Source Phase** | Phase 3 — Core Services (RBAC) |
-| **Title** | Optional explicit permission requirement for high-risk superadmin actions |
+| **Title** | Superadmin guardrails for high-risk RBAC actions |
 | **Reason Deferred** | Gate 1 reviewer noted superadmin bypasses all permission checks via is_superadmin(). High-risk actions (role changes, user deletion) have no additional gate even for superadmin. Design note, not a security vulnerability. |
 | **Blocking Dependencies** | Design decision on which actions require explicit permission even for superadmin |
 | **Impact on Source Phase** | No impact — Phase 3 gates passed. This is an A+ hardening recommendation. |
-| **Future Owner Phase** | Phase 6 — Hardening & System Validation |
+| **Future Owner Phase** | Phase 3.5 — Security Hardening |
 | **Future Owner Module** | PLAN-RBAC-001 |
-| **Required Plan Realignment** | Phase 6 must decide: which actions (if any) require explicit permission even for superadmin; whether to add a 'protected_action' flag to permissions |
+| **Required Plan Realignment** | No RBAC redesign. Surgical hardening only: requireRecentAuth on RBAC endpoints + self-superadmin-revocation prevention. |
 | **Related Decisions** | — |
 | **Related Actions** | ACT-035 (Gate 1 reviewer note) |
-| **Required Tests for Closure** | If implemented: superadmin without explicit permission → denied on protected action; superadmin with explicit permission → allowed |
-| **Status** | `assigned` |
-| **Implemented by Action** | — |
-| **Implemented in Plan Version** | — |
+| **Required Tests for Closure** | All 6 high-risk endpoints enforce requireRecentAuth(); self-superadmin-revocation blocked with 403; no new SQL functions; no RBAC model drift |
+| **Status** | `implemented` |
+| **Implemented by Action** | Phase 3.5B — Stage 3.5 plan execution |
+| **Implemented in Plan Version** | v9 |
+| **Resolution Note** | Added requireRecentAuth() to assign-role, revoke-role, assign-permission-to-role, revoke-permission-from-role (4 endpoints that were missing it). Self-superadmin-revocation prevention added to revoke-role (403 if actor revokes own superadmin role). No new SQL functions, no new seed data, no RBAC model changes. Existing has_permission()/is_superadmin() behavior unchanged. |
 
 ---
 

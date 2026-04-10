@@ -35,13 +35,13 @@ Tracks:
 status: implementation in progress
 phase: development
 code_generation: allowed
-modules_implemented: auth partial (A+D implemented + hardened, B+C deferred), rbac implemented (Phase 2 gate 12/12 closed), user-management implemented (Stage 3C closed), audit-logging implemented (Stage 3B closed), api implemented (Stage 3A closed)
-active_work: Phase 3 CLOSED (ACT-035, Stage 3D gate closure 6/6 passed). Advancing to Phase 4.
-current_plan_version: v8
-approved_plan_baseline: v8
+modules_implemented: auth partial (A+D implemented + hardened, B+C deferred), rbac implemented (Phase 2 gate 12/12 closed), user-management implemented (Stage 3C closed), audit-logging implemented (Stage 3B closed + Phase 3.5 denial logging hardened), api implemented (Stage 3A closed + Phase 3.5 superadmin guardrails hardened)
+active_work: Phase 3.5 CLOSED — DW-014 (denial audit logging) + DW-015 (superadmin guardrails) implemented and runtime-verified. Advancing to Phase 4.
+current_plan_version: v9
+approved_plan_baseline: v9
 plan_status: approved
 artifact_governance: active (artifact-index.md, database-migration-ledger.md, phase-closures/)
-deferred_work_open: [DW-001, DW-002, DW-007, DW-008, DW-011, DW-012, DW-013, DW-014, DW-015]
+deferred_work_open: [DW-001, DW-002, DW-007, DW-008, DW-011, DW-012, DW-013]
 last_updated: 2026-04-10
 ```
 
@@ -78,13 +78,13 @@ If inconsistency is detected → execution must **STOP** and be corrected.
 | Module | Status | Last Updated |
 |--------|--------|-------------|
 | auth | in progress (A+D implemented + hardened: shared functions, events, email gate; B+C deferred [DW-001/002], MFA recovery codes deferred [DW-008]) | 2026-04-10 |
-| rbac | implemented (Phase 2 gate 12/12 closed: schema, helpers, RLS, seed, 4 edge functions deployed, allow+deny matrix verified [ACT-020], role-change reflection confirmed, DW-003/DW-006 implemented, DW-004 implemented, DW-005 cancelled [DEC-022]; requireRole/requireSelfScope implemented [ACT-023]) | 2026-04-10 |
+| rbac | implemented (Phase 2 gate 12/12 closed + Phase 3.5 hardened: requireRecentAuth on 4 RBAC endpoints, self-superadmin-revocation prevention [DW-015]) | 2026-04-10 |
 | user-management | implemented (Phase 3C closed [ACT-032]: lifecycle, deactivate/reactivate, auth ban/unban; Phase 3D Gate 1 runtime-verified [ACT-035]) | 2026-04-10 |
 | admin-panel | not started | — |
 | user-panel | not started | — |
-| audit-logging | implemented (Phase 3B closed: logAuditEvent, sanitization, query/export endpoints; Gate 2+3 verified [ACT-035]) | 2026-04-10 |
+| audit-logging | implemented (Phase 3B closed + Phase 3.5 hardened: centralized denial audit logging via auth.permission_denied event, nullable actor_id, correlation_id in metadata [DW-014]) | 2026-04-10 |
 | health-monitoring | not started | — |
-| api | implemented (Phase 3A closed: shared pipeline — auth, validation, errors, CORS, rate limiting, handler; Gates 4+5+6 verified [ACT-035]) | 2026-04-10 |
+| api | implemented (Phase 3A closed + Phase 3.5 hardened: PermissionDeniedError enriched with userId/reason, centralized denial interception in handler.ts) | 2026-04-10 |
 | jobs-and-scheduler | not started | — |
 
 ## AI Behavior Constraint
