@@ -851,7 +851,7 @@ Each action must include:
 | Feature | 6 | 6 |
 | Documentation | 11 | 11 |
 | Fix | 2 | 2 |
-| Security | 6 | 6 |
+| Security | 8 | 8 |
 | Performance | 0 | 0 |
 | Regression | 0 | 0 |
 
@@ -859,17 +859,17 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 23 |
-| Completed (pending runtime verification) | 2 |
+| Verified | 27 |
+| Completed (pending runtime verification) | 2 (ACT-027, ACT-028 — superseded by ACT-029 verified lifecycle proof) |
 | In Progress | 0 |
 | Rolled Back | 0 |
 
 ### Trend Indicators
 
 - Regressions introduced: 0
-- Regressions resolved: 0
-- Open (unverified) actions: 2 (ACT-027, ACT-028 — pending authenticated runtime tests)
-- High-impact actions this period: 25
+- Regressions resolved: 1 (reactivation auth-unban gap — ACT-029)
+- Open (unverified) actions: 0 (ACT-027/028 infrastructure verified; ACT-029 provides full runtime proof)
+- High-impact actions this period: 27
 
 _Updated as actions are added._
 
