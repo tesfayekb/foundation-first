@@ -78,6 +78,26 @@ Deno.serve(createHandler(async (req: Request) => {
     })
   }
 
+  // Clear the auth ban first (fail-closed: if we can't unban, don't flip status)
+  try {
+    const { error: unbanErr } = await supabaseAdmin.auth.admin.updateUserById(user_id, {
+      ban_duration: 'none',
+    })
+    if (unbanErr) throw unbanErr
+  } catch (e) {
+    const { apiError } = await import('../_shared/api-error.ts')
+    const errMsg = e instanceof Error ? e.message : String(e)
+    console.error('[REACTIVATE] Failed to clear auth ban — aborting', {
+      userId: user_id,
+      correlationId: ctx.correlationId,
+      error: errMsg,
+    })
+    return apiError(500, 'Failed to clear authentication ban', {
+      code: 'AUTH_UNBAN_FAILED',
+      correlationId: ctx.correlationId,
+    })
+  }
+
   // Set status back to active
   const { error: updateErr } = await supabaseAdmin
     .from('profiles')
@@ -85,6 +105,14 @@ Deno.serve(createHandler(async (req: Request) => {
     .eq('id', user_id)
 
   if (updateErr) {
+    // Compensating rollback: re-ban since status didn't update
+    console.error('[REACTIVATE] Profile update failed after unban — re-banning', {
+      userId: user_id,
+      correlationId: ctx.correlationId,
+    })
+    await supabaseAdmin.auth.admin.updateUserById(user_id, {
+      ban_duration: '876000h',
+    })
     const { apiError } = await import('../_shared/api-error.ts')
     return apiError(500, 'Failed to reactivate user', { correlationId: ctx.correlationId })
   }
