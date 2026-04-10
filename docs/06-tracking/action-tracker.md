@@ -836,6 +836,30 @@ Each action must include:
 
 ---
 
+### ACT-032: Lifecycle Behavioral Validation — Happy-Path + Status Verification
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-10 |
+| **Type** | Security |
+| **Impact** | HIGH |
+| **Modules Affected** | user-management |
+| **Docs Updated** | action-tracker.md |
+| **Verification Type** | Runtime |
+| **Verification Scope** | Runtime |
+| **Evidence** | Server-side lifecycle test via temporary `lifecycle-test` edge function (deployed, executed, deleted). **7/7 passed, 1/1 cleanup passed.** Execution ID: `59607b5a-f033-40cb-a780-419ec8e331d6`, Request ID: `019d76b9-d167-74f6-a378-0f90caf0b0a4`. Results: (0) Setup: user created with `active` status ✅; (1) Deactivation: profile status → `deactivated` ✅; (2) Deactivation: auth user banned until `2126-03-17T09:29:44.387018Z` ✅; (3) Login blocked: `User is banned` ✅; (4) Reactivation: auth ban cleared (`banned_until=null`) ✅; (5) Reactivation: profile status → `active` ✅; (6) Login restored: session obtained ✅; (CLEANUP) Test user deleted ✅ — no orphan left. |
+| **Verified By** | AI Agent (runtime execution) |
+| **Before State** | Only denial/boundary tests existed; no behavioral validation of core lifecycle |
+| **After State** | Full happy-path lifecycle proven at runtime: create → deactivate → login-blocked → reactivate → login-restored → cleanup |
+| **Rollback Available** | N/A (test function deleted after execution) |
+| **Blast Radius** | None (read-only validation) |
+| **Health Impact** | Improved — core behavior now runtime-proven |
+| **Related Actions** | ACT-029, ACT-030, ACT-031 |
+| **Related Watchlist** | RW-007 |
+| **Status** | Verified |
+
+---
+
 ### Risk Resolution Tracking
 
 - If action resolves a risk → must link risk ID in `related_risks`
