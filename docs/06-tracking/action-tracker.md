@@ -881,7 +881,7 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 27 (includes ACT-029 lifecycle proof) |
+| Verified | 28 (includes ACT-029 lifecycle proof, ACT-031 governance correction) |
 | Superseded | 2 (ACT-027, ACT-028 — superseded by ACT-029 verified lifecycle proof; retained as historical records) |
 | In Progress | 0 |
 | Rolled Back | 0 |
@@ -891,7 +891,7 @@ Each action must include:
 - Regressions introduced: 0
 - Regressions resolved: 1 (reactivation auth-unban gap — ACT-029)
 - Open (unverified) actions: 0 (ACT-027/028 superseded by ACT-029; no open items)
-- High-impact actions this period: 27
+- High-impact actions this period: 28
 
 _Updated as actions are added._
 
