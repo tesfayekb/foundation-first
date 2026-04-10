@@ -16,7 +16,7 @@
 import { supabaseAdmin } from './supabase-admin.ts'
 
 export interface AuditEventParams {
-  actorId: string
+  actorId: string | null
   action: string
   targetType?: string
   targetId?: string
