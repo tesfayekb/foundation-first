@@ -77,7 +77,7 @@ If inconsistency is detected → execution must **STOP** and be corrected.
 | Module | Status | Last Updated |
 |--------|--------|-------------|
 | auth | in progress (A+D implemented + hardened: shared functions, events, email gate; B+C deferred [DW-001/002], MFA recovery codes deferred [DW-008]) | 2026-04-10 |
-| rbac | foundation code-reviewed (Phase 2: schema, helpers, RLS, seed, edge functions, client helpers — gate NOT closed, runtime unverified; requireRole/requireSelfScope deferred [DW-009/010]) | 2026-04-10 |
+| rbac | foundation verified (Phase 2: schema, helpers, RLS, seed verified at DB level; gate 10/12 checked; edge functions NOT deployed; 2 items remaining [DW-003 allow tests, DW-006 role-change]; DW-004 implemented, DW-005 cancelled via DEC-022; requireRole/requireSelfScope deferred [DW-009/010]) | 2026-04-10 |
 | user-management | not started | — |
 | admin-panel | not started | — |
 | user-panel | not started | — |
