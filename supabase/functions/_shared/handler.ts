@@ -116,10 +116,9 @@ function logDenialAudit(
   endpoint: string,
   correlationId: string
 ): void {
-  // logAuditEvent requires actorId as string; use 'anonymous' sentinel
-  // for null actors so the audit row is still written
+  // actorId can be null — preserves audit truth (unknown ≠ fake)
   logAuditEvent({
-    actorId: actorId ?? '00000000-0000-0000-0000-000000000000',
+    actorId,
     action: 'auth.permission_denied',
     targetType: 'permission',
     metadata: {
@@ -127,6 +126,7 @@ function logDenialAudit(
       reason,
       endpoint,
       actor_known: actorId !== null,
+      correlation_id: correlationId,
     },
     correlationId,
   }).catch((e) => {
