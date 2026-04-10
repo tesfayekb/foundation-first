@@ -989,7 +989,7 @@ Each action must include:
 | Type | Count | High Impact |
 |------|-------|-------------|
 | Feature | 6 | 6 |
-| Documentation | 12 | 11 |
+| Documentation | 13 | 12 |
 | Fix | 4 | 2 |
 | Security | 10 | 10 |
 | Performance | 0 | 0 |
@@ -999,7 +999,7 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 32 |
+| Verified | 33 |
 | Superseded | 2 (ACT-027, ACT-028) |
 | In Progress | 0 |
 | Rolled Back | 0 |
