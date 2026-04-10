@@ -581,6 +581,29 @@ Each action must include:
 
 ---
 
+### ACT-022: Artifact Governance System — Indexes, Ledger, Phase Closures
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-10 |
+| **Type** | Feature |
+| **Impact** | HIGH |
+| **Modules Affected** | governance (all), planning, reference indexes |
+| **Docs Updated** | artifact-index.md (created), database-migration-ledger.md (created), phase-closures/phase-02-rbac-closure.md (created), definition-of-done.md, project-structure.md, action-tracker.md, system-state.md |
+| **Verification Type** | Manual review + cross-reference validation |
+| **Verification Scope** | Immediate |
+| **Evidence** | (1) artifact-index.md created with 10 seed entries (ART-001–ART-010) covering all Phase 2 artifacts; (2) database-migration-ledger.md created with 9 entries (MIG-001–MIG-009) plus current DB object summary (5 tables, 11 functions, 6 triggers, 5 RLS policies); (3) Phase 2 closure record created at docs/08-planning/phase-closures/phase-02-rbac-closure.md — single authoritative file per one-current-summary rule; (4) DoD core checklist expanded with 3 new artifact governance items; (5) project-structure.md updated with docs/ structure including new folders; (6) Supersession chain for handle_new_user bug fully documented (MIG-007→MIG-008→MIG-009, ART-007→ART-008→ART-009). |
+| **Verified By** | AI Agent |
+| **Before State** | No formal artifact governance — important generated files (migrations, closure docs, evidence records) not cataloged or governed |
+| **After State** | Full artifact governance layer: artifact index, DB migration ledger, phase closure folder, one-current-summary rule, DoD integration |
+| **Rollback Available** | Yes |
+| **Rollback Method** | Delete new files; revert DoD and project-structure.md changes |
+| **Blast Radius** | System-wide (governance enhancement) |
+| **Health Impact** | Improved — eliminates artifact discoverability gap |
+| **Status** | Verified |
+
+---
+
 ### Risk Resolution Tracking
 
 - If action resolves a risk → must link risk ID in `related_risks`
@@ -615,7 +638,7 @@ Each action must include:
 
 | Type | Count | High Impact |
 |------|-------|-------------|
-| Feature | 4 | 4 |
+| Feature | 5 | 5 |
 | Documentation | 11 | 11 |
 | Fix | 2 | 2 |
 | Security | 4 | 4 |
@@ -626,7 +649,7 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 21 |
+| Verified | 22 |
 | Completed (unverified) | 0 |
 | In Progress | 0 |
 | Rolled Back | 0 |
@@ -636,7 +659,7 @@ Each action must include:
 - Regressions introduced: 0
 - Regressions resolved: 0
 - Open (unverified) actions: 0
-- High-impact actions this period: 21
+- High-impact actions this period: 22
 
 _Updated as actions are added._
 
