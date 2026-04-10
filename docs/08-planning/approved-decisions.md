@@ -252,6 +252,17 @@ If any field is missing → the decision is **INVALID**.
 
 ---
 
+### DEC-021: Deferred Work Register Protocol
+- **Plan Section:** PLAN-GOV-001
+- **Decision Type:** policy
+- **Date Approved:** 2026-04-10
+- **Decision:** Approved work that cannot be completed in its original phase MUST be registered in `deferred-work-register.md` with full schema (source section, blocking dependencies, future phase assignment, required tests for closure). Deferred gate items carried to a future phase become prerequisite sub-gates of the receiving phase and must be completed before dependent implementation begins. All deferred items must be reviewed at every phase boundary. Items may only be cancelled via change control with a decision record.
+- **Affected Modules / Systems:** All (governance mechanism)
+- **Status:** active
+- **Superseded By:** —
+
+---
+
 ## Decision Integrity Rules
 
 - Every approved plan section MUST have a corresponding `DEC-NNN` entry
