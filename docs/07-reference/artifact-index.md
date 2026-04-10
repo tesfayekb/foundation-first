@@ -284,6 +284,38 @@ For each phase, only **one** authoritative closure document may exist in the rep
 
 ---
 
+### ART-013: Query Audit Logs Edge Function
+
+| Field | Value |
+|-------|-------|
+| **Artifact ID** | ART-013 |
+| **Type** | edge-function |
+| **Title** | query-audit-logs — Paginated audit log query |
+| **Source Path** | `supabase/functions/query-audit-logs/index.ts` |
+| **Created Date** | 2026-04-10 |
+| **Owning Phase** | Phase 3 — Core Services |
+| **Owning Plan Section** | PLAN-AUDIT-001 |
+| **Status** | `active` |
+| **Related Actions** | ACT-024 |
+| **Notes** | Permission: audit.view. Cursor-based pagination, max 100 rows/page. Filters: action, actor_id, target_type, target_id, date_from, date_to. Fixed sort: created_at DESC. |
+
+### ART-014: Export Audit Logs Edge Function
+
+| Field | Value |
+|-------|-------|
+| **Artifact ID** | ART-014 |
+| **Type** | edge-function |
+| **Title** | export-audit-logs — CSV audit log export (high-risk audited) |
+| **Source Path** | `supabase/functions/export-audit-logs/index.ts` |
+| **Created Date** | 2026-04-10 |
+| **Owning Phase** | Phase 3 — Core Services |
+| **Owning Plan Section** | PLAN-AUDIT-001 |
+| **Status** | `active` |
+| **Related Actions** | ACT-024 |
+| **Notes** | Permission: audit.export. HIGH-RISK fail-closed: export aborted if audit write fails. CSV format, max 10K rows, chronological sort. Export action itself is audited. |
+
+---
+
 ## Dependencies
 
 - [Database Migration Ledger](database-migration-ledger.md)
