@@ -1,13 +1,12 @@
-# Phase 4 — Admin & User Interfaces Plan (v2)
+# Phase 4 — Admin & User Interfaces Plan (v3)
 
 > **Status:** PROPOSED — awaiting approval  
 > **Owner:** AI  
 > **Created:** 2026-04-10  
-> **Revised:** 2026-04-10 (v2 — SSOT reconciliation + design governance)  
+> **Revised:** 2026-04-10 (v3 — governance hardening, architecture dedup, enforcement rules)  
 > **Scope:** PLAN-ADMIN-001 (Admin Panel) + PLAN-USRPNL-001 (User Panel)  
 > **Baseline:** Executes against approved plan baseline v9  
-> **Design Reference:** TailAdmin-class enterprise dashboard — sidebar + top nav + content area layout, professional bold aesthetic  
-> **Supersedes:** Stage 4 Plan v1
+> **Supersedes:** Stage 4 Plan v1, v2
 
 ---
 
@@ -23,8 +22,8 @@ This plan was reconciled against the following authoritative indexes on 2026-04-
 
 | Index | Version | Reconciliation Result |
 |-------|---------|----------------------|
-| `route-index.md` | route-v1.5 | v1 plan proposed conflicting paths (`/account/*`, `/admin/access/*`). v2 conforms to route-index paths. New routes added via change control. |
-| `permission-index.md` | perm-v1.1 | v1 plan used non-existent `roles.manage_permissions`. v2 uses governed `permissions.assign` / `permissions.revoke`. |
+| `route-index.md` | route-v1.6 | v1 plan proposed conflicting paths (`/account/*`, `/admin/access/*`). v2+ conforms to route-index paths. New routes added via change control. |
+| `permission-index.md` | perm-v1.1 | v1 plan used non-existent `roles.manage_permissions`. v2+ uses governed `permissions.assign` / `permissions.revoke`. |
 | Route lifecycle | — | Unimplemented frontend routes reclassified from `active` to `planned` in route-index. |
 
 ---
@@ -33,13 +32,13 @@ This plan was reconciled against the following authoritative indexes on 2026-04-
 
 ### Governance Docs Required
 
-| Doc | Path | Purpose |
-|-----|------|---------|
-| UI Architecture | `docs/01-architecture/ui-architecture.md` | Shell structure, scroll ownership, responsive behavior |
-| UI Design System | `docs/07-reference/ui-design-system.md` | Token map, typography, spacing, component patterns |
-| Component Inventory | `docs/07-reference/component-inventory.md` | Governed shared component list |
+| Doc | Path | Status |
+|-----|------|--------|
+| UI Architecture | `docs/01-architecture/ui-architecture.md` | ✅ Created |
+| UI Design System | `docs/07-reference/ui-design-system.md` | ✅ Created |
+| Component Inventory | `docs/07-reference/component-inventory.md` | ✅ Created |
 
-**Rule:** These 3 docs must exist and be approved before any Stage 4A code is written.
+**Rule:** These 3 docs are the SSOT for shell, visual, and component governance. This plan references them — it does not redefine their content.
 
 ---
 
@@ -47,43 +46,30 @@ This plan was reconciled against the following authoritative indexes on 2026-04-
 
 ### Layout Architecture
 
-- **Shell pattern:** Sidebar (fixed/sticky, collapsible to icon strip) + top header (fixed/sticky) + content area (independent scroll)
-- **Sidebar:** Dark chrome (`bg-sidebar`), collapsible to icon strip, section headers, permission-filtered navigation, sign-out in footer
-- **Header:** Fixed top bar with sidebar trigger, search (desktop), theme toggle, notifications badge, user menu avatar
-- **Content area:** Light/dark adaptive background (`bg-background`), consistent padding, breadcrumbs, nested `<Suspense>` for lazy route loading
-- **Scroll ownership:** Content area only — sidebar and header never scroll
-- **Mobile:** Sidebar via sheet overlay, responsive content padding
+Layout contract is defined in [`docs/01-architecture/ui-architecture.md`](../01-architecture/ui-architecture.md) (SSOT). This plan does not redefine shell structure.
 
-### Visual Direction: Professional Bold
+**Summary (read architecture doc for full spec):** Sidebar (fixed, collapsible) + Header (fixed) + Content area (independent scroll). Mobile: sidebar as sheet overlay.
 
-One governed visual language across all pages:
+### Visual Direction
 
-- **Typography:** One display font for headings, Inter for body, JetBrains Mono for code/IDs. Font choice documented in `ui-design-system.md`.
-- **Color:** Extend existing semantic tokens (background, foreground, card, primary, secondary, destructive, muted, accent, sidebar). Add brand accent scale and status tokens (success, warning, info). All HSL. No raw arbitrary colors in components.
-- **Depth:** Content shadow, card elevation. NO glass effects. NO text-gradient utilities.
-- **Motion:** Subtle fade-in transitions, collapsible animations, skeleton loading states. `prefers-reduced-motion` respected. NO decorative motion.
-- **Dark mode:** Full dark mode support with proper token switching — required from day one, not deferred.
-- **Uniformity rule:** One card style, one table style, one dialog style, one form field style, one toast/alert style, one empty/loading/error state family. No page-local variants.
+Visual rules are defined in [`docs/07-reference/ui-design-system.md`](../07-reference/ui-design-system.md) (SSOT). This plan does not redefine visual patterns.
+
+**Summary:** Plus Jakarta Sans display, Inter body, JetBrains Mono mono. Semantic tokens only (HSL). One card/table/dialog/form/toast/async-state pattern each. NO glass, NO text-gradient, NO decorative motion. Full dark mode parity.
 
 ### Component Architecture
 
-| Component | Purpose | Reused Across |
-|-----------|---------|---------------|
-| `DashboardLayout` | Shell wrapper (sidebar + header + outlet) | Admin, User panels |
-| `DashboardSidebar` | Permission-filtered nav with sections | Admin, User panels |
-| `DashboardHeader` | Top bar (trigger, search, theme, user menu) | Admin, User panels |
-| `DashboardBreadcrumbs` | Route-aware breadcrumb trail | All dashboard pages |
-| `PageHeader` | Consistent page title + action buttons zone | All dashboard pages |
-| `StatCard` | Metric display card | Dashboard home pages |
-| `DataTable` | Sortable, filterable table with pagination | Users, Roles, Audit |
-| `UserMenu` | Avatar dropdown with profile/settings/sign-out | All authenticated pages |
-| `ConfirmActionDialog` | Standard destructive action confirmation | All destructive flows |
-| `EmptyState` | Standard icon + message for no-data | All list/table pages |
-| `ErrorState` | Standard error + retry button | All async operations |
-| `LoadingSkeleton` | Standard skeleton for async loading | All async operations |
-| `StatusBadge` | Color-coded status indicator | Users, Roles |
+Component list is defined in [`docs/07-reference/component-inventory.md`](../07-reference/component-inventory.md) (SSOT). This plan does not redefine the inventory.
 
-**Rule:** Pages assemble from this component inventory. No page-local component variants permitted.
+---
+
+## Enforcement Rules (CRITICAL)
+
+1. **Component exclusivity:** All pages MUST be composed exclusively from components defined in `component-inventory.md`. No page-local UI patterns are allowed.
+2. **Token exclusivity:** No raw/arbitrary colors in any component. Semantic tokens only.
+3. **Route conformance:** All implemented routes MUST match `route-index.md`. No undocumented routes.
+4. **Permission conformance:** All permission checks MUST use keys from `permission-index.md`. No custom/invented permission keys.
+5. **Architecture conformance:** Shell structure MUST match `ui-architecture.md`. No alternative shell implementations.
+6. **No governance bypass:** If a component, route, or permission is needed that doesn't exist in governed docs, the doc MUST be updated first — then code written.
 
 ---
 
@@ -91,16 +77,18 @@ One governed visual language across all pages:
 
 ### Stage 4A — Design System Governance + Dashboard Shell
 
-**Scope:** Governance docs, design tokens, layout infrastructure, shared components
+**Scope:** Design tokens, layout infrastructure, shared components
 
-**Prerequisites (governance — must complete first):**
-1. Create and approve `docs/01-architecture/ui-architecture.md`
-2. Create and approve `docs/07-reference/ui-design-system.md`
-3. Create and approve `docs/07-reference/component-inventory.md`
+**⛔ EXECUTION GATE (mandatory):**
 
-**Deliverables (implementation — after governance docs approved):**
+No UI code may begin until ALL three governance docs are approved:
+1. `docs/01-architecture/ui-architecture.md` — ✅ exists
+2. `docs/07-reference/ui-design-system.md` — ✅ exists
+3. `docs/07-reference/component-inventory.md` — ✅ exists
+
+**Deliverables (implementation — governance gate passed):**
 1. Design system extension in `index.css`:
-   - Font imports (display + body + mono — as specified in ui-design-system.md)
+   - Font imports (Plus Jakarta Sans + Inter + JetBrains Mono — as specified in ui-design-system.md)
    - Brand accent scale tokens
    - Status semantic tokens: `--success`, `--warning`, `--info`
    - Dark mode tokens (parity with light)
@@ -114,7 +102,7 @@ One governed visual language across all pages:
 7. `UserMenu` component — avatar, display name, sign-out
 8. `PageHeader` component — consistent page title zone
 9. `ConfirmActionDialog` — standard destructive confirmation pattern
-10. `EmptyState`, `ErrorState`, `LoadingSkeleton` — standard async state components
+10. `EmptyState`, `ErrorState`, `LoadingSkeleton`, `AccessDenied` — standard state components
 11. Admin navigation config (`admin-navigation.ts`)
 12. User navigation config (`user-navigation.ts`)
 13. Route setup: `/admin/*` and `/dashboard`, `/settings/*` with lazy loading
@@ -126,9 +114,6 @@ One governed visual language across all pages:
 
 | File | Action |
 |------|--------|
-| `docs/01-architecture/ui-architecture.md` | New — shell contract |
-| `docs/07-reference/ui-design-system.md` | New — token map + component patterns |
-| `docs/07-reference/component-inventory.md` | New — governed component list |
 | `src/index.css` | Extend — add brand/status tokens, fonts |
 | `tailwind.config.ts` | Extend — add new token mappings |
 | `src/config/navigation.types.ts` | New — NavItem interface |
@@ -143,16 +128,19 @@ One governed visual language across all pages:
 | `src/components/dashboard/DashboardBreadcrumbs.tsx` | New |
 | `src/components/dashboard/PageHeader.tsx` | New |
 | `src/components/dashboard/StatCard.tsx` | New |
+| `src/components/dashboard/DataTable.tsx` | New |
+| `src/components/dashboard/StatusBadge.tsx` | New |
 | `src/components/dashboard/ConfirmActionDialog.tsx` | New |
 | `src/components/dashboard/EmptyState.tsx` | New |
 | `src/components/dashboard/ErrorState.tsx` | New |
 | `src/components/dashboard/LoadingSkeleton.tsx` | New |
+| `src/components/dashboard/AccessDenied.tsx` | New |
 | `src/components/dashboard/index.ts` | New — barrel export |
 | `src/App.tsx` | Add admin/user route trees |
 
 **Success Criteria:**
-- [ ] Governance docs created and approved before code
-- [ ] Admin and user shells render with correct layout
+- [ ] Governance docs approved before any code was written
+- [ ] Admin and user shells render with correct layout per ui-architecture.md
 - [ ] Sidebar collapses to icon mode and expands
 - [ ] Sidebar is fixed/sticky — does not scroll with content
 - [ ] Header is fixed/sticky — does not scroll with content
@@ -227,7 +215,7 @@ One governed visual language across all pages:
 - [ ] Search and filter work correctly
 - [ ] User detail shows complete profile + roles
 - [ ] Deactivate/reactivate flows work with ConfirmActionDialog
-- [ ] Unauthorized users see "Access Denied" page
+- [ ] Unauthorized users see AccessDenied page
 - [ ] Loading → LoadingSkeleton, error → ErrorState, empty → EmptyState
 - [ ] All components from governed inventory — no page-local variants
 
@@ -269,8 +257,8 @@ One governed visual language across all pages:
 | Route | Route Index Entry | Lifecycle | Notes |
 |-------|------------------|-----------|-------|
 | `/admin/roles` | ✅ exists | planned → active | |
-| `/admin/roles/:id` | ❌ missing | — | Add to route-index |
-| `/admin/permissions` | ❌ missing | — | Add to route-index |
+| `/admin/roles/:id` | ✅ exists | planned → active | Added in route-index v1.6 |
+| `/admin/permissions` | ✅ exists | planned → active | Added in route-index v1.6 |
 
 **Files Created:**
 
@@ -443,7 +431,7 @@ Admin and user panels share the same:
 - `DashboardHeader` component
 - `ConfirmActionDialog` for destructive actions
 - `DataTable` for all tabular data
-- `EmptyState` / `ErrorState` / `LoadingSkeleton` for async states
+- `EmptyState` / `ErrorState` / `LoadingSkeleton` / `AccessDenied` for state handling
 - Form field styles, card styles, badge styles
 
 User pages may simplify **content** (fewer fields, fewer actions), but NOT **shell language**.
@@ -479,8 +467,8 @@ User pages may simplify **content** (fewer fields, fewer actions), but NOT **she
 | `/admin/users` | UserListPage | `admin.access` + `users.view_all` | 4B | ✅ exists |
 | `/admin/users/:id` | UserDetailPage | `admin.access` + `users.view_all` | 4B | ✅ exists |
 | `/admin/roles` | RoleListPage | `admin.access` + `roles.view` | 4C | ✅ exists |
-| `/admin/roles/:id` | RoleDetailPage | `admin.access` + `roles.view` | 4C | ➕ add |
-| `/admin/permissions` | PermissionListPage | `admin.access` + `roles.view` | 4C | ➕ add |
+| `/admin/roles/:id` | RoleDetailPage | `admin.access` + `roles.view` | 4C | ✅ exists |
+| `/admin/permissions` | PermissionListPage | `admin.access` + `roles.view` | 4C | ✅ exists |
 | `/admin/audit` | AuditLogPage | `admin.access` + `audit.view` | 4D | ✅ exists |
 | `/dashboard` | UserDashboard | authenticated | 4E | ✅ exists |
 | `/settings` | ProfilePage | `profile.self_manage` | 4E | ✅ exists |
@@ -508,9 +496,29 @@ User pages may simplify **content** (fewer fields, fewer actions), but NOT **she
 
 ---
 
-## Closure Outputs (post-execution)
+## Phase 4 Gate (Closure Criteria)
 
-After all stages executed and verified:
+### Functional Gates
+- [ ] All admin CRUD operations work end-to-end
+- [ ] All user self-service operations work end-to-end
+- [ ] Permission-denied users see AccessDenied page (not blank/hidden)
+- [ ] Loading/error/empty states use governed components
+- [ ] Destructive actions use ConfirmActionDialog with reason input
+
+### Contract Reconciliation Gates (CRITICAL)
+- [ ] All implemented routes match `route-index.md` — no divergence, lifecycle updated to `active`
+- [ ] All permission checks match `permission-index.md` — no custom/invented keys
+- [ ] `component-inventory.md` reconciled with actual `src/components/dashboard/` and `src/components/admin/`
+- [ ] No page-local component variants exist
+
+### Design System Gates
+- [ ] No raw colors outside semantic tokens in any component
+- [ ] Light and dark themes visually consistent
+- [ ] WCAG AA contrast verified in both themes
+- [ ] Focus states visible on all interactive controls
+- [ ] `text-gradient`, `glass` utilities do NOT exist in codebase
+
+### Closure Outputs
 - `docs/07-reference/route-index.md` — update lifecycle of new routes to `active`
 - `docs/07-reference/component-inventory.md` — reconcile with actual components
 - `docs/00-governance/system-state.md` — update module statuses
