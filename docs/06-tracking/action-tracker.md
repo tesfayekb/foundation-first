@@ -812,6 +812,28 @@ Each action must include:
 | **Related Watchlist** | RW-007 |
 | **Status** | Verified |
 
+### ACT-031: Governance Closure Pass — ACT-030 Correction, Metadata, Orphan Cleanup
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-10 |
+| **Type** | Documentation |
+| **Impact** | Medium |
+| **Modules Affected** | user-management, governance |
+| **Docs Updated** | action-tracker.md, user-management.md, regression-watchlist.md, risk-register.md, deferred-work-register.md |
+| **Verification Type** | Code review + database query |
+| **Verification Scope** | Immediate |
+| **Evidence** | (1) ACT-030 evidence corrected — removed overstated 409 test claims; actual coverage: unauth 401, method 401/405, CORS 200. (2) Summary dashboard cleaned — ACT-027/028 reclassified as "Superseded" (not ambiguous "Completed pending"). (3) Last Reviewed dates updated to 2026-04-10 on all modified docs. (4) Orphaned test users identified via `SELECT` on auth.users: `lifecycle-admin-1775811989603@test.local` (id: 34840559), `test-3c-1775811220637@test.local` (id: d1e567db), `test-52918be2@test-rbac.local` (id: 3f0ab9e2) — **require manual deletion from Supabase Auth dashboard** (auth.users cannot be deleted via SQL migration). (5) DW-012 created for authenticated lifecycle test infrastructure. (6) RISK-011 added for test-user cleanup fragility. |
+| **Verified By** | AI Agent |
+| **Before State** | ACT-030 overstated test coverage; summary dashboard internally inconsistent; metadata dates stale; 3 orphaned test users in auth.users |
+| **After State** | ACT-030 evidence matches actual tests; summary consistent; dates current; orphans documented for manual cleanup; deferred items registered |
+| **Rollback Available** | Yes |
+| **Rollback Method** | Revert doc changes |
+| **Blast Radius** | Small (documentation only) |
+| **Health Impact** | Improved — governance evidence now matches reality |
+| **Related Watchlist** | RW-007 |
+| **Status** | Verified |
+
 ---
 
 ### Risk Resolution Tracking
