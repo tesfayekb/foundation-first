@@ -662,24 +662,24 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Path** | `/assign-role` |
 | **Method** | `POST` |
 | **Classification** | privileged, destructive |
-| **Auth Model** | Bearer JWT (validated via inline `supabaseAdmin.auth.getUser()`) |
+| **Auth Model** | Bearer JWT (validated via `authenticateRequest()`) |
 | **Permission** | `roles.assign` |
 | **Scope** | system-wide |
-| **Request Body** | `{ target_user_id: string (UUID), role_id: string (UUID) }` |
+| **Request Body** | `{ target_user_id: string (UUID), role_id: string (UUID) }` — Zod-validated |
 | **Response (200)** | `{ success: true, correlation_id, message }` |
-| **Error (400)** | Invalid input / UUID format |
+| **Error (400)** | Validation error (Zod schema) |
 | **Error (401)** | Missing/invalid token |
 | **Error (403)** | Permission denied |
 | **Error (404)** | Target user or role not found |
 | **Error (409)** | Role already assigned |
 | **Error (500)** | Audit write failed — operation rolled back |
-| **Rate Limit** | none (not using shared handler) |
-| **Audit Required** | Yes — `rbac.role_assigned` (fail-closed with rollback) |
+| **Rate Limit** | standard (via `createHandler`) |
+| **Audit Required** | Yes — `rbac.role_assigned` (fail-closed with rollback via `logAuditEvent`) |
 | **Idempotent** | No |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `validateRequest()`, `logAuditEvent()` |
 | **Related events** | `rbac.role_assigned` |
 | **Related permissions** | `roles.assign` |
 | **Lifecycle** | active |
-| **⚠️ Technical debt** | Does not use shared handler/validation infra (Gate 4/5 scope) |
 
 #### `POST /revoke-role`
 
@@ -688,24 +688,24 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Path** | `/revoke-role` |
 | **Method** | `POST` |
 | **Classification** | privileged, destructive |
-| **Auth Model** | Bearer JWT (validated via inline `supabaseAdmin.auth.getUser()`) |
+| **Auth Model** | Bearer JWT (validated via `authenticateRequest()`) |
 | **Permission** | `roles.revoke` |
 | **Scope** | system-wide |
-| **Request Body** | `{ target_user_id: string (UUID), role_id: string (UUID) }` |
+| **Request Body** | `{ target_user_id: string (UUID), role_id: string (UUID) }` — Zod-validated |
 | **Response (200)** | `{ success: true, correlation_id, message }` |
-| **Error (400)** | Invalid input / UUID format |
+| **Error (400)** | Validation error (Zod schema) |
 | **Error (401)** | Missing/invalid token |
 | **Error (403)** | Permission denied |
 | **Error (404)** | Role or assignment not found |
 | **Error (409)** | Cannot revoke last superadmin |
 | **Error (500)** | Audit write failed — operation rolled back |
-| **Rate Limit** | none (not using shared handler) |
-| **Audit Required** | Yes — `rbac.role_revoked` (fail-closed with rollback) |
+| **Rate Limit** | standard (via `createHandler`) |
+| **Audit Required** | Yes — `rbac.role_revoked` (fail-closed with rollback via `logAuditEvent`) |
 | **Idempotent** | No |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `validateRequest()`, `logAuditEvent()` |
 | **Related events** | `rbac.role_revoked` |
 | **Related permissions** | `roles.revoke` |
 | **Lifecycle** | active |
-| **⚠️ Technical debt** | Does not use shared handler/validation infra (Gate 4/5 scope) |
 
 #### `POST /assign-permission-to-role`
 
@@ -714,24 +714,24 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Path** | `/assign-permission-to-role` |
 | **Method** | `POST` |
 | **Classification** | privileged, destructive |
-| **Auth Model** | Bearer JWT (validated via inline `supabaseAdmin.auth.getUser()`) |
+| **Auth Model** | Bearer JWT (validated via `authenticateRequest()`) |
 | **Permission** | `permissions.assign` |
 | **Scope** | system-wide |
-| **Request Body** | `{ role_id: string (UUID), permission_id: string (UUID) }` |
+| **Request Body** | `{ role_id: string (UUID), permission_id: string (UUID) }` — Zod-validated |
 | **Response (200)** | `{ success: true, correlation_id, message }` |
-| **Error (400)** | Invalid input / UUID format |
+| **Error (400)** | Validation error (Zod schema) |
 | **Error (401)** | Missing/invalid token |
 | **Error (403)** | Permission denied |
 | **Error (404)** | Role or permission not found |
 | **Error (409)** | Permission already assigned to role |
 | **Error (500)** | Audit write failed — operation rolled back |
-| **Rate Limit** | none (not using shared handler) |
-| **Audit Required** | Yes — `rbac.permission_assigned` (fail-closed with rollback) |
+| **Rate Limit** | standard (via `createHandler`) |
+| **Audit Required** | Yes — `rbac.permission_assigned` (fail-closed with rollback via `logAuditEvent`) |
 | **Idempotent** | No |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `validateRequest()`, `logAuditEvent()` |
 | **Related events** | `rbac.permission_assigned` |
 | **Related permissions** | `permissions.assign` |
 | **Lifecycle** | active |
-| **⚠️ Technical debt** | Does not use shared handler/validation infra (Gate 4/5 scope) |
 
 #### `POST /revoke-permission-from-role`
 
@@ -740,23 +740,23 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Path** | `/revoke-permission-from-role` |
 | **Method** | `POST` |
 | **Classification** | privileged, destructive |
-| **Auth Model** | Bearer JWT (validated via inline `supabaseAdmin.auth.getUser()`) |
+| **Auth Model** | Bearer JWT (validated via `authenticateRequest()`) |
 | **Permission** | `permissions.revoke` |
 | **Scope** | system-wide |
-| **Request Body** | `{ role_id: string (UUID), permission_id: string (UUID) }` |
+| **Request Body** | `{ role_id: string (UUID), permission_id: string (UUID) }` — Zod-validated |
 | **Response (200)** | `{ success: true, correlation_id, message }` |
-| **Error (400)** | Invalid input / UUID format |
+| **Error (400)** | Validation error (Zod schema) |
 | **Error (401)** | Missing/invalid token |
 | **Error (403)** | Permission denied |
 | **Error (404)** | Role, permission, or mapping not found |
 | **Error (500)** | Audit write failed — operation rolled back |
-| **Rate Limit** | none (not using shared handler) |
-| **Audit Required** | Yes — `rbac.permission_revoked` (fail-closed with rollback) |
+| **Rate Limit** | standard (via `createHandler`) |
+| **Audit Required** | Yes — `rbac.permission_revoked` (fail-closed with rollback via `logAuditEvent`) |
 | **Idempotent** | No |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `validateRequest()`, `logAuditEvent()` |
 | **Related events** | `rbac.permission_revoked` |
 | **Related permissions** | `permissions.revoke` |
 | **Lifecycle** | active |
-| **⚠️ Technical debt** | Does not use shared handler/validation infra (Gate 4/5 scope) |
 
 ### User Management API Endpoints
 
