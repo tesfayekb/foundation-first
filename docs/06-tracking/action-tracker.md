@@ -556,6 +556,31 @@ Each action must include:
 
 ---
 
+### ACT-021: Corrective Migration — handle_new_user Trigger Fix
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-10 |
+| **Type** | Fix |
+| **Impact** | HIGH |
+| **Modules Affected** | auth, rbac |
+| **Docs Updated** | action-tracker.md |
+| **Verification Type** | Runtime (DB query) |
+| **Verification Scope** | Immediate |
+| **Evidence** | Migration `20260410041727` contained broken `INSERT INTO user_roles (user_id, role)` using non-existent `role` column (correct column is `role_id`). Migration `20260410043317` applied the profile-only fix, so the live DB was already correct. However, migration `20260410041727` remained in the repo as a broken artifact. New corrective migration created as formal governance record. **DB verification:** `pg_proc.prosrc` for `handle_new_user` confirms profile-only insert, no `user_roles` reference. `handle_new_user_role()` correctly handles role assignment via `role_id` lookup. |
+| **Verified By** | AI Agent (DB query verification) |
+| **Before State** | Migration file `20260410041727` contains broken `INSERT INTO user_roles (user_id, role)` — DB already correct via later migration |
+| **After State** | Corrective migration applied as formal record; DB confirmed correct; `handle_new_user` = profile-only; `handle_new_user_role` = role assignment |
+| **Rollback Available** | Yes |
+| **Rollback Method** | N/A — DB was already correct |
+| **Blast Radius** | Small (governance artifact correction) |
+| **Health Impact** | Improved — eliminates repo artifact inconsistency |
+| **Related Functions** | handle_new_user, handle_new_user_role |
+| **Depends On** | ACT-020 |
+| **Status** | Verified |
+
+---
+
 ### Risk Resolution Tracking
 
 - If action resolves a risk → must link risk ID in `related_risks`
