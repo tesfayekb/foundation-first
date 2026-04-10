@@ -76,7 +76,7 @@ If inconsistency is detected → execution must **STOP** and be corrected.
 | Module | Status | Last Updated |
 |--------|--------|-------------|
 | auth | in progress (A+D implemented + hardened: shared functions, events, email gate; B+C deferred) | 2026-04-09 |
-| rbac | foundation implemented (Phase 2: schema, helpers, RLS, seed, edge functions, client helpers — gate open) | 2026-04-09 |
+| rbac | foundation code-reviewed (Phase 2: schema, helpers, RLS, seed, edge functions, client helpers — gate NOT closed, runtime unverified) | 2026-04-10 |
 | user-management | not started | — |
 | admin-panel | not started | — |
 | user-panel | not started | — |

@@ -515,8 +515,8 @@ Each action must include:
 
 | Type | Count | High Impact |
 |------|-------|-------------|
-| Feature | 3 | 3 |
-| Documentation | 9 | 9 |
+| Feature | 4 | 4 |
+| Documentation | 10 | 10 |
 | Fix | 1 | 1 |
 | Security | 2 | 2 |
 | Performance | 0 | 0 |
@@ -526,17 +526,17 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 15 |
+| Verified | 16 |
 | Completed (unverified) | 0 |
-| In Progress | 0 |
+| In Progress | 1 |
 | Rolled Back | 0 |
 
 ### Trend Indicators
 
 - Regressions introduced: 0
 - Regressions resolved: 0
-- Open (unverified) actions: 0
-- High-impact actions this period: 15
+- Open (unverified) actions: 1 (ACT-017)
+- High-impact actions this period: 17
 
 _Updated as actions are added._
 
