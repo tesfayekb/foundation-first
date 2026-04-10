@@ -50,7 +50,7 @@ export function useUserRoles(): UseUserRolesResult {
         return;
       }
 
-      const ctx = data as AuthorizationContext;
+      const ctx = data as unknown as AuthorizationContext;
       setRoles(ctx.roles ?? []);
       setPermissions(ctx.permissions ?? []);
       setIsSuperadmin(ctx.is_superadmin ?? false);
