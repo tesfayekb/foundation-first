@@ -42,55 +42,57 @@ const LazyFallback = () => (
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            {/* Public auth routes */}
-            <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/mfa-challenge" element={<MfaChallenge />} />
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              {/* Public auth routes */}
+              <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/sign-up" element={<SignUp />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/mfa-challenge" element={<MfaChallenge />} />
 
-            {/* Protected — require auth + verified email */}
-            <Route path="/" element={
-              <RequireAuth>
-                <RequireVerifiedEmail>
-                  <Index />
-                </RequireVerifiedEmail>
-              </RequireAuth>
-            } />
-            <Route path="/mfa-enroll" element={
-              <RequireAuth>
-                <RequireVerifiedEmail>
-                  <MfaEnroll />
-                </RequireVerifiedEmail>
-              </RequireAuth>
-            } />
+              {/* Protected — require auth + verified email */}
+              <Route path="/" element={
+                <RequireAuth>
+                  <RequireVerifiedEmail>
+                    <Index />
+                  </RequireVerifiedEmail>
+                </RequireAuth>
+              } />
+              <Route path="/mfa-enroll" element={
+                <RequireAuth>
+                  <RequireVerifiedEmail>
+                    <MfaEnroll />
+                  </RequireVerifiedEmail>
+                </RequireAuth>
+              } />
 
-            {/* Admin panel — shared DashboardLayout + admin nav + RequirePermission(admin.access) */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Suspense fallback={<LazyFallback />}><AdminDashboard /></Suspense>} />
-            </Route>
+              {/* Admin panel — shared DashboardLayout + admin nav + RequirePermission(admin.access) */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<Suspense fallback={<LazyFallback />}><AdminDashboard /></Suspense>} />
+              </Route>
 
-            {/* User panel — shared DashboardLayout + user nav + RequireAuth */}
-            <Route path="/dashboard" element={<UserLayout />}>
-              <Route index element={<Suspense fallback={<LazyFallback />}><UserDashboard /></Suspense>} />
-            </Route>
-            <Route path="/settings" element={<UserLayout />}>
-              <Route index element={<Suspense fallback={<LazyFallback />}><ProfilePage /></Suspense>} />
-              <Route path="security" element={<Suspense fallback={<LazyFallback />}><SecurityPage /></Suspense>} />
-            </Route>
+              {/* User panel — shared DashboardLayout + user nav + RequireAuth */}
+              <Route path="/dashboard" element={<UserLayout />}>
+                <Route index element={<Suspense fallback={<LazyFallback />}><UserDashboard /></Suspense>} />
+              </Route>
+              <Route path="/settings" element={<UserLayout />}>
+                <Route index element={<Suspense fallback={<LazyFallback />}><ProfilePage /></Suspense>} />
+                <Route path="security" element={<Suspense fallback={<LazyFallback />}><SecurityPage /></Suspense>} />
+              </Route>
 
-            {/* Catch-all */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+              {/* Catch-all */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
