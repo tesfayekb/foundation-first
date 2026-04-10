@@ -372,6 +372,8 @@ When a gate item is deferred from its source phase to a future phase via the [De
 - Receiving phase planning **MUST explicitly include** all carried-forward items in its scope
 - Carried-forward items do not permit unrestricted phase advancement — they constrain the receiving phase's execution order
 
+**Example:** Phase 3 may begin (e.g., audit logging infrastructure has no RBAC dependency), but RBAC-dependent modules (user-management, API) cannot proceed until DW-003/DW-004/DW-006 are completed as prerequisite sub-gates.
+
 ## Execution Order
 
 Based on dependency chains and phases:
