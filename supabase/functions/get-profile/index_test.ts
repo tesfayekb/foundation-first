@@ -167,7 +167,7 @@ for (const fn of ['get-profile', 'update-profile', 'list-users', 'deactivate-use
 // ═══════════════════════════════════════════════════════════════
 
 Deno.test('get-profile: invalid UUID returns 400', async () => {
-  const token = await signIn('tesfayekb@gmail.com', 'Admin123456!')
+  const token = await requireAdminToken()
   const res = await fetch(fnUrl('get-profile', { user_id: 'not-a-uuid' }), {
     headers: { 'Authorization': `Bearer ${token}`, 'apikey': ANON_KEY },
   })
@@ -176,7 +176,7 @@ Deno.test('get-profile: invalid UUID returns 400', async () => {
 })
 
 Deno.test('update-profile: empty body returns 400', async () => {
-  const token = await signIn('tesfayekb@gmail.com', 'Admin123456!')
+  const token = await requireAdminToken()
   const res = await fetch(fnUrl('update-profile'), {
     method: 'PATCH',
     headers: { 'Authorization': `Bearer ${token}`, 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
@@ -187,7 +187,7 @@ Deno.test('update-profile: empty body returns 400', async () => {
 })
 
 Deno.test('deactivate-user: missing user_id returns 400', async () => {
-  const token = await signIn('tesfayekb@gmail.com', 'Admin123456!')
+  const token = await requireAdminToken()
   const res = await fetch(fnUrl('deactivate-user'), {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}`, 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
@@ -202,7 +202,7 @@ Deno.test('deactivate-user: missing user_id returns 400', async () => {
 // ═══════════════════════════════════════════════════════════════
 
 Deno.test('get-profile: authenticated user can view own profile', async () => {
-  const token = await signIn('tesfayekb@gmail.com', 'Admin123456!')
+  const token = await requireAdminToken()
   const res = await fetch(fnUrl('get-profile'), {
     headers: { 'Authorization': `Bearer ${token}`, 'apikey': ANON_KEY },
   })
@@ -213,7 +213,7 @@ Deno.test('get-profile: authenticated user can view own profile', async () => {
 })
 
 Deno.test('update-profile: authenticated user can update own display_name', async () => {
-  const token = await signIn('tesfayekb@gmail.com', 'Admin123456!')
+  const token = await requireAdminToken()
   const testName = `TestName_${Date.now()}`
   const res = await fetch(fnUrl('update-profile'), {
     method: 'PATCH',
@@ -230,7 +230,7 @@ Deno.test('update-profile: authenticated user can update own display_name', asyn
 // ═══════════════════════════════════════════════════════════════
 
 Deno.test('list-users: admin can list users with pagination', async () => {
-  const token = await signIn('tesfayekb@gmail.com', 'Admin123456!')
+  const token = await requireAdminToken()
   const res = await fetch(fnUrl('list-users', { limit: '5' }), {
     headers: { 'Authorization': `Bearer ${token}`, 'apikey': ANON_KEY },
   })
@@ -241,7 +241,7 @@ Deno.test('list-users: admin can list users with pagination', async () => {
 })
 
 Deno.test('get-profile: admin can access non-existent user (returns 404)', async () => {
-  const token = await signIn('tesfayekb@gmail.com', 'Admin123456!')
+  const token = await requireAdminToken()
   const res = await fetch(fnUrl('get-profile', { user_id: '00000000-0000-0000-0000-000000000001' }), {
     headers: { 'Authorization': `Bearer ${token}`, 'apikey': ANON_KEY },
   })
@@ -255,7 +255,7 @@ Deno.test('get-profile: admin can access non-existent user (returns 404)', async
 // ═══════════════════════════════════════════════════════════════
 
 Deno.test('deactivate-user: self-deactivation blocked (400)', async () => {
-  const token = await signIn('tesfayekb@gmail.com', 'Admin123456!')
+  const token = await requireAdminToken()
   // Get own ID
   const profileRes = await fetch(fnUrl('get-profile'), {
     headers: { 'Authorization': `Bearer ${token}`, 'apikey': ANON_KEY },
@@ -273,7 +273,7 @@ Deno.test('deactivate-user: self-deactivation blocked (400)', async () => {
 })
 
 Deno.test('deactivate-user: non-existent user returns 404', async () => {
-  const token = await signIn('tesfayekb@gmail.com', 'Admin123456!')
+  const token = await requireAdminToken()
   const res = await fetch(fnUrl('deactivate-user'), {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}`, 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
@@ -284,7 +284,7 @@ Deno.test('deactivate-user: non-existent user returns 404', async () => {
 })
 
 Deno.test('reactivate-user: non-existent user returns 404', async () => {
-  const token = await signIn('tesfayekb@gmail.com', 'Admin123456!')
+  const token = await requireAdminToken()
   const res = await fetch(fnUrl('reactivate-user'), {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}`, 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
