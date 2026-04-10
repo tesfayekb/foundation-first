@@ -758,7 +758,7 @@ Each action must include:
 | Feature | 6 | 6 |
 | Documentation | 11 | 11 |
 | Fix | 2 | 2 |
-| Security | 4 | 4 |
+| Security | 5 | 5 |
 | Performance | 0 | 0 |
 | Regression | 0 | 0 |
 
@@ -766,7 +766,7 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 23 |
+| Verified | 24 |
 | Completed (unverified) | 0 |
 | In Progress | 0 |
 | Rolled Back | 0 |
