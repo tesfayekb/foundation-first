@@ -1029,7 +1029,9 @@ When changing any indexed function:
 | `has_role()` | authorization-critical | system-wide | All RLS policies depend on this |
 | `has_permission()` | authorization-critical | system-wide | All permission checks depend on this |
 | `get_my_authorization_context()` | authorization-critical | large | Client authorization context depends on this |
-| `checkPermission()` | authorization-critical | system-wide | All permission checks depend on this |
+| `checkPermission()` | authorization-critical | system-wide | Client-side permission checks (UX-only) |
+| `checkPermissionOrThrow()` | authorization-critical | system-wide | **Default server-side authorization primitive** for all edge functions |
+| `requireRole()` | authorization-critical | large | Rare infrastructure gating only — not default auth primitive |
 | `requireSelfScope()` | authorization-critical | large | Self-scope enforcement for user-owned resources |
 | `logAuditEvent()` | audit-critical | system-wide | Entire audit trail depends on this |
 | `validateRequest()` | api-critical | system-wide | All input validation depends on this |
