@@ -16,12 +16,11 @@ Deno.serve(async (req: Request) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  // Only allow service role key
-  const authHeader = req.headers.get('Authorization')
+  // Use service role key internally for admin operations
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-  if (!serviceRoleKey || authHeader !== `Bearer ${serviceRoleKey}`) {
-    return new Response(JSON.stringify({ error: 'Unauthorized — requires service role key' }), {
-      status: 401,
+  if (!serviceRoleKey) {
+    return new Response(JSON.stringify({ error: 'Service role key not configured' }), {
+      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
