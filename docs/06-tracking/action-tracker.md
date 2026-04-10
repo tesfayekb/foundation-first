@@ -626,6 +626,27 @@ Each action must include:
 | **Status** | Verified |
 | **Resolves Deferred** | DW-009, DW-010 |
 
+### ACT-024: Phase 3 Stage 3B — Audit Query + Export Endpoints
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-10 |
+| **Type** | Feature |
+| **Impact** | HIGH |
+| **Modules Affected** | audit-logging, api |
+| **Docs Updated** | route-index.md (API entries for query-audit-logs, export-audit-logs), artifact-index.md (ART-013, ART-014), action-tracker.md |
+| **Verification Type** | Deno tests (7 passing) + deployment verified |
+| **Verification Scope** | Immediate |
+| **Evidence** | (1) query-audit-logs edge function: GET, permission audit.view, cursor-based pagination (max 100), filters (action, actor_id, target_type, target_id, date_from, date_to), fixed sort created_at DESC; (2) export-audit-logs edge function: GET, permission audit.export, CSV format, max 10K rows, chronological sort, HIGH-RISK fail-closed audit (export aborted if audit write fails); (3) 7 Deno tests: unauth denial (×2), method denial (×2), CORS preflight (×2), input validation (×1); (4) Both deployed and functional. |
+| **Verified By** | AI Agent |
+| **Before State** | No audit log access layer; audit data only accessible via direct DB queries |
+| **After State** | Permission-gated query and export endpoints with full audit trail for exports |
+| **Rollback Available** | Yes |
+| **Rollback Method** | Delete supabase/functions/query-audit-logs/ and export-audit-logs/ |
+| **Blast Radius** | Medium (admin-panel audit UI consumers) |
+| **Health Impact** | Improved — enables admin-panel audit viewer and compliance export |
+| **Status** | Verified |
+
 ---
 
 ### Risk Resolution Tracking

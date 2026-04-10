@@ -609,6 +609,48 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Related tests** | Health endpoint tests |
 | **Lifecycle** | active |
 
+#### `GET /query-audit-logs` — Audit Log Query
+
+| Field | Value |
+|-------|-------|
+| **Module** | audit-logging |
+| **Classification** | privileged |
+| **Auth required** | Yes |
+| **Permission required** | `audit.view` |
+| **Scope** | system-wide |
+| **Purpose** | Paginated query of audit log entries with filters |
+| **Request schema** | Query params: `limit` (1–100, default 50), `action`, `actor_id` (UUID), `target_type`, `target_id` (UUID), `date_from` (ISO), `date_to` (ISO), `before` (cursor: ISO datetime) |
+| **Response contract** | `200: { data: AuditLog[], pagination: { count, limit, next_cursor } }` / `401` / `403` / `400` |
+| **Rate limit class** | standard |
+| **Audit required** | No (read-only) |
+| **Idempotent** | Yes |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()` |
+| **Related permissions** | `audit.view` |
+| **Related tests** | Unauth denial, method denial, CORS, pagination |
+| **Lifecycle** | active |
+
+#### `GET /export-audit-logs` — Audit Log Export (CSV)
+
+| Field | Value |
+|-------|-------|
+| **Module** | audit-logging |
+| **Classification** | privileged, compliance-sensitive |
+| **Auth required** | Yes |
+| **Permission required** | `audit.export` |
+| **Scope** | system-wide |
+| **Purpose** | CSV export of audit logs for compliance |
+| **Request schema** | Query params: `action`, `actor_id` (UUID), `target_type`, `date_from` (ISO), `date_to` (ISO) |
+| **Response contract** | `200: text/csv` (with Content-Disposition) / `401` / `403` / `400` / `503` (audit integrity failure) |
+| **Rate limit class** | strict |
+| **Audit required** | Yes — HIGH-RISK (fail-closed: export aborted if audit write fails) |
+| **Idempotent** | Yes |
+| **Max export size** | 10,000 rows |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `logAuditEvent()` |
+| **Related permissions** | `audit.export` |
+| **Related events** | `audit.exported` |
+| **Related tests** | Unauth denial, method denial, CORS, fail-closed audit |
+| **Lifecycle** | active |
+
 > Additional API endpoints will be added as modules are implemented. Each must follow the full schema above, including method, auth model, permission model, request/response contract, rate limit class, and audit requirements.
 
 ---
