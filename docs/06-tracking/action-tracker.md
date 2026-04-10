@@ -881,6 +881,28 @@ Each action must include:
 | **Related Risks** | RISK-011 (confirmed: Supabase auth deletion fragility) |
 | **Status** | Verified |
 
+### ACT-034: Final Orphaned Test-User Deletion via Migration
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-10 |
+| **Type** | Fix |
+| **Impact** | Low |
+| **Modules Affected** | user-management (operational cleanup) |
+| **Docs Updated** | action-tracker.md |
+| **Verification Type** | Runtime |
+| **Verification Scope** | Immediate |
+| **Evidence** | Root cause identified via `postgres_logs`: `user_roles.assigned_by` FK constraint referencing test user `3f0ab9e2` blocked `auth.admin.deleteUser()` and dashboard deletion (RISK-011 root cause found). Fix: SQL migration nullified `assigned_by` reference, then deleted auth.users row. Post-migration query: `SELECT count(*) FROM auth.users WHERE email LIKE '%@test%'` → **0 orphans remaining**. All 3 original orphaned users from ACT-031 are now fully deleted. |
+| **Verified By** | AI Agent (DB query verification) |
+| **Before State** | 1 orphaned test user (`test-52918be2@test-rbac.local`) blocked by FK constraint on `user_roles.assigned_by` |
+| **After State** | 0 orphaned test users. All test artifacts fully cleaned. |
+| **Rollback Available** | No (cleanup is irreversible; test user had no production value) |
+| **Blast Radius** | None |
+| **Health Impact** | Improved — operational drift eliminated |
+| **Related Actions** | ACT-031, ACT-033 |
+| **Related Risks** | RISK-011 (root cause identified: `user_roles.assigned_by` FK, not just Supabase-internal triggers) |
+| **Status** | Verified |
+
 ---
 
 ### Risk Resolution Tracking
@@ -919,7 +941,7 @@ Each action must include:
 |------|-------|-------------|
 | Feature | 6 | 6 |
 | Documentation | 12 | 11 |
-| Fix | 3 | 2 |
+| Fix | 4 | 2 |
 | Security | 9 | 9 |
 | Performance | 0 | 0 |
 | Regression | 0 | 0 |
@@ -928,7 +950,7 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 30 |
+| Verified | 31 |
 | Superseded | 2 (ACT-027, ACT-028) |
 | In Progress | 0 |
 | Rolled Back | 0 |
@@ -938,7 +960,7 @@ Each action must include:
 - Regressions introduced: 0
 - Regressions resolved: 1 (reactivation auth-unban gap — ACT-029)
 - Open (unverified) actions: 0
-- High-impact actions this period: 30
+- High-impact actions this period: 31
 
 _Updated as actions are added._
 
