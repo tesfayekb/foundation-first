@@ -32,7 +32,8 @@ export async function checkPermissionOrThrow(
   userId: string,
   permissionKey: string
 ): Promise<void> {
-  const { data, error } = await supabaseAdmin.rpc('has_permission', {
+  const admin = await getAdmin()
+  const { data, error } = await admin.rpc('has_permission', {
     _user_id: userId,
     _permission_key: permissionKey,
   })
@@ -78,7 +79,8 @@ export async function requireRole(
   userId: string,
   roleKey: string
 ): Promise<void> {
-  const { data, error } = await supabaseAdmin.rpc('has_role', {
+  const admin = await getAdmin()
+  const { data, error } = await admin.rpc('has_role', {
     _user_id: userId,
     _role_key: roleKey,
   })
