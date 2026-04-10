@@ -871,7 +871,7 @@ Each action must include:
 | Type | Count | High Impact |
 |------|-------|-------------|
 | Feature | 6 | 6 |
-| Documentation | 11 | 11 |
+| Documentation | 12 | 11 |
 | Fix | 2 | 2 |
 | Security | 8 | 8 |
 | Performance | 0 | 0 |
