@@ -9,7 +9,15 @@
  * All are fail-secure: deny on error.
  * All are server-side only — client-side checks are UX-only.
  */
-import { supabaseAdmin } from './supabase-admin.ts'
+// Lazy import to avoid top-level supabase client creation in test environments
+let _supabaseAdmin: Awaited<typeof import('./supabase-admin.ts')>['supabaseAdmin'] | null = null
+async function getAdmin() {
+  if (!_supabaseAdmin) {
+    const mod = await import('./supabase-admin.ts')
+    _supabaseAdmin = mod.supabaseAdmin
+  }
+  return _supabaseAdmin
+}
 
 // ─── checkPermissionOrThrow ─────────────────────────────────────────
 
