@@ -629,6 +629,34 @@ When changing any indexed function:
 | **Observability** | Denial rate, anomaly detection |
 | **Lifecycle** | active |
 
+#### `checkPermissionOrThrow(userId, permissionKey)`
+
+| Field | Value |
+|-------|-------|
+| **Type** | function |
+| **Classification** | authorization-critical |
+| **Owner module** | rbac |
+| **Signature** | `(userId: string, permissionKey: string) → void` (throws `403` if denied) |
+| **Returns** | void; throws `403 Forbidden` if user lacks the specified permission |
+| **Purity** | impure |
+| **Side effects** | DB read (via `has_permission()`), emits `rbac.permission_denied` on denial |
+| **Transactional** | No |
+| **Fail behavior** | fail-secure — throw 403 |
+| **Used by** | All edge functions (default server-side authorization primitive) |
+| **Blast radius** | system-wide |
+| **Criticality** | CRITICAL |
+| **Approval required** | Yes — Lead |
+| **Callable from** | request-path |
+| **Upstream deps** | `has_permission()`, `authenticateRequest()` |
+| **Related permissions** | All permission index entries |
+| **Related events** | `rbac.permission_denied` |
+| **Related risks** | RISK-002 (privilege escalation) |
+| **Related watchlist** | RW-001 |
+| **Related tests** | Permission enforcement tests, 403 response tests, RBAC integration tests |
+| **Observability** | Denial rate, anomaly detection |
+| **Lifecycle** | active |
+| **Usage note** | **Default server-side authorization primitive.** All Phase 3+ business endpoints use this for permission enforcement. Distinct from client-side `checkPermission()` which is UX-only. |
+
 #### `requireSelfScope(targetUserId)`
 
 | Field | Value |
