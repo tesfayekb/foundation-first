@@ -1,6 +1,6 @@
 # Action Tracker
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-09
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-10
 
 ## Purpose
 
@@ -801,7 +801,7 @@ Each action must include:
 | **Docs Updated** | action-tracker.md |
 | **Verification Type** | Deno tests |
 | **Verification Scope** | Immediate |
-| **Evidence** | Regression test file created: `supabase/functions/deactivate-user/index_test.ts` and `supabase/functions/reactivate-user/index_test.ts` covering: unauth denial, method denial, CORS, already-active 409, already-deactivated 409. Rollback path tests (unban failure, profile update failure) documented as requiring mock infrastructure — tracked in regression watchlist RW-007. |
+| **Evidence** | Regression test files created: `supabase/functions/deactivate-user/index_test.ts` and `supabase/functions/reactivate-user/index_test.ts` covering: unauthenticated denial (401), wrong HTTP method denial (401/405), CORS preflight (200 + headers). **Not yet covered:** already-active 409, already-deactivated 409, invalid UUID 400, missing body 400 (all require authenticated admin context — tracked in DW-012). Rollback path tests (unban failure, profile update failure) require mock infrastructure — tracked in RW-007 and DW-012. |
 | **Verified By** | AI Agent |
 | **Before State** | No regression tests for rollback paths |
 | **After State** | Boundary tests + documented rollback test requirements |
@@ -859,8 +859,8 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 27 |
-| Completed (pending runtime verification) | 2 (ACT-027, ACT-028 — superseded by ACT-029 verified lifecycle proof) |
+| Verified | 27 (includes ACT-029 lifecycle proof) |
+| Superseded | 2 (ACT-027, ACT-028 — superseded by ACT-029 verified lifecycle proof; retained as historical records) |
 | In Progress | 0 |
 | Rolled Back | 0 |
 
@@ -868,7 +868,7 @@ Each action must include:
 
 - Regressions introduced: 0
 - Regressions resolved: 1 (reactivation auth-unban gap — ACT-029)
-- Open (unverified) actions: 0 (ACT-027/028 infrastructure verified; ACT-029 provides full runtime proof)
+- Open (unverified) actions: 0 (ACT-027/028 superseded by ACT-029; no open items)
 - High-impact actions this period: 27
 
 _Updated as actions are added._
