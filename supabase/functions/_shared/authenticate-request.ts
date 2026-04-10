@@ -5,11 +5,9 @@
  * Classification: security-critical
  * Fail behavior: fail-secure — throws 401
  * Lifecycle: active
- *
- * Validates the Authorization header, verifies the JWT via Supabase,
- * and returns the authenticated user context.
  */
 import { supabaseAdmin } from './supabase-admin.ts'
+import { AuthError } from './errors.ts'
 
 export interface AuthenticatedUser {
   id: string
@@ -28,7 +26,6 @@ export interface AuthenticatedContext {
 /**
  * Authenticate an incoming request.
  * Extracts and validates Bearer token, returns authenticated context.
- * Throws structured error data on failure — callers use apiError() to respond.
  */
 export async function authenticateRequest(req: Request): Promise<AuthenticatedContext> {
   const authHeader = req.headers.get('Authorization')
@@ -56,10 +53,5 @@ export async function authenticateRequest(req: Request): Promise<AuthenticatedCo
   }
 }
 
-/** Sentinel error class for auth failures — always results in 401 */
-export class AuthError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'AuthError'
-  }
-}
+// Re-export for convenience
+export { AuthError } from './errors.ts'

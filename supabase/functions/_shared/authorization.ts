@@ -7,17 +7,9 @@
  * requireRecentAuth — Sensitive action guard
  *
  * All are fail-secure: deny on error.
- * All are server-side only — client-side checks are UX-only.
  */
-// Lazy import to avoid top-level supabase client creation in test environments
-let _supabaseAdmin: Awaited<typeof import('./supabase-admin.ts')>['supabaseAdmin'] | null = null
-async function getAdmin() {
-  if (!_supabaseAdmin) {
-    const mod = await import('./supabase-admin.ts')
-    _supabaseAdmin = mod.supabaseAdmin
-  }
-  return _supabaseAdmin
-}
+import { supabaseAdmin } from './supabase-admin.ts'
+import { PermissionDeniedError } from './errors.ts'
 
 // ─── checkPermissionOrThrow ─────────────────────────────────────────
 
@@ -25,15 +17,12 @@ async function getAdmin() {
  * Default server-side authorization primitive.
  * Checks has_permission() SQL security definer function.
  * Throws PermissionDeniedError (403) on denial.
- *
- * Used by: ALL Phase 3+ business edge functions.
  */
 export async function checkPermissionOrThrow(
   userId: string,
   permissionKey: string
 ): Promise<void> {
-  const admin = await getAdmin()
-  const { data, error } = await admin.rpc('has_permission', {
+  const { data, error } = await supabaseAdmin.rpc('has_permission', {
     _user_id: userId,
     _permission_key: permissionKey,
   })
@@ -50,11 +39,6 @@ export async function checkPermissionOrThrow(
 
 /**
  * Enforces that the authenticated actor matches the target resource owner.
- * Actor is derived from the actorUserId passed by the caller
- * (which comes from authenticateRequest — not from client input).
- *
- * Single-param variant: actorUserId is passed from authenticated context,
- * compared against targetUserId.
  */
 export function requireSelfScope(
   actorUserId: string,
@@ -72,15 +56,13 @@ export function requireSelfScope(
 
 /**
  * Rare infrastructure utility — NOT the default authorization primitive.
- * Reserved for coarse administrative gating (e.g., admin panel route access).
  * Use checkPermissionOrThrow() for business endpoints.
  */
 export async function requireRole(
   userId: string,
   roleKey: string
 ): Promise<void> {
-  const admin = await getAdmin()
-  const { data, error } = await admin.rpc('has_role', {
+  const { data, error } = await supabaseAdmin.rpc('has_role', {
     _user_id: userId,
     _role_key: roleKey,
   })
@@ -95,7 +77,6 @@ export async function requireRole(
 
 // ─── requireRecentAuth ──────────────────────────────────────────────
 
-/** Default threshold: 5 minutes */
 const DEFAULT_RECENT_AUTH_THRESHOLD_MS = 5 * 60 * 1000
 
 /**
@@ -124,14 +105,5 @@ export function requireRecentAuth(
   }
 }
 
-// ─── Error class ────────────────────────────────────────────────────
-
-export class PermissionDeniedError extends Error {
-  permissionKey: string
-
-  constructor(message: string, permissionKey: string) {
-    super(message)
-    this.name = 'PermissionDeniedError'
-    this.permissionKey = permissionKey
-  }
-}
+// Re-export for convenience
+export { PermissionDeniedError } from './errors.ts'

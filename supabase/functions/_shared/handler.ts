@@ -1,30 +1,17 @@
 /**
  * Edge function request handler — unified pipeline wrapper.
- *
- * Wraps the canonical request pipeline:
- *   CORS → authenticate → execute → structured response
- *
- * Handles error classification and returns appropriate responses
- * for AuthError (401), ValidationError (400), PermissionDeniedError (403),
- * and unknown errors (500).
  */
 import { corsHeaders } from './cors.ts'
 import { apiError } from './api-error.ts'
-import { AuthError } from './authenticate-request.ts'
-import { ValidationError } from './validate-request.ts'
-import { PermissionDeniedError } from './authorization.ts'
+import { AuthError, PermissionDeniedError, ValidationError } from './errors.ts'
 
 type HandlerFn = (req: Request) => Promise<Response>
 
 /**
- * Wraps an edge function handler with:
- * - CORS preflight handling
- * - Error classification (401/400/403/500)
- * - Never exposes internal error details
+ * Wraps an edge function handler with CORS + error classification.
  */
 export function createHandler(handler: HandlerFn): (req: Request) => Promise<Response> {
   return async (req: Request): Promise<Response> => {
-    // CORS preflight
     if (req.method === 'OPTIONS') {
       return new Response('ok', { headers: corsHeaders })
     }
@@ -45,7 +32,6 @@ export function createHandler(handler: HandlerFn): (req: Request) => Promise<Res
         return apiError(403, 'Permission denied')
       }
 
-      // Unknown error — never expose details
       console.error('[HANDLER] Unhandled error:', err)
       return apiError(500, 'Internal server error')
     }
