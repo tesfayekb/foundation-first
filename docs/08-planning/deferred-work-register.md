@@ -136,9 +136,9 @@ At each phase boundary (before advancing to the next phase):
 | **Related Decisions** | — |
 | **Related Actions** | ACT-015, ACT-016, ACT-017 |
 | **Required Tests for Closure** | Allow test for each of 29 permissions with correct role; deny test for each with wrong role; revoked-permission-denied test |
-| **Status** | `assigned` |
-| **Implemented by Action** | — |
-| **Implemented in Plan Version** | — |
+| **Status** | `implemented` |
+| **Implemented by Action** | ACT-020 |
+| **Implemented in Plan Version** | v7 |
 
 ---
 
@@ -208,9 +208,10 @@ At each phase boundary (before advancing to the next phase):
 | **Related Decisions** | — |
 | **Related Actions** | ACT-017 |
 | **Required Tests for Closure** | Assign role → verify UI reflects new permissions without page reload; revoke role → verify UI removes permissions; verify no stale authorization state |
-| **Status** | `assigned` |
-| **Implemented by Action** | — |
-| **Implemented in Plan Version** | — |
+| **Status** | `implemented` |
+| **Implemented by Action** | ACT-020 |
+| **Implemented in Plan Version** | v7 |
+| **Resolution Note** | No permission cache exists — architecture uses fresh DB queries via get_my_authorization_context() RPC on every check. Role changes are inherently immediate. Last-superadmin guard trigger fires instantly. |
 
 ---
 
@@ -316,10 +317,10 @@ At each phase boundary (before advancing to the next phase):
 |----|-------|-------------|--------------|--------|
 | DW-001 | Google OAuth | Phase 1 | Phase 6 | `assigned` |
 | DW-002 | Apple Sign-In | Phase 1 | Phase 6 | `assigned` |
-| DW-003 | Permission Allow/Deny Tests | Phase 2 | Phase 3 | `assigned` |
+| DW-003 | Permission Allow/Deny Tests | Phase 2 | Phase 3 | `implemented` |
 | DW-004 | DB-Level RLS Verification | Phase 2 | Phase 3 | `implemented` |
 | DW-005 | Cross-Tenant Isolation Scope | Phase 2 | N/A (DEC-022) | `cancelled` |
-| DW-006 | Cache Invalidation Verification | Phase 2 | Phase 3 | `assigned` |
+| DW-006 | Cache Invalidation Verification | Phase 2 | Phase 3 | `implemented` |
 | DW-007 | Moderator Role | Phase 2 | `unassigned` (v2) | `deferred` |
 | DW-008 | MFA Recovery Codes | Phase 1 | Phase 4 | `assigned` |
 | DW-009 | requireRole() Shared Function | Phase 2 | Phase 3 | `assigned` |

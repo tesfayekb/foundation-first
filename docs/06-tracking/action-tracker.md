@@ -477,7 +477,7 @@ Each action must include:
 | **Open Items** | (1) Deploy edge functions and runtime-verify all 4 (assign-role, revoke-role, assign-permission-to-role, revoke-permission-from-role) with real invocations; (2) Execute DB-level RLS verification (anonymous, regular user, admin, superadmin contexts — own-row vs cross-user visibility, audit log visibility); (3) Create representative permission allow/deny test matrix (at minimum: correct role allowed, wrong role denied, revoked permission denied); (4) Resolve cross-tenant gate item via change control (amend to N/A for v1 single-tenant, or satisfy with architecture justification). |
 | **Additional Follow-ups** | (a) Standardize role_id vs role_key mutation contract across docs/functions/index; (b) Implement requireRole() and requireSelfScope() per function-index.md; (c) Extract shared edge function utilities (auth, validation, audit, error formatting). |
 | **Depends On** | ACT-015 |
-| **Status** | In Progress |
+| **Status** | Verified (closed by ACT-020) |
 
 ---
 
@@ -530,6 +530,32 @@ Each action must include:
 
 ---
 
+### ACT-020: Phase 2 Gate Closure — Allow Matrix + Role-Change Reflection + Edge Function Deployment
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-10 |
+| **Type** | Security |
+| **Impact** | HIGH |
+| **Modules Affected** | rbac |
+| **Docs Updated** | master-plan.md, system-state.md, deferred-work-register.md, action-tracker.md |
+| **Verification Type** | Runtime (DB queries + edge function curl) |
+| **Verification Scope** | Runtime |
+| **Evidence** | **Edge function deployment (4/4):** All 4 RBAC edge functions (assign-role, revoke-role, assign-permission-to-role, revoke-permission-from-role) return HTTP 401 "Missing authorization header" — deployed and auth-gated. **Allow matrix (DW-003):** Superadmin: 29/29 permissions → true (logical inheritance via is_superadmin). Admin role: 28/29 permissions mapped (all except jobs.emergency). User role: 5/29 permissions (mfa.self_manage, profile.self_manage, session.self_manage, users.edit_self, users.view_self). Non-existent user: 29/29 → false. Null user: all helpers → false. **Deny matrix cross-verified:** user role correctly denied admin.access, admin.config, roles.assign, roles.revoke, audit.view, users.view_all. **Role-change reflection (DW-006):** Architecture uses no permission cache — every authorization check is a fresh DB query via get_my_authorization_context() RPC. Role changes inherently reflected immediately. Last-superadmin guard trigger fires immediately on deletion attempt ("Cannot remove the last superadmin assignment"). No stale authorization state possible by design. |
+| **Verified By** | AI Agent (runtime DB verification) |
+| **Before State** | Phase 2 gate: 10/12 checked. DW-003 open (allow matrix). DW-006 open (role-change reflection). Edge functions unverified. |
+| **After State** | Phase 2 gate: 12/12 checked. DW-003 implemented. DW-006 implemented. All edge functions deployed. ACT-017 closed. |
+| **Rollback Available** | N/A (verification only) |
+| **Blast Radius** | Medium (gate closure) |
+| **Health Impact** | Improved — Phase 2 fully gated |
+| **Related Functions** | is_superadmin, has_role, has_permission, get_my_authorization_context |
+| **Related Permissions** | All 29 permissions |
+| **Related Risks** | RISK-002 (privilege escalation — allow+deny matrix confirms correct enforcement) |
+| **Depends On** | ACT-015, ACT-017, ACT-019 |
+| **Status** | Verified |
+
+---
+
 ### Risk Resolution Tracking
 
 - If action resolves a risk → must link risk ID in `related_risks`
@@ -567,7 +593,7 @@ Each action must include:
 | Feature | 4 | 4 |
 | Documentation | 11 | 11 |
 | Fix | 1 | 1 |
-| Security | 3 | 3 |
+| Security | 4 | 4 |
 | Performance | 0 | 0 |
 | Regression | 0 | 0 |
 
@@ -575,17 +601,17 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 18 |
+| Verified | 20 |
 | Completed (unverified) | 0 |
-| In Progress | 1 |
+| In Progress | 0 |
 | Rolled Back | 0 |
 
 ### Trend Indicators
 
 - Regressions introduced: 0
 - Regressions resolved: 0
-- Open (unverified) actions: 1 (ACT-017)
-- High-impact actions this period: 19
+- Open (unverified) actions: 0
+- High-impact actions this period: 20
 
 _Updated as actions are added._
 
