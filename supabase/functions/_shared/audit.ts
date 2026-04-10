@@ -66,16 +66,18 @@ export async function logAuditEvent(
       .single()
 
     if (error) {
-      console.error('[AUDIT] Write failed:', error.message, {
-        action: params.action,
-        correlationId: params.correlationId,
-      })
-      return {
+      const failure: AuditWriteFailure = {
         success: false,
         code: 'AUDIT_WRITE_FAILED',
         reason: error.message,
         correlationId: params.correlationId,
       }
+      console.error('[AUDIT] Write failed:', error.message, {
+        action: params.action,
+        correlationId: params.correlationId,
+      })
+      emitAuditFailureEvent(params, failure)
+      return failure
     }
 
     return {
@@ -85,16 +87,18 @@ export async function logAuditEvent(
     }
   } catch (err) {
     const reason = err instanceof Error ? err.message : 'Unknown audit error'
-    console.error('[AUDIT] Unexpected failure:', reason, {
-      action: params.action,
-      correlationId: params.correlationId,
-    })
-    return {
+    const failure: AuditWriteFailure = {
       success: false,
       code: 'AUDIT_UNEXPECTED_ERROR',
       reason,
       correlationId: params.correlationId,
     }
+    console.error('[AUDIT] Unexpected failure:', reason, {
+      action: params.action,
+      correlationId: params.correlationId,
+    })
+    emitAuditFailureEvent(params, failure)
+    return failure
   }
 }
 
