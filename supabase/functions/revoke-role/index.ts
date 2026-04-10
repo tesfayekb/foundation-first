@@ -43,6 +43,14 @@ Deno.serve(createHandler(async (req: Request) => {
     return apiError(404, 'Role not found', { correlationId: ctx.correlationId })
   }
 
+  // Self-superadmin-revocation guard
+  if (role.key === 'superadmin' && target_user_id === ctx.user.id) {
+    const { apiError } = await import('../_shared/api-error.ts')
+    return apiError(409, 'Cannot revoke your own superadmin role', {
+      correlationId: ctx.correlationId,
+    })
+  }
+
   // Last-superadmin guard (DB trigger also enforces this)
   if (role.key === 'superadmin') {
     const { count } = await supabaseAdmin
