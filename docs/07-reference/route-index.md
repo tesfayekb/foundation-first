@@ -1,6 +1,6 @@
 # Route Index
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-10 | **Status:** Living Document | **Index Version:** `route-v1.5`
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-10 | **Status:** Living Document | **Index Version:** `route-v1.6`
 
 ## Purpose
 
@@ -445,7 +445,35 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Related tests** | Role listing allow/deny tests |
 | **Lifecycle** | planned |
 
-#### `/admin/audit` — Audit Logs
+#### `/admin/roles/:id` — Role Detail
+
+| Field | Value |
+|-------|-------|
+| **Page** | Role Detail |
+| **Module** | admin-panel |
+| **Classification** | privileged |
+| **Auth required** | Yes |
+| **Permission required** | `admin.access` + `roles.view` |
+| **Scope** | system-wide |
+| **Panel** | admin-panel |
+| **Related functions** | `checkPermission()` |
+| **Related tests** | Role detail view tests |
+| **Lifecycle** | planned |
+
+#### `/admin/permissions` — Permission List
+
+| Field | Value |
+|-------|-------|
+| **Page** | Permission List |
+| **Module** | admin-panel |
+| **Classification** | privileged |
+| **Auth required** | Yes |
+| **Permission required** | `admin.access` + `roles.view` |
+| **Scope** | system-wide |
+| **Panel** | admin-panel |
+| **Related tests** | Permission list view tests |
+| **Lifecycle** | planned |
+
 
 | Field | Value |
 |-------|-------|
