@@ -447,6 +447,40 @@ Each action must include:
 
 ---
 
+### ACT-016: ACT-015 Status Correction
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-10 |
+| **Type** | Documentation |
+| **Impact** | HIGH |
+| **Modules Affected** | rbac |
+| **Docs Updated** | action-tracker.md |
+| **References** | ACT-015 |
+| **Correction** | ACT-015 was marked `Verified` while 4 of 12 Phase 2 gate items remain unchecked. Per Action Quality Gate rules, an action cannot be marked Verified without full verification evidence. ACT-015's status is effectively **Code-Reviewed (foundation)** — not runtime-verified, not gate-closed. Specifically: (1) edge function deployment/runtime invocation not confirmed, (2) permission allow/deny tests not executed, (3) DB-level RLS tests not executed, (4) role-change propagation not runtime-tested, (5) no permission cache exists (fresh RPC fetch — cache invalidation gate is mis-scoped), (6) cross-tenant gate item is mis-scoped for v1 single-tenant architecture. The parenthetical "(foundation — Phase 2 gate open)" on ACT-015 was a partial correction but insufficient — `Verified` status itself is inconsistent with open gate items for a HIGH-impact auth/RBAC action where gates are never waivable. |
+| **Corrected Status** | ACT-015 effective status: **Code-Reviewed (foundation)** — pending runtime verification and gate closure |
+| **Verified By** | AI Agent (governance review) |
+| **Status** | Verified |
+
+---
+
+### ACT-017: Phase 2 Gate Closure — Remaining Items
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-10 |
+| **Type** | Feature |
+| **Impact** | HIGH |
+| **Modules Affected** | rbac |
+| **Docs Updated** | action-tracker.md |
+| **Description** | Tracks the 4 remaining Phase 2 gate items that must be satisfied (or plan-amended) before Phase 2 can be formally closed and Phase 3 advancement justified. |
+| **Open Items** | (1) Deploy edge functions and runtime-verify all 4 (assign-role, revoke-role, assign-permission-to-role, revoke-permission-from-role) with real invocations; (2) Execute DB-level RLS verification (anonymous, regular user, admin, superadmin contexts — own-row vs cross-user visibility, audit log visibility); (3) Create representative permission allow/deny test matrix (at minimum: correct role allowed, wrong role denied, revoked permission denied); (4) Resolve cross-tenant gate item via change control (amend to N/A for v1 single-tenant, or satisfy with architecture justification). |
+| **Additional Follow-ups** | (a) Standardize role_id vs role_key mutation contract across docs/functions/index; (b) Implement requireRole() and requireSelfScope() per function-index.md; (c) Extract shared edge function utilities (auth, validation, audit, error formatting). |
+| **Depends On** | ACT-015 |
+| **Status** | In Progress |
+
+---
+
 ### Risk Resolution Tracking
 
 - If action resolves a risk → must link risk ID in `related_risks`
@@ -481,8 +515,8 @@ Each action must include:
 
 | Type | Count | High Impact |
 |------|-------|-------------|
-| Feature | 3 | 3 |
-| Documentation | 9 | 9 |
+| Feature | 4 | 4 |
+| Documentation | 10 | 10 |
 | Fix | 1 | 1 |
 | Security | 2 | 2 |
 | Performance | 0 | 0 |
@@ -492,17 +526,17 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 15 |
+| Verified | 16 |
 | Completed (unverified) | 0 |
-| In Progress | 0 |
+| In Progress | 1 |
 | Rolled Back | 0 |
 
 ### Trend Indicators
 
 - Regressions introduced: 0
 - Regressions resolved: 0
-- Open (unverified) actions: 0
-- High-impact actions this period: 15
+- Open (unverified) actions: 1 (ACT-017)
+- High-impact actions this period: 17
 
 _Updated as actions are added._
 

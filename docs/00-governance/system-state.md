@@ -35,12 +35,12 @@ Tracks:
 status: implementation in progress
 phase: development
 code_generation: allowed
-modules_implemented: auth partial (A+D implemented + hardened, B+C deferred), rbac foundation (Phase 2 schema + helpers + RLS + seed + edge functions + client helpers — gate open, 4 of 12 items unchecked)
-active_work: Phase 2 RBAC foundation implemented — gate open. 4 unchecked items remain (allow/deny tests, DB-level RLS tests, cache invalidation verification, cross-tenant scope). Not formally ready for Phase 3 until gate closed or plan amended.
+modules_implemented: auth partial (A+D implemented + hardened, B+C deferred), rbac foundation only (code-reviewed, NOT runtime-verified, gate open — 4 of 12 items unchecked)
+active_work: Phase 2 RBAC foundation code-reviewed — gate NOT closed. ACT-015 effective status corrected to Code-Reviewed per ACT-016. Remaining gate items tracked in ACT-017. Phase 3 advancement NOT justified under current plan rules until gate closed or plan formally amended via change control.
 current_plan_version: v4
 approved_plan_baseline: v4
 plan_status: approved
-last_updated: 2026-04-09
+last_updated: 2026-04-10
 ```
 
 ## Execution Control Rules
@@ -76,7 +76,7 @@ If inconsistency is detected → execution must **STOP** and be corrected.
 | Module | Status | Last Updated |
 |--------|--------|-------------|
 | auth | in progress (A+D implemented + hardened: shared functions, events, email gate; B+C deferred) | 2026-04-09 |
-| rbac | foundation implemented (Phase 2: schema, helpers, RLS, seed, edge functions, client helpers — gate open) | 2026-04-09 |
+| rbac | foundation code-reviewed (Phase 2: schema, helpers, RLS, seed, edge functions, client helpers — gate NOT closed, runtime unverified) | 2026-04-10 |
 | user-management | not started | — |
 | admin-panel | not started | — |
 | user-panel | not started | — |
