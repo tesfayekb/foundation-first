@@ -198,7 +198,23 @@ All SQL migrations applied to the external Supabase database, whether from `sql/
 
 ---
 
-## Current Database Object Summary
+### MIG-010: Audit Logs INSERT Policy
+
+| Field | Value |
+|-------|-------|
+| **Ledger ID** | MIG-010 |
+| **Migration File** | `20260410060801_3dcde460-0ec4-415c-a1ff-0630fd7e9e8f.sql` |
+| **Source Dir** | `supabase/migrations/` |
+| **Applied Date** | 2026-04-10 |
+| **Sequence Order** | 10 |
+| **Purpose** | Add INSERT policy on audit_logs for append-only writes from authenticated edge functions |
+| **Objects Affected** | RLS policy: `audit_logs_insert_policy` on `audit_logs` |
+| **Status** | `active` |
+| **Linked Actions** | ACT-023 |
+| **Linked Artifacts** | ART-012 |
+| **Notes** | Defense-in-depth INSERT policy. WITH CHECK (true) is intentional — actual authorization is enforced in edge function code. No UPDATE/DELETE policies — append-only preserved. |
+
+---
 
 ### Tables (5)
 
