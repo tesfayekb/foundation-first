@@ -127,6 +127,23 @@ Each entry MUST align with the required plan diff:
 | Approval Status | Approved |
 | Supersession Links | None |
 
+### v4 → v5 (2026-04-10)
+
+**Type:** Governance enhancement — Deferred Work Register + carried-forward gate item protocol
+
+| Field | Value |
+|-------|-------|
+| Plan Version | v4 → v5 |
+| Section IDs Changed | Phase Gate Rules (new subsection: Carried-Forward Gate Item Rule) |
+| Decision IDs Affected | DEC-021 (new) |
+| What Changed | Added Deferred Work Register as SSOT governance document. Added Carried-Forward Gate Item Rule to Phase Gate Rules. Linked deferred items (DW-001 through DW-007) from master-plan gate items and subsections. Updated system-state with deferred_work_open field. Fixed DW-001/DW-002 status from `deferred` to `assigned` (had explicit future phase). Bumped plan version to v5. |
+| Why | Deferred approved work had no formal carry-forward mechanism. Phase-boundary review, future-phase reassignment, and gate-item lifecycle were not governed. Carried-forward gate items had no explicit interaction rule with phase advancement. |
+| What Stayed | All plan section definitions, dependencies, acceptance criteria, module docs, existing decisions unchanged |
+| What Was Added | deferred-work-register.md (7 seed entries), DEC-021, Carried-Forward Gate Item Rule, DW-NNN links in Phase 1/2 gate sections |
+| What Was Removed | None |
+| Approval Status | Approved |
+| Supersession Links | None |
+
 ## Supersession Chain Requirement
 
 For any modification to an approved section:
