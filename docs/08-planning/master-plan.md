@@ -95,7 +95,7 @@ Implement role-based access control.
 ---
 
 ### PLAN-USRMGMT-001: User Management Module
-**Status:** `approved`
+**Status:** `implemented`
 **Risk Level:** MEDIUM
 **Module Doc:** [user-management.md](../04-modules/user-management.md)
 
@@ -149,7 +149,7 @@ Implement role-based access control.
 ---
 
 ### PLAN-AUDIT-001: Audit Logging
-**Status:** `approved`
+**Status:** `implemented`
 **Risk Level:** HIGH
 **Module Doc:** [audit-logging.md](../04-modules/audit-logging.md)
 
@@ -179,7 +179,7 @@ Implement role-based access control.
 ---
 
 ### PLAN-API-001: API Layer
-**Status:** `approved`
+**Status:** `implemented`
 **Risk Level:** HIGH
 **Module Doc:** [api.md](../04-modules/api.md)
 
