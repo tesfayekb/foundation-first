@@ -286,6 +286,8 @@ All SQL migrations applied to the external Supabase database, whether from `sql/
 | Audit logs insert (authenticated, append-only) | `audit_logs` | MIG-010 |
 | Admins can view all profiles | `profiles` | MIG-011 |
 | Admins can update any profile | `profiles` | MIG-011 |
+| Users can read own profile (self-scope) | `profiles` | MIG-012 |
+| Users can update own profile (self-scope) | `profiles` | MIG-012 |
 
 ---
 
