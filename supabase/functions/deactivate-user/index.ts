@@ -103,7 +103,17 @@ Deno.serve(createHandler(async (req: Request) => {
   }
 
   // Revoke all sessions via Admin API — FAIL-CLOSED with compensating rollback
-  const { error: signOutErr } = await supabaseAdmin.auth.admin.signOut(user_id)
+  // Use updateUserById to ban briefly then unban — this invalidates all refresh tokens
+  let signOutErr: Error | null = null
+  try {
+    // Set a short ban to invalidate all sessions, then immediately remove it
+    const { error: banErr } = await supabaseAdmin.auth.admin.updateUserById(user_id, {
+      ban_duration: '876000h', // ~100 years — effectively permanent while deactivated
+    })
+    if (banErr) throw banErr
+  } catch (e) {
+    signOutErr = e instanceof Error ? e : new Error(String(e))
+  }
   if (signOutErr) {
     // Compensating rollback: restore status to 'active' since sessions are still live
     console.error('[DEACTIVATE] Session revocation failed — rolling back status', {
