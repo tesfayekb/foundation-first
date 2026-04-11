@@ -141,10 +141,16 @@ const App = () => (
                 <Route index element={<Suspense fallback={<LazyFallback />}><UserDashboard /></Suspense>} />
               </Route>
               <Route path="/settings" element={<UserLayout />}>
-                <Route index element={<Suspense fallback={<LazyFallback />}><ProfilePage /></Suspense>} />
+                <Route index element={
+                  <Suspense fallback={<LazyFallback />}>
+                    <PermissionGate permission="profile.self_manage">
+                      <ProfilePage />
+                    </PermissionGate>
+                  </Suspense>
+                } />
                 <Route path="security" element={
                   <Suspense fallback={<LazyFallback />}>
-                    <PermissionGate permission={["mfa.self_manage", "session.self_manage"]}>
+                    <PermissionGate permission="mfa.self_manage">
                       <SecurityPage />
                     </PermissionGate>
                   </Suspense>

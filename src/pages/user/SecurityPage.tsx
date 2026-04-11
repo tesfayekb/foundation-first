@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMfaFactors, MfaFactor } from '@/hooks/useMfaFactors';
