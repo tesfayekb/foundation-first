@@ -6,6 +6,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RequireAuth } from "@/components/auth/RequireAuth";
+import { RequirePermission } from "@/components/auth/RequirePermission";
+import { AccessDenied } from "@/components/dashboard/AccessDenied";
 import { RequireVerifiedEmail } from "@/components/auth/RequireVerifiedEmail";
 import { Suspense, lazy } from "react";
 import { LoadingSkeleton } from "@/components/dashboard/LoadingSkeleton";
