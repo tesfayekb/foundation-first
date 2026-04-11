@@ -343,7 +343,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Related functions** | `requireAuth()`, `checkPermission()` |
 | **Related tests** | Admin access allow/deny suite |
 | **Related risks** | RISK-002 (privilege escalation) |
-| **Lifecycle** | planned |
+| **Lifecycle** | active |
 
 #### `/admin/users` — User Management
 
@@ -358,7 +358,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Panel** | admin-panel |
 | **Related functions** | `listUsers()`, `checkPermission()` |
 | **Related tests** | User management allow/deny suite |
-| **Lifecycle** | planned |
+| **Lifecycle** | active |
 
 #### `/admin/users/:id/roles` — Role Assignment
 
@@ -377,7 +377,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Related risks** | RISK-002 (privilege escalation) |
 | **Related watchlist** | RW-001 |
 | **Related tests** | Role assign/revoke allow/deny suite |
-| **Lifecycle** | planned |
+| **Lifecycle** | active |
 
 #### `/admin/users/:id` — User Detail / Edit
 
@@ -393,7 +393,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Related functions** | `getUserProfile()`, `updateUserProfile()`, `checkPermission()` |
 | **Related events** | `user.profile_updated` |
 | **Related tests** | User detail view/edit allow/deny suite |
-| **Lifecycle** | planned |
+| **Lifecycle** | active |
 
 #### `/admin/users/:id/deactivate` — User Deactivation
 
@@ -411,7 +411,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Related events** | `user.account_deactivated`, `auth.session_revoked` |
 | **Related risks** | User access disruption |
 | **Related tests** | Deactivation allow/deny suite, post-deactivation lockout test |
-| **Lifecycle** | planned |
+| **Lifecycle** | active |
 
 #### `/admin/users/:id/reactivate` — User Reactivation
 
@@ -429,7 +429,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Related events** | `user.account_reactivated` |
 | **Related risks** | Premature access restoration |
 | **Related tests** | Reactivation allow/deny suite, post-reactivation access test |
-| **Lifecycle** | planned |
+| **Lifecycle** | active |
 
 #### `/admin/roles` — Role Management
 
