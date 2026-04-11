@@ -113,6 +113,13 @@ const App = () => (
                     </PermissionGate>
                   </Suspense>
                 } />
+                <Route path="roles/:id" element={
+                  <Suspense fallback={<LazyFallback />}>
+                    <PermissionGate permission="roles.view">
+                      <RoleDetailPage />
+                    </PermissionGate>
+                  </Suspense>
+                } />
                 <Route path="permissions" element={
                   <Suspense fallback={<LazyFallback />}>
                     <PermissionGate permission="roles.view">
