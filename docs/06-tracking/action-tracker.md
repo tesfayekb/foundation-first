@@ -1232,6 +1232,25 @@ Each action must include:
 
 ---
 
+### ACT-047: MFA Enroll Route Recovery + Duplicate Factor Prevention
+
+| Field | Value |
+|-------|-------|
+| **ID** | ACT-047 |
+| **Date** | 2026-04-11 |
+| **Action** | Fixed `/mfa-enroll` so it no longer blindly offers re-enrollment in all contexts. Admin MFA redirects now carry a `returnTo` path from `AdminLayout`, allowing successful enrollment (or already-enabled state) to return the user to the exact admin route they attempted. `MfaEnroll.tsx` now: (1) detects verified factors in forced-enrollment context and shows continue/manage actions instead of the setup CTA, (2) detects incomplete unverified factors and offers cleanup/restart, (3) uses unique friendly names when adding another factor intentionally from Security Settings, and (4) auto-continues after successful enrollment with a button fallback. |
+| **Type** | Security / UX Fix |
+| **Impact Classification** | High |
+| **Modules Affected** | auth, admin-panel, user-panel |
+| **Files Changed** | MfaEnroll.tsx, AdminLayout.tsx |
+| **Docs Updated** | auth.md, system-state.md, regression-watchlist.md, action-tracker.md |
+| **Related Watchlist** | RW-008 |
+| **Evidence** | Reproduced via preview network trace: POST `/auth/v1/factors` returned `mfa_factor_name_conflict` while user JWT already had `aal2`. Root cause: `/mfa-enroll` did not branch on existing factors or redirect intent. Fix verified by TypeScript build: zero errors. |
+| **Verified By** | AI Agent |
+| **Status** | Verified |
+
+---
+
 - If action introduces regression → must link watchlist item in `related_watchlist`
 - Regression fix actions must reference the original regression
 - Repeated failures in same area → tracked via recurrence in watchlist, referenced here
