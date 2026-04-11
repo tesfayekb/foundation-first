@@ -339,6 +339,8 @@ At each phase boundary (before advancing to the next phase):
 | DW-022 | Server-shaped admin user DTO/view | Phase 4 | Phase 6 | `assigned` |
 | DW-023 | Audit actor-scope display shaping | Phase 4 | Phase 5+ | `assigned` |
 | DW-024 | Admin panel unbounded client-side aggregation queries | Phase 4 | Phase 6 | `assigned` |
+| DW-025 | Role creation (create-role edge function + UI) | Phase 4 | Phase 6 | `assigned` |
+| DW-026 | Role deletion (delete-role edge function + UI) | Phase 4 | Phase 6 | `assigned` |
 
 ## Registry (continued)
 
@@ -680,6 +682,40 @@ At each phase boundary (before advancing to the next phase):
 | **Status** | `assigned` |
 | **Implemented by Action** | — |
 | **Implemented in Plan Version** | — |
+
+---
+
+---
+
+### DW-025: Role Creation (create-role Edge Function + UI)
+
+| Field | Value |
+|-------|-------|
+| **ID** | DW-025 |
+| **Date Deferred** | 2026-04-11 |
+| **Source Plan Section** | PLAN-ADMIN-001 (admin-panel.md documents role CRUD as planned capability) |
+| **Original Description** | Allow admins with `roles.create` permission to create new custom roles via edge function and admin UI form. Permission `roles.create` already exists in the database. |
+| **Why Deferred** | Stage 4C scope was explicitly limited to role list/detail and assign/revoke operations. Role creation was documented in admin-panel.md but never scheduled into any stage plan. |
+| **Blocking Dependencies** | None — `roles.create` permission already seeded. Requires new `create-role` edge function + UI form. |
+| **Target Phase** | Phase 6 (hardening) |
+| **Risk If Forgotten** | Medium — admins cannot create custom roles, limiting RBAC flexibility. All roles must be seeded via SQL. |
+| **Status** | `assigned` |
+
+---
+
+### DW-026: Role Deletion (delete-role Edge Function + UI)
+
+| Field | Value |
+|-------|-------|
+| **ID** | DW-026 |
+| **Date Deferred** | 2026-04-11 |
+| **Source Plan Section** | PLAN-ADMIN-001 (admin-panel.md documents role CRUD as planned capability) |
+| **Original Description** | Allow admins with `roles.delete` permission to delete non-immutable, non-base roles. Permission `roles.delete` already exists in the database. DB trigger `prevent_immutable_role_delete` already protects immutable roles. |
+| **Why Deferred** | Stage 4C scope was explicitly limited to role list/detail and assign/revoke. Role deletion was never scheduled. |
+| **Blocking Dependencies** | DW-025 (role creation should land first so there are deletable roles). Must handle cascade: reassign or block if users are assigned to the role. |
+| **Target Phase** | Phase 6 (hardening) |
+| **Risk If Forgotten** | Low — immutable roles cannot be deleted anyway; custom roles (once DW-025 lands) would accumulate without cleanup. |
+| **Status** | `assigned` |
 
 ---
 

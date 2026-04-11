@@ -82,7 +82,20 @@ Only after the feature exists in the approved master plan may implementation beg
 
 ## Proposal Register
 
-_No proposals yet._
+### FP-001: Admin User Invitation Flow
+
+| Field | Value |
+|-------|-------|
+| **ID** | FP-001 |
+| **Date Proposed** | 2026-04-11 |
+| **Proposed By** | AI Agent (gap analysis during Stage 4D review) |
+| **Title** | Admin User Invitation Flow |
+| **Description** | Allow admins with appropriate permission to invite new users via email. Currently users can only enter the system via self-service sign-up. An invite flow would enable controlled onboarding for organizations that don't use open registration. |
+| **Justification** | Not currently in any approved plan section. Identified as a gap during Stage 4C/4D capability audit — no create/invite user capability exists anywhere in the system. |
+| **Modules Affected** | admin-panel, auth, user-management |
+| **Estimated Complexity** | High (new edge function, email integration, invite token lifecycle, UI form) |
+| **Dependencies** | Email domain configuration, auth provider setup |
+| **Status** | `proposed` |
 
 ---
 
