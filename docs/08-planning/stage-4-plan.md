@@ -375,17 +375,15 @@ No UI code may begin until ALL three governance docs are approved:
 | `src/pages/user/SecurityPage.tsx` | New |
 | `src/hooks/useProfile.ts` | New — React Query hooks (fetch + mutation) |
 | `src/hooks/useMfaFactors.ts` | New — React Query hooks (list + unenroll) |
-| `src/hooks/useProfile.ts` | New — React Query hooks |
-| `src/hooks/useProfileMutations.ts` | New — update profile mutation |
 
 **Success Criteria:**
-- [ ] User can view and edit own profile
-- [ ] MFA status displayed correctly
-- [ ] Profile update calls edge function with audit logging
-- [ ] Self-scope enforced (cannot edit other users' profiles)
-- [ ] Loading/error states use governed components
-- [ ] Toast feedback on save
-- [ ] Same shell, dialog, form, card components as admin pages
+- [x] User can view and edit own profile — ACT-040
+- [x] MFA status displayed correctly — ACT-040
+- [x] Profile update calls edge function with audit logging — ACT-040
+- [x] Self-scope enforced (cannot edit other users' profiles) — ACT-040
+- [x] Loading/error states use governed components — ACT-040
+- [x] Toast feedback on save — ACT-040
+- [x] Same shell, dialog, form, card components as admin pages — ACT-040
 
 ---
 
