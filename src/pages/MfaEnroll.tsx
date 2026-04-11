@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/config/routes';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -19,6 +21,7 @@ export default function MfaEnroll() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { checkMfaStatus } = useAuth();
+  const navigate = useNavigate();
 
   const handleEnroll = async () => {
     setLoading(true);
@@ -89,6 +92,11 @@ export default function MfaEnroll() {
               Your account is now protected with two-factor authentication. You will need your authenticator app to sign in.
             </CardDescription>
           </CardHeader>
+          <CardFooter>
+            <Button className="w-full" onClick={() => navigate(ROUTES.ADMIN)}>
+              Continue to Admin Console
+            </Button>
+          </CardFooter>
         </Card>
       </div>
     );
