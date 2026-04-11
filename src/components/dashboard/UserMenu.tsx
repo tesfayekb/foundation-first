@@ -1,5 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -10,11 +10,19 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { UserCircle, Settings, ShieldCheck, LogOut } from 'lucide-react';
+import { UserCircle, ShieldCheck, LogOut, LayoutDashboard, Shield } from 'lucide-react';
+import { useUserRoles } from '@/hooks/useUserRoles';
+import { checkPermission } from '@/lib/rbac';
+import { ROUTES } from '@/config/routes';
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { context } = useUserRoles();
+
+  const isInAdmin = location.pathname.startsWith('/admin');
+  const hasAdminAccess = checkPermission(context, 'admin.access');
 
   const displayName = user?.user_metadata?.display_name || user?.email || 'User';
   const initials = displayName
@@ -45,14 +53,30 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate('/settings')}>
+        <DropdownMenuItem onClick={() => navigate(ROUTES.SETTINGS)}>
           <UserCircle className="mr-2 h-4 w-4" />
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate('/settings/security')}>
+        <DropdownMenuItem onClick={() => navigate(ROUTES.SETTINGS_SECURITY)}>
           <ShieldCheck className="mr-2 h-4 w-4" />
           Security
         </DropdownMenuItem>
+        {hasAdminAccess && (
+          <>
+            <DropdownMenuSeparator />
+            {isInAdmin ? (
+              <DropdownMenuItem onClick={() => navigate(ROUTES.DASHBOARD)}>
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                My Dashboard
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={() => navigate(ROUTES.ADMIN)}>
+                <Shield className="mr-2 h-4 w-4" />
+                Admin Console
+              </DropdownMenuItem>
+            )}
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>
           <LogOut className="mr-2 h-4 w-4" />
