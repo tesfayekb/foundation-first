@@ -31,10 +31,11 @@ interface AuditLogsResponse {
   };
 }
 
-export function useAuditLogs(params: AuditLogsParams = {}) {
+export function useAuditLogs(params: AuditLogsParams = {}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['admin', 'audit-logs', params],
     queryFn: () => apiClient.get<AuditLogsResponse>('query-audit-logs', params as Record<string, string | number | undefined>),
     staleTime: 30_000,
+    enabled: options?.enabled ?? true,
   });
 }

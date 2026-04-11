@@ -14,6 +14,8 @@ import { useUserDetail } from '@/hooks/useUsers';
 import { useUserRolesAdmin } from '@/hooks/useUserRolesAdmin';
 import { useAuditLogs, AuditLogEntry } from '@/hooks/useAuditLogs';
 import { useDeactivateUser, useReactivateUser } from '@/hooks/useUserActions';
+import { useUserRoles } from '@/hooks/useUserRoles';
+import { checkPermission } from '@/lib/rbac';
 import { useAuth } from '@/contexts/AuthContext';
 import { ROUTES } from '@/config/routes';
 import { format } from 'date-fns';
@@ -23,13 +25,17 @@ export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
+  const { context } = useUserRoles();
+
+  const canViewRoles = checkPermission(context, 'roles.view');
+  const canViewAudit = checkPermission(context, 'audit.view');
 
   const { data: profile, isLoading, error, refetch } = useUserDetail(id);
-  const { data: roles, isLoading: rolesLoading } = useUserRolesAdmin(id);
-  const { data: auditData, isLoading: auditLoading } = useAuditLogs({
-    target_id: id,
-    limit: 10,
-  });
+  const { data: roles, isLoading: rolesLoading } = useUserRolesAdmin(canViewRoles ? id : undefined);
+  const { data: auditData, isLoading: auditLoading } = useAuditLogs(
+    { target_id: id, limit: 10 },
+    { enabled: !!id && canViewAudit },
+  );
   const deactivateMutation = useDeactivateUser();
   const reactivateMutation = useReactivateUser();
 
