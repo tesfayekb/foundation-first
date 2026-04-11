@@ -23,15 +23,16 @@ const PAGE_SIZE = 50;
 
 const ACTION_OPTIONS = [
   { value: '', label: 'All actions' },
-  { value: 'auth.login', label: 'auth.login' },
-  { value: 'auth.logout', label: 'auth.logout' },
-  { value: 'user.deactivated', label: 'user.deactivated' },
-  { value: 'user.reactivated', label: 'user.reactivated' },
-  { value: 'role.assigned', label: 'role.assigned' },
-  { value: 'role.revoked', label: 'role.revoked' },
-  { value: 'permission.assigned', label: 'permission.assigned' },
-  { value: 'permission.revoked', label: 'permission.revoked' },
+  { value: 'user.account_deactivated', label: 'user.account_deactivated' },
+  { value: 'user.account_reactivated', label: 'user.account_reactivated' },
+  { value: 'user.profile_updated', label: 'user.profile_updated' },
+  { value: 'user.deactivation_rolled_back', label: 'user.deactivation_rolled_back' },
+  { value: 'rbac.role_assigned', label: 'rbac.role_assigned' },
+  { value: 'rbac.role_revoked', label: 'rbac.role_revoked' },
+  { value: 'rbac.permission_assigned', label: 'rbac.permission_assigned' },
+  { value: 'rbac.permission_revoked', label: 'rbac.permission_revoked' },
   { value: 'audit.exported', label: 'audit.exported' },
+  { value: 'auth.permission_denied', label: 'auth.permission_denied' },
 ];
 
 const TARGET_TYPE_OPTIONS = [
