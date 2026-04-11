@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ROUTES } from '@/config/routes';
 import { ShieldCheck, ShieldOff, Plus, Trash2, KeyRound, Clock, LogIn, AlertTriangle, Lock } from 'lucide-react';
+import { PasswordChangeCard } from '@/components/user/PasswordChangeCard';
 
 export default function SecurityPage() {
   const { user, mfaStatus, checkMfaStatus } = useAuth();
