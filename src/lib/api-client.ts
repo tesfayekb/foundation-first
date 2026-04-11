@@ -69,6 +69,16 @@ export const apiClient = {
     });
     return handleResponse<T>(res);
   },
+
+  async patch<T>(path: string, body?: object): Promise<T> {
+    const headers = await getAuthHeaders();
+    const res = await fetch(buildUrl(path), {
+      method: 'PATCH',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return handleResponse<T>(res);
+  },
 };
 
 export { ApiError };
