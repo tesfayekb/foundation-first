@@ -533,11 +533,11 @@ At each phase boundary (before advancing to the next phase):
 | **Future Owner Module** | PLAN-USRPNL-001 |
 | **Required Plan Realignment** | Must be included in SecurityPage when re-auth pattern is available |
 | **Related Decisions** | — |
-| **Related Actions** | — |
+| **Related Actions** | ACT-042 |
 | **Required Tests for Closure** | Password change E2E, re-auth required, old password validation, audit logging |
-| **Status** | `assigned` |
-| **Implemented by Action** | — |
-| **Implemented in Plan Version** | — |
+| **Status** | `implemented` |
+| **Implemented by Action** | ACT-042 |
+| **Implemented in Plan Version** | v9 |
 
 ---
 
