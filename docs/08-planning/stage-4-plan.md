@@ -1,6 +1,6 @@
 # Phase 4 — Admin & User Interfaces Plan (v3)
 
-> **Status:** APPROVED-PARTIAL (Stage 4A ✅, Stage 4B ✅, Stage 4C ✅, Stage 4D pending)  
+> **Status:** APPROVED-PARTIAL (Stage 4A ✅, Stage 4B ✅, Stage 4C ✅, Stage 4D ✅, Stage 4E pending)  
 > **Owner:** AI  
 > **Created:** 2026-04-10  
 > **Revised:** 2026-04-11 (v5 — Stage 4C gate closed, all data access moved to edge functions)  
@@ -314,20 +314,20 @@ No UI code may begin until ALL three governance docs are approved:
 
 | File | Action |
 |------|--------|
-| `src/pages/admin/audit/AuditLogPage.tsx` | New |
-| `src/pages/admin/audit/index.ts` | New |
-| `src/hooks/useAuditLogs.ts` | New — React Query hooks |
-| `src/components/admin/AuditMetadataViewer.tsx` | New — JSON tree viewer |
-| `src/components/admin/AuditActionBadge.tsx` | New — color-coded action badges |
+| `src/pages/admin/AdminAuditPage.tsx` | Replaced stub (consistent with 4B/4C file location pattern) |
+| `src/hooks/useAuditLogs.ts` | Extended — added `date_from`, `date_to`, `target_type` params |
+| `src/hooks/useAuditExport.ts` | New — direct fetch+blob CSV export (bypasses apiClient) |
+| `src/components/admin/AuditMetadataViewer.tsx` | New — expandable JSON tree viewer |
+| `src/components/admin/AuditActionBadge.tsx` | New — color-coded action badges with denial highlighting |
 
 **Success Criteria:**
-- [ ] Audit logs load with pagination using DataTable
-- [ ] Filters work (action, actor, date range)
-- [ ] Metadata expandable and readable
-- [ ] Export downloads CSV
-- [ ] Denial events visually distinct
-- [ ] No sensitive data displayed (metadata sanitization verified)
-- [ ] All async states use governed LoadingSkeleton/ErrorState/EmptyState
+- [x] Audit logs load with cursor-based pagination (Option A — architecturally correct for append-only data)
+- [x] Filters work (action, actor, date range, target type)
+- [x] Metadata expandable and readable (AuditMetadataViewer with stopPropagation)
+- [x] Export downloads CSV (direct fetch+blob, not apiClient)
+- [x] Denial events visually distinct (destructive styling for .denied/.failed)
+- [x] No sensitive data displayed (metadata sanitization in edge function)
+- [x] All async states use governed LoadingSkeleton/ErrorState/EmptyState
 
 ---
 
