@@ -1,16 +1,21 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '@/config/routes';
+import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMfaFactors } from '@/hooks/useMfaFactors';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { emitMfaEnrolled } from '@/lib/auth-events';
+import { ROUTES } from '@/config/routes';
 
 type EnrollStep = 'start' | 'verify' | 'complete';
+
+type ReturnState = {
+  returnTo?: string;
+};
 
 export default function MfaEnroll() {
   const [step, setStep] = useState<EnrollStep>('start');
@@ -19,19 +24,61 @@ export default function MfaEnroll() {
   const [factorId, setFactorId] = useState('');
   const [verifyCode, setVerifyCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [clearingPending, setClearingPending] = useState(false);
   const { toast } = useToast();
-  const { checkMfaStatus } = useAuth();
+  const { checkMfaStatus, mfaStatus, loading: authLoading } = useAuth();
+  const { factors, loading: factorsLoading, unenrollFactor } = useMfaFactors();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const locationState = (location.state ?? {}) as ReturnState;
+  const hasReturnTarget = typeof locationState.returnTo === 'string' && locationState.returnTo.length > 0;
+  const returnTo = hasReturnTarget ? locationState.returnTo! : ROUTES.SETTINGS_SECURITY;
+  const isAdminReturn = returnTo.startsWith(ROUTES.ADMIN);
+
+  const verifiedFactors = useMemo(
+    () => factors.filter((factor) => factor.status === 'verified'),
+    [factors]
+  );
+  const unverifiedFactors = useMemo(
+    () => factors.filter((factor) => factor.status === 'unverified'),
+    [factors]
+  );
+
+  const hasVerifiedFactor = mfaStatus === 'enrolled' || verifiedFactors.length > 0;
+  const hasPendingUnverifiedFactor = unverifiedFactors.length > 0;
+  const nextFriendlyName = factors.length === 0 ? 'Authenticator App' : `Authenticator App ${factors.length + 1}`;
+
+  useEffect(() => {
+    if (step === 'complete' || (hasReturnTarget && hasVerifiedFactor && step === 'start')) {
+      const timeout = window.setTimeout(() => {
+        navigate(returnTo, { replace: true });
+      }, 2000);
+
+      return () => window.clearTimeout(timeout);
+    }
+  }, [hasReturnTarget, hasVerifiedFactor, navigate, returnTo, step]);
 
   const handleEnroll = async () => {
     setLoading(true);
     const { data, error } = await supabase.auth.mfa.enroll({
       factorType: 'totp',
-      friendlyName: 'Authenticator App',
+      friendlyName: nextFriendlyName,
     });
 
     if (error) {
-      toast({ variant: 'destructive', title: 'Enrollment failed', description: error.message });
+      const isFactorConflict =
+        'code' in error && error.code === 'mfa_factor_name_conflict';
+
+      await checkMfaStatus();
+
+      toast({
+        variant: 'destructive',
+        title: 'Enrollment failed',
+        description: isFactorConflict
+          ? 'This authenticator already exists on your account. Refreshing your MFA status now.'
+          : error.message,
+      });
       setLoading(false);
       return;
     }
@@ -72,8 +119,9 @@ export default function MfaEnroll() {
     }
 
     await checkMfaStatus();
-    // Emit MFA enrolled event
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (user) {
       emitMfaEnrolled(user.id, 'totp');
     }
@@ -82,6 +130,60 @@ export default function MfaEnroll() {
     toast({ title: 'MFA enabled', description: 'Your account is now protected with two-factor authentication.' });
   };
 
+  const handleClearPendingSetup = async () => {
+    if (unverifiedFactors.length === 0) return;
+
+    setClearingPending(true);
+    try {
+      let failed = false;
+
+      for (const factor of unverifiedFactors) {
+        const success = await unenrollFactor(factor.id);
+        if (!success) {
+          failed = true;
+        }
+      }
+
+      await checkMfaStatus();
+
+      if (failed) {
+        toast({
+          variant: 'destructive',
+          title: 'Could not fully reset MFA setup',
+          description: 'Some incomplete authenticator entries could not be removed. Please try again.',
+        });
+        return;
+      }
+
+      toast({
+        title: 'Incomplete MFA setup cleared',
+        description: 'You can now start MFA enrollment again.',
+      });
+    } finally {
+      setClearingPending(false);
+    }
+  };
+
+  const continueLabel = isAdminReturn ? 'Continue to Admin Console' : 'Back to Security Settings';
+  const continueDescription = isAdminReturn
+    ? 'MFA is already active. Redirecting you back to the admin panel.'
+    : 'MFA is already active on this account. You can manage factors from Security Settings.';
+
+  if (authLoading || factorsLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Checking MFA status</CardTitle>
+            <CardDescription>
+              Please wait while we verify your authenticator setup.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
   if (step === 'complete') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -89,12 +191,56 @@ export default function MfaEnroll() {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">MFA Enabled</CardTitle>
             <CardDescription>
-              Your account is now protected with two-factor authentication. You will need your authenticator app to sign in.
+              Your account is now protected with two-factor authentication. Redirecting you now.
             </CardDescription>
           </CardHeader>
           <CardFooter>
-            <Button className="w-full" onClick={() => navigate(ROUTES.ADMIN)}>
-              Continue to Admin Console
+            <Button className="w-full" onClick={() => navigate(returnTo, { replace: true })}>
+              {continueLabel}
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
+
+  if (hasReturnTarget && hasVerifiedFactor) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">MFA Already Enabled</CardTitle>
+            <CardDescription>{continueDescription}</CardDescription>
+          </CardHeader>
+          <CardFooter className="flex flex-col gap-3">
+            <Button className="w-full" onClick={() => navigate(returnTo, { replace: true })}>
+              {continueLabel}
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => navigate(ROUTES.SETTINGS_SECURITY)}>
+              Manage MFA Settings
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
+
+  if (step === 'start' && hasPendingUnverifiedFactor) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Incomplete MFA Setup Found</CardTitle>
+            <CardDescription>
+              An unfinished authenticator setup already exists for this account. Clear it before starting again.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter className="flex flex-col gap-3">
+            <Button className="w-full" onClick={handleClearPendingSetup} disabled={clearingPending}>
+              {clearingPending ? 'Clearing setup…' : 'Clear incomplete setup'}
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => navigate(returnTo)}>
+              {continueLabel}
             </Button>
           </CardFooter>
         </Card>
@@ -155,14 +301,18 @@ export default function MfaEnroll() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Enable two-factor authentication</CardTitle>
+          <CardTitle className="text-2xl">
+            {hasVerifiedFactor ? 'Add another authenticator app' : 'Enable two-factor authentication'}
+          </CardTitle>
           <CardDescription>
-            Add an extra layer of security to your account using an authenticator app.
+            {hasVerifiedFactor
+              ? 'MFA is already enabled. Add another authenticator app as a backup factor.'
+              : 'Add an extra layer of security to your account using an authenticator app.'}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Button onClick={handleEnroll} className="w-full" disabled={loading}>
-            {loading ? 'Setting up...' : 'Set up authenticator app'}
+            {loading ? 'Setting up...' : hasVerifiedFactor ? 'Add authenticator app' : 'Set up authenticator app'}
           </Button>
         </CardContent>
       </Card>

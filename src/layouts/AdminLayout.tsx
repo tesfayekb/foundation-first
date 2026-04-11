@@ -3,8 +3,9 @@ import { adminNavigation } from '@/config/admin-navigation';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import { RequirePermission } from '@/components/auth/RequirePermission';
 import { AccessDenied } from '@/components/dashboard/AccessDenied';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { ROUTES } from '@/config/routes';
 
 /**
  * AdminLayout renders the shell unconditionally (sidebar + header),
@@ -17,10 +18,12 @@ import { useAuth } from '@/contexts/AuthContext';
  */
 export function AdminLayout() {
   const { mfaStatus } = useAuth();
+  const location = useLocation();
+  const returnTo = `${location.pathname}${location.search}${location.hash}`;
 
   return (
     <RequireAuth>
-      <RequireMfaForAdmin mfaStatus={mfaStatus}>
+      <RequireMfaForAdmin mfaStatus={mfaStatus} returnTo={returnTo}>
         <DashboardLayout sections={adminNavigation} title="Admin Console">
           <RequirePermission
             permission="admin.access"
@@ -41,13 +44,15 @@ export function AdminLayout() {
  */
 function RequireMfaForAdmin({
   mfaStatus,
+  returnTo,
   children,
 }: {
   mfaStatus: string;
+  returnTo: string;
   children: React.ReactNode;
 }) {
   if (mfaStatus === 'none') {
-    return <Navigate to="/mfa-enroll" replace />;
+    return <Navigate to={ROUTES.MFA_ENROLL} replace state={{ returnTo }} />;
   }
   return <>{children}</>;
 }
