@@ -2,7 +2,7 @@
  * get-profile — Fetch a user profile.
  *
  * Self-access: requires users.view_self + requireSelfScope() enforcement.
- * Admin access: requires users.view_all (any user).
+ * Admin access: requires users.view_all (any user). Enriches with email from auth.users.
  *
  * GET /get-profile?user_id=<uuid>
  * If user_id omitted, returns the authenticated user's own profile.
@@ -36,7 +36,6 @@ Deno.serve(createHandler(async (req: Request) => {
   const isSelf = targetUserId === ctx.user.id
 
   if (isSelf) {
-    // Layered enforcement: permission + self-scope
     await checkPermissionOrThrow(ctx.user.id, 'users.view_self')
     requireSelfScope(ctx, targetUserId)
   } else {
@@ -54,5 +53,15 @@ Deno.serve(createHandler(async (req: Request) => {
     return apiError(404, 'Profile not found', { correlationId: ctx.correlationId })
   }
 
-  return apiSuccess({ profile: data })
+  // Enrich with email from auth.users for admin access
+  let email: string | null = null
+  if (!isSelf) {
+    const { data: authData } = await supabaseAdmin.auth.admin.getUserById(targetUserId)
+    email = authData?.user?.email ?? null
+  } else {
+    // For self-access, get email from the authenticated user's JWT
+    email = ctx.user.email ?? null
+  }
+
+  return apiSuccess({ profile: { ...data, email } })
 }))
