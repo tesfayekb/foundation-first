@@ -192,13 +192,13 @@ export default function AdminAuditPage() {
       <div className="mb-4 flex flex-wrap items-end gap-3">
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Action</label>
-          <Select value={actionFilter} onValueChange={(v) => { setActionFilter(v); setCursorStack([]); setCurrentCursor(undefined); }}>
+          <Select value={actionFilter || '__all__'} onValueChange={(v) => { setActionFilter(v === '__all__' ? '' : v); setCursorStack([]); setCurrentCursor(undefined); }}>
             <SelectTrigger className="w-44 h-9 text-xs">
               <SelectValue placeholder="All actions" />
             </SelectTrigger>
             <SelectContent>
               {ACTION_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                <SelectItem key={o.value || '__all__'} value={o.value || '__all__'}>{o.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -206,13 +206,13 @@ export default function AdminAuditPage() {
 
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Target Type</label>
-          <Select value={targetTypeFilter} onValueChange={(v) => { setTargetTypeFilter(v); setCursorStack([]); setCurrentCursor(undefined); }}>
+          <Select value={targetTypeFilter || '__all__'} onValueChange={(v) => { setTargetTypeFilter(v === '__all__' ? '' : v); setCursorStack([]); setCurrentCursor(undefined); }}>
             <SelectTrigger className="w-36 h-9 text-xs">
               <SelectValue placeholder="All targets" />
             </SelectTrigger>
             <SelectContent>
               {TARGET_TYPE_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                <SelectItem key={o.value || '__all__'} value={o.value || '__all__'}>{o.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
