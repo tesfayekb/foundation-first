@@ -8,8 +8,9 @@ interface AuditActionBadgeProps {
 }
 
 function categorizeAction(action: string): ActionCategory {
-  if (action.startsWith('auth.') || action.startsWith('login') || action.startsWith('logout')) return 'auth';
+  if (action.startsWith('auth.')) return 'auth';
   if (action.startsWith('user.')) return 'user';
+  if (action.startsWith('rbac.')) return 'role';
   if (action.startsWith('role.')) return 'role';
   if (action.startsWith('permission.')) return 'permission';
   if (action.startsWith('audit.')) return 'audit';
