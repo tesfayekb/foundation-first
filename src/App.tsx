@@ -91,7 +91,13 @@ const App = () => (
               </Route>
               <Route path="/settings" element={<UserLayout />}>
                 <Route index element={<Suspense fallback={<LazyFallback />}><ProfilePage /></Suspense>} />
-                <Route path="security" element={<Suspense fallback={<LazyFallback />}><SecurityPage /></Suspense>} />
+              <Route path="security" element={
+                <Suspense fallback={<LazyFallback />}>
+                  <RequirePermission permission="mfa.self_manage" fallback={<AccessDenied />}>
+                    <SecurityPage />
+                  </RequirePermission>
+                </Suspense>
+              } />
               </Route>
 
               {/* Catch-all */}
