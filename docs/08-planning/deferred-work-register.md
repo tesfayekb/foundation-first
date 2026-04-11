@@ -338,7 +338,7 @@ At each phase boundary (before advancing to the next phase):
 | DW-021 | DB-level admin user search (replace auth.admin.listUsers) | Phase 4 | Phase 6 | `assigned` |
 | DW-022 | Server-shaped admin user DTO/view | Phase 4 | Phase 6 | `assigned` |
 | DW-023 | Audit actor-scope display shaping | Phase 4 | Phase 5+ | `assigned` |
-| DW-024 | AdminDashboard roles breakdown unbounded fetch | Phase 4 | Phase 6 | `assigned` |
+| DW-024 | Admin panel unbounded client-side aggregation queries | Phase 4 | Phase 6 | `assigned` |
 
 ## Registry (continued)
 
@@ -659,24 +659,24 @@ At each phase boundary (before advancing to the next phase):
 
 ---
 
-### DW-024: AdminDashboard Roles Breakdown Unbounded Fetch
+### DW-024: Admin Panel Unbounded Client-Side Aggregation Queries
 
 | Field | Value |
 |-------|-------|
 | **ID** | DW-024 |
 | **Date Deferred** | 2026-04-11 |
-| **Source Plan Section** | PLAN-ADMIN-001 (admin dashboard) |
-| **Source Phase** | Phase 4 — Admin & User Interfaces (Stage 4B) |
-| **Title** | AdminDashboard useRolesBreakdown fetches entire user_roles table |
-| **Reason Deferred** | Uses Supabase client .select('role_id') with no limit — RLS enforced, correct at current scale, but unbounded for large tenants. |
-| **Blocking Dependencies** | DB function for role assignment counts, or server-side aggregation endpoint |
+| **Source Plan Section** | PLAN-ADMIN-001 (admin dashboard + role list) |
+| **Source Phase** | Phase 4 — Admin & User Interfaces (Stage 4B + 4C) |
+| **Title** | AdminDashboard useRolesBreakdown and AdminRolesPage fetchRoles fetch unbounded tables client-side |
+| **Reason Deferred** | (1) useRolesBreakdown fetches entire user_roles table with .select('role_id') and no limit. (2) fetchRoles fetches all role_permissions and all user_roles to compute per-role permission/user counts. Both are RLS-enforced and correct at current scale, but unbounded for large tenants. |
+| **Blocking Dependencies** | DB functions for role assignment counts / permission counts, or server-side aggregation endpoint |
 | **Impact on Source Phase** | No impact — correct at current scale |
 | **Future Owner Phase** | Phase 6 — Hardening & System Validation |
 | **Future Owner Module** | PLAN-ADMIN-001 |
-| **Required Plan Realignment** | Phase 6 must include dashboard query optimization |
+| **Required Plan Realignment** | Phase 6 must include dashboard + role list query optimization |
 | **Related Decisions** | — |
 | **Related Actions** | — |
-| **Required Tests for Closure** | Dashboard loads in < 1s at 10K users; no unbounded client-side fetches |
+| **Required Tests for Closure** | Dashboard and role list load in < 1s at 10K users; no unbounded client-side fetches |
 | **Status** | `assigned` |
 | **Implemented by Action** | — |
 | **Implemented in Plan Version** | — |
