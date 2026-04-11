@@ -82,7 +82,23 @@ export default function MfaEnroll() {
   };
 
   if (step === 'complete') {
-    return <MfaComplete />;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">MFA Enabled</CardTitle>
+            <CardDescription>
+              Your account is now protected with two-factor authentication. You will need your authenticator app to sign in.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button className="w-full" onClick={() => navigate(ROUTES.ADMIN)}>
+              Continue to Admin Console
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
   }
 
   if (step === 'verify') {
