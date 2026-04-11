@@ -67,6 +67,7 @@ Authentication flows only. Authorization (permissions) is handled by the RBAC mo
 | Invalid or expired session | Redirect to sign-in |
 | Unverified email | Block protected access, prompt verification |
 | MFA challenge required | Present MFA input before completing sign-in |
+| Existing MFA factor or incomplete MFA setup | `/mfa-enroll` must detect verified vs incomplete factors, avoid blind duplicate enrollment, and route user to continue or recover |
 | OAuth callback failure | Display error, allow retry |
 | Password reset token invalid/expired | Display error, allow new request |
 | Repeated failed attempts | Progressive throttling / account lockout |

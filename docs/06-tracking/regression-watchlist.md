@@ -1,6 +1,6 @@
 # Regression Watchlist
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-10
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-11
 
 ## Purpose
 
@@ -449,8 +449,8 @@ The following **MUST** create Action Tracker entries:
 | 4 | RW-004 | Job retry configuration | High | 0 |
 | 5 | RW-005 | Audit event completeness | High | 0 |
 | 6 | RW-006 | Health monitoring blind spot | High | 0 |
-
 | 7 | RW-007 | UI design system compliance | High | 0 |
+| 8 | RW-008 | MFA enroll route state drift | High | 1 |
 
 _Updated as items are added, triggered, or resolved._
 
@@ -475,6 +475,29 @@ _Updated as items are added, triggered, or resolved._
 | **Owner** | Project Lead |
 | **Added Date** | 2026-04-10 |
 | **Last Verified** | 2026-04-10 (initial creation) |
+| **Status** | Active |
+
+---
+
+### RW-008: MFA Enroll Route State Drift
+
+| Field | Value |
+|-------|-------|
+| **Area** | Auth / MFA |
+| **Risk Description** | `/mfa-enroll` may ignore existing verified or incomplete TOTP factors, causing duplicate-enrollment errors or trapping admins on the enrollment route instead of returning them to the requested admin page |
+| **Regression Class** | UX / Workflow |
+| **Priority** | High |
+| **Affected Modules** | auth, admin-panel, user-panel |
+| **Trigger Conditions** | Any change to AuthContext MFA status resolution, AdminLayout MFA guard, MfaEnroll.tsx, MfaChallenge.tsx, factor naming, or factor cleanup behavior |
+| **Detection Method** | Manual route verification, preview network traces, auth journey testing |
+| **Required Checks** | 1) Admin without MFA visiting `/admin` is redirected to `/mfa-enroll`. 2) Successful enroll auto-returns with a visible fallback button. 3) Already-enrolled admin does not see a blind re-enroll CTA in forced-enrollment context. 4) Adding another factor from Security Settings does not reuse a conflicting friendly name. 5) Incomplete unverified factors can be cleared and restarted. |
+| **Verification Type** | Manual + code review |
+| **Related Tests** | No dedicated automated regression test yet — manual MFA route checklist required until auth E2E coverage is expanded |
+| **Related Risk** | — |
+| **Recurrence Count** | 1 |
+| **Owner** | Project Lead |
+| **Added Date** | 2026-04-11 |
+| **Last Verified** | 2026-04-11 |
 | **Status** | Active |
 
 ---
