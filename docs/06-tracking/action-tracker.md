@@ -1178,6 +1178,24 @@ Each action must include:
 
 ---
 
+### ACT-044: Stage 4I — Navigation Enhancements
+
+| Field | Value |
+|-------|-------|
+| **ID** | ACT-044 |
+| **Date** | 2026-04-11 |
+| **Action** | Stage 4I: Implemented all 5 navigation enhancement items. Item 23: mobile isMobile awareness — collapsed state now requires `!isMobile` to prevent icon-mode flash in Sheet. Item 5: nested/collapsible nav groups — NavItems with children render as Collapsible groups with ChevronRight indicator, auto-open when child is active, collapsed mode shows parent icon only. Item 11: dynamic breadcrumb entity names — UUID segments resolved from React Query cache (`['admin', 'user', uuid]` and `['roles', 'detail', uuid]`), falls back to "Detail". Item 13: active parent highlighting — CollapsibleTrigger shows active style when any child isActive. Item 24: nav badge support — `badge?: string \| number` added to NavItem type, rendered as Badge variant="secondary" in expanded mode only. |
+| **Type** | Feature |
+| **Impact Classification** | Medium |
+| **Modules Affected** | admin-panel, user-panel |
+| **Files Changed** | DashboardSidebar.tsx (rewritten), DashboardBreadcrumbs.tsx (rewritten), navigation.types.ts (badge field added), stage-4i-plan.md (created), stage-4-plan.md, system-state.md, component-inventory.md, action-tracker.md |
+| **Docs Updated** | stage-4i-plan.md (created), stage-4-plan.md (Stage 4I section), system-state.md, component-inventory.md, action-tracker.md |
+| **Evidence** | TypeScript build: zero errors. All 5 items implemented per stage-4i-plan.md spec. |
+| **Verified By** | AI Agent |
+| **Status** | Verified |
+
+---
+
 - If action introduces regression → must link watchlist item in `related_watchlist`
 - Regression fix actions must reference the original regression
 - Repeated failures in same area → tracked via recurrence in watchlist, referenced here

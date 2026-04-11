@@ -22,9 +22,9 @@ Governed registry of all shared Phase 4 components. Pages must assemble from thi
 | `DashboardLayout` | `src/layouts/DashboardLayout.tsx` | Shell wrapper: SidebarProvider + Sidebar + Header + Outlet | Admin, User panels |
 | `AdminLayout` | `src/layouts/AdminLayout.tsx` | Admin route wrapper: DashboardLayout + admin nav config + RequirePermission(`admin.access`) | Admin pages |
 | `UserLayout` | `src/layouts/UserLayout.tsx` | User route wrapper: DashboardLayout + user nav config + RequireAuth | User pages |
-| `DashboardSidebar` | `src/components/dashboard/DashboardSidebar.tsx` | Permission-filtered navigation sidebar | Shell |
+| `DashboardSidebar` | `src/components/dashboard/DashboardSidebar.tsx` | Permission-filtered navigation sidebar with nested collapsible groups, badge support, mobile isMobile awareness, and active parent highlighting | Shell |
 | `DashboardHeader` | `src/components/dashboard/DashboardHeader.tsx` | Fixed top bar: trigger, search, theme, user menu | Shell |
-| `DashboardBreadcrumbs` | `src/components/dashboard/DashboardBreadcrumbs.tsx` | Route-aware breadcrumb trail | All pages |
+| `DashboardBreadcrumbs` | `src/components/dashboard/DashboardBreadcrumbs.tsx` | Route-aware breadcrumb trail with dynamic entity name resolution from React Query cache | All pages |
 | `PageHeader` | `src/components/dashboard/PageHeader.tsx` | Page title + subtitle + action buttons zone | All pages |
 | `DashboardNotFound` | `src/components/dashboard/DashboardNotFound.tsx` | In-shell 404: icon + message + go-back button, rendered within shell | Invalid routes under /admin/*, /dashboard/*, /settings/* |
 | `UserMenu` | `src/components/dashboard/UserMenu.tsx` | Avatar dropdown: profile, security, sign-out | Header |
