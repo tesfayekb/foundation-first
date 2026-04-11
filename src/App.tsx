@@ -95,7 +95,7 @@ const App = () => (
                 <Route index element={<Suspense fallback={<LazyFallback />}><ProfilePage /></Suspense>} />
               <Route path="security" element={
                 <Suspense fallback={<LazyFallback />}>
-                  <RequirePermission permission="mfa.self_manage" fallback={<AccessDenied />}>
+                  <RequirePermission permission={["mfa.self_manage", "session.self_manage"]} fallback={<AccessDenied />}>
                     <SecurityPage />
                   </RequirePermission>
                 </Suspense>
