@@ -1214,6 +1214,24 @@ Each action must include:
 
 ---
 
+### ACT-046: Admin MFA Enrollment Enforcement
+
+| Field | Value |
+|-------|-------|
+| **ID** | ACT-046 |
+| **Date** | 2026-04-11 |
+| **Action** | Added MFA enrollment enforcement to AdminLayout. Admins with `mfaStatus === 'none'` (no MFA factors enrolled) are now redirected to `/mfa-enroll` before the admin panel renders. This closes the pre-existing gap where admin-panel.md required MFA but AdminLayout did not enforce enrollment. RequireAuth already handles `challenge_required` (enrolled but unverified); this new guard handles the `none` case (never enrolled). Implemented as a private `RequireMfaForAdmin` component within AdminLayout — no new public component. |
+| **Type** | Security Fix |
+| **Impact Classification** | High |
+| **Modules Affected** | admin-panel, auth |
+| **Files Changed** | AdminLayout.tsx |
+| **Docs Updated** | system-state.md, action-tracker.md |
+| **Evidence** | TypeScript build: zero errors. Guard fires before DashboardLayout renders — no admin content visible without MFA. Three enforcement layers (route MFA gate, edge function permission check, RLS) now all independently enforced. |
+| **Verified By** | AI Agent |
+| **Status** | Verified |
+
+---
+
 - If action introduces regression → must link watchlist item in `related_watchlist`
 - Regression fix actions must reference the original regression
 - Repeated failures in same area → tracked via recurrence in watchlist, referenced here
