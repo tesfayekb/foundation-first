@@ -339,6 +339,8 @@ At each phase boundary (before advancing to the next phase):
 | DW-022 | Server-shaped admin user DTO/view | Phase 4 | Phase 6 | `assigned` |
 | DW-023 | Audit actor-scope display shaping | Phase 4 | Phase 5+ | `assigned` |
 | DW-024 | Admin panel unbounded client-side aggregation queries | Phase 4 | Phase 6 | `assigned` |
+| DW-025 | Role creation (create-role edge function + UI) | Phase 4 | Phase 6 | `assigned` |
+| DW-026 | Role deletion (delete-role edge function + UI) | Phase 4 | Phase 6 | `assigned` |
 
 ## Registry (continued)
 
