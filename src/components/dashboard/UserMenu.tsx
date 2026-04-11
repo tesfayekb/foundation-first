@@ -53,14 +53,30 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate('/settings')}>
+        <DropdownMenuItem onClick={() => navigate(ROUTES.SETTINGS)}>
           <UserCircle className="mr-2 h-4 w-4" />
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate('/settings/security')}>
+        <DropdownMenuItem onClick={() => navigate(ROUTES.SETTINGS_SECURITY)}>
           <ShieldCheck className="mr-2 h-4 w-4" />
           Security
         </DropdownMenuItem>
+        {hasAdminAccess && (
+          <>
+            <DropdownMenuSeparator />
+            {isInAdmin ? (
+              <DropdownMenuItem onClick={() => navigate(ROUTES.DASHBOARD)}>
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                My Dashboard
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={() => navigate(ROUTES.ADMIN)}>
+                <Shield className="mr-2 h-4 w-4" />
+                Admin Console
+              </DropdownMenuItem>
+            )}
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>
           <LogOut className="mr-2 h-4 w-4" />
