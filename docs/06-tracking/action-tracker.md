@@ -1068,7 +1068,7 @@ Each action must include:
 | Type | Count | High Impact |
 |------|-------|-------------|
 | Feature | 8 | 8 |
-| Documentation | 13 | 12 |
+| Documentation | 14 | 13 |
 | Fix | 4 | 2 |
 | Security | 10 | 10 |
 | Performance | 0 | 0 |
@@ -1078,7 +1078,7 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 35 |
+| Verified | 36 |
 | Superseded | 2 (ACT-027, ACT-028) |
 | In Progress | 0 |
 | Rolled Back | 0 |
@@ -1088,7 +1088,7 @@ Each action must include:
 - Regressions introduced: 0
 - Regressions resolved: 1 (reactivation auth-unban gap — ACT-029)
 - Open (unverified) actions: 0
-- High-impact actions this period: 34
+- High-impact actions this period: 35
 
 _Updated as actions are added._
 
