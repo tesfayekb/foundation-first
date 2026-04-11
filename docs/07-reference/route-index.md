@@ -487,7 +487,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Panel** | admin-panel |
 | **Related functions** | `queryAuditLogs()` |
 | **Related tests** | Audit view allow/deny tests |
-| **Lifecycle** | planned |
+| **Lifecycle** | active |
 
 #### `/admin/audit/export` — Audit Export
 
@@ -502,7 +502,7 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Panel** | admin-panel |
 | **Audit required** | Yes (compliance-sensitive data export) |
 | **Related tests** | Audit export allow/deny suite |
-| **Lifecycle** | planned |
+| **Lifecycle** | active |
 
 #### `/admin/monitoring` — Health Dashboard
 
