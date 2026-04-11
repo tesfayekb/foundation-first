@@ -22,6 +22,7 @@ export const ROUTES = {
   ADMIN_USERS: '/admin/users',
   ADMIN_USER_DETAIL: '/admin/users/:id',
   ADMIN_ROLES: '/admin/roles',
+  ADMIN_ROLE_DETAIL: '/admin/roles/:id',
   ADMIN_PERMISSIONS: '/admin/permissions',
   ADMIN_AUDIT: '/admin/audit',
 } as const;

@@ -33,6 +33,7 @@ const AdminRolesPage = lazy(() => import("./pages/admin/AdminRolesPage"));
 const AdminPermissionsPage = lazy(() => import("./pages/admin/AdminPermissionsPage"));
 const AdminAuditPage = lazy(() => import("./pages/admin/AdminAuditPage"));
 const UserDetailPage = lazy(() => import("./pages/admin/UserDetailPage"));
+const RoleDetailPage = lazy(() => import("./pages/admin/RoleDetailPage"));
 
 // User pages (lazy loaded)
 const UserDashboard = lazy(() => import("./pages/user/UserDashboard"));
@@ -109,6 +110,13 @@ const App = () => (
                   <Suspense fallback={<LazyFallback />}>
                     <PermissionGate permission="roles.view">
                       <AdminRolesPage />
+                    </PermissionGate>
+                  </Suspense>
+                } />
+                <Route path="roles/:id" element={
+                  <Suspense fallback={<LazyFallback />}>
+                    <PermissionGate permission="roles.view">
+                      <RoleDetailPage />
                     </PermissionGate>
                   </Suspense>
                 } />

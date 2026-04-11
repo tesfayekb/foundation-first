@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { StatusBadge } from '@/components/dashboard/StatusBadge';
 import { LoadingSkeleton } from '@/components/dashboard/LoadingSkeleton';
 import { ErrorState } from '@/components/dashboard/ErrorState';
 import { ConfirmActionDialog } from '@/components/dashboard/ConfirmActionDialog';
+import { AssignRoleDialog } from '@/components/admin/AssignRoleDialog';
 import { RequirePermission } from '@/components/auth/RequirePermission';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,12 +15,14 @@ import { useUserDetail } from '@/hooks/useUsers';
 import { useUserRolesAdmin } from '@/hooks/useUserRolesAdmin';
 import { useAuditLogs, AuditLogEntry } from '@/hooks/useAuditLogs';
 import { useDeactivateUser, useReactivateUser } from '@/hooks/useUserActions';
+import { useAssignRole, useRevokeRole } from '@/hooks/useRoleActions';
+import { useRoles } from '@/hooks/useRoles';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { checkPermission } from '@/lib/rbac';
 import { useAuth } from '@/contexts/AuthContext';
 import { ROUTES } from '@/config/routes';
 import { format } from 'date-fns';
-import { ArrowLeft, ShieldAlert, ShieldCheck, Mail, Calendar, Clock, FileText } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, ShieldCheck, Mail, Calendar, Clock, FileText, Plus, X } from 'lucide-react';
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,56 +32,67 @@ export default function UserDetailPage() {
 
   const canViewRoles = checkPermission(context, 'roles.view');
   const canViewAudit = checkPermission(context, 'audit.view');
+  const canAssignRoles = checkPermission(context, 'roles.assign');
+  const canRevokeRoles = checkPermission(context, 'roles.revoke');
 
   const { data: profile, isLoading, error, refetch } = useUserDetail(id);
-  const { data: roles, isLoading: rolesLoading } = useUserRolesAdmin(canViewRoles ? id : undefined);
+  const { data: userRoles, isLoading: rolesLoading, refetch: refetchRoles } = useUserRolesAdmin(canViewRoles ? id : undefined);
   const { data: auditData, isLoading: auditLoading } = useAuditLogs(
     { target_id: id, limit: 10 },
     { enabled: !!id && canViewAudit },
   );
+  const { data: allRoles } = useRoles();
+
   const deactivateMutation = useDeactivateUser();
   const reactivateMutation = useReactivateUser();
+  const assignRoleMutation = useAssignRole();
+  const revokeRoleMutation = useRevokeRole();
 
   const [showDeactivate, setShowDeactivate] = useState(false);
   const [showReactivate, setShowReactivate] = useState(false);
+  const [showAssignRole, setShowAssignRole] = useState(false);
+  const [revokeRoleTarget, setRevokeRoleTarget] = useState<{ role_id: string; role_name: string } | null>(null);
 
   const isSelf = currentUser?.id === id;
 
+  // Roles not yet assigned to this user
+  const availableRoles = useMemo(() => {
+    if (!allRoles || !userRoles) return [];
+    const assignedIds = new Set(userRoles.map((ur) => ur.role_id));
+    return allRoles.filter((r) => !assignedIds.has(r.id));
+  }, [allRoles, userRoles]);
+
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <LoadingSkeleton variant="page" />
-      </div>
-    );
+    return <div className="space-y-6"><LoadingSkeleton variant="page" /></div>;
   }
 
   if (error || !profile) {
-    return (
-      <div className="space-y-6">
-        <ErrorState message={error?.message ?? 'User not found'} onRetry={() => refetch()} />
-      </div>
-    );
+    return <div className="space-y-6"><ErrorState message={error?.message ?? 'User not found'} onRetry={() => refetch()} /></div>;
   }
 
   const isActive = profile.status === 'active';
-  const initials = (profile.display_name ?? '?')
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+  const initials = (profile.display_name ?? '?').split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
 
   const handleDeactivate = (reason?: string) => {
-    deactivateMutation.mutate(
-      { user_id: id!, reason },
-      { onSuccess: () => setShowDeactivate(false) },
-    );
+    deactivateMutation.mutate({ user_id: id!, reason }, { onSuccess: () => setShowDeactivate(false) });
   };
 
   const handleReactivate = (reason?: string) => {
-    reactivateMutation.mutate(
-      { user_id: id!, reason },
-      { onSuccess: () => setShowReactivate(false) },
+    reactivateMutation.mutate({ user_id: id!, reason }, { onSuccess: () => setShowReactivate(false) });
+  };
+
+  const handleAssignRole = (roleId: string) => {
+    assignRoleMutation.mutate(
+      { target_user_id: id!, role_id: roleId },
+      { onSuccess: () => { setShowAssignRole(false); refetchRoles(); } },
+    );
+  };
+
+  const handleRevokeRole = () => {
+    if (!revokeRoleTarget) return;
+    revokeRoleMutation.mutate(
+      { target_user_id: id!, role_id: revokeRoleTarget.role_id },
+      { onSuccess: () => { setRevokeRoleTarget(null); refetchRoles(); } },
     );
   };
 
@@ -96,20 +110,12 @@ export default function UserDetailPage() {
           actions={
             !isSelf && (
               isActive ? (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setShowDeactivate(true)}
-                >
+                <Button variant="destructive" size="sm" onClick={() => setShowDeactivate(true)}>
                   <ShieldAlert className="mr-2 h-4 w-4" />
                   Deactivate
                 </Button>
               ) : (
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={() => setShowReactivate(true)}
-                >
+                <Button variant="default" size="sm" onClick={() => setShowReactivate(true)}>
                   <ShieldCheck className="mr-2 h-4 w-4" />
                   Reactivate
                 </Button>
@@ -122,9 +128,7 @@ export default function UserDetailPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Profile Card */}
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base">Profile Information</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-base">Profile Information</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
@@ -132,9 +136,7 @@ export default function UserDetailPage() {
                 <AvatarFallback className="text-lg">{initials}</AvatarFallback>
               </Avatar>
               <div className="space-y-1">
-                <p className="font-display text-lg font-semibold">
-                  {profile.display_name ?? '—'}
-                </p>
+                <p className="font-display text-lg font-semibold">{profile.display_name ?? '—'}</p>
                 <div className="flex items-center gap-2">
                   <StatusBadge status={profile.status as 'active' | 'deactivated'} />
                   <StatusBadge
@@ -144,7 +146,6 @@ export default function UserDetailPage() {
                 </div>
               </div>
             </div>
-
             <div className="grid gap-3 pt-2 sm:grid-cols-2">
               <InfoRow icon={Mail} label="Email" value={profile.email ?? '—'} />
               <InfoRow icon={Calendar} label="Created" value={format(new Date(profile.created_at), 'MMM d, yyyy')} />
@@ -153,21 +154,39 @@ export default function UserDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Roles Card — permission-guarded rendering */}
+        {/* Roles Card — permission-guarded */}
         <RequirePermission permission="roles.view">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Assigned Roles</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">Assigned Roles</CardTitle>
+                {canAssignRoles && availableRoles.length > 0 && (
+                  <Button size="sm" variant="outline" onClick={() => setShowAssignRole(true)}>
+                    <Plus className="mr-1 h-3 w-3" />
+                    Assign
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               {rolesLoading ? (
                 <LoadingSkeleton variant="card" rows={2} />
-              ) : roles && roles.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {roles.map((role) => (
-                    <Badge key={role.id} variant="secondary" className="text-sm">
-                      {role.role_name}
-                    </Badge>
+              ) : userRoles && userRoles.length > 0 ? (
+                <div className="space-y-2">
+                  {userRoles.map((role) => (
+                    <div key={role.id} className="flex items-center justify-between rounded-md border border-border px-3 py-2">
+                      <Badge variant="secondary" className="text-sm">{role.role_name}</Badge>
+                      {canRevokeRoles && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                          onClick={() => setRevokeRoleTarget({ role_id: role.role_id, role_name: role.role_name })}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -178,7 +197,7 @@ export default function UserDetailPage() {
         </RequirePermission>
       </div>
 
-      {/* Audit Trail Card — permission-guarded rendering */}
+      {/* Audit Trail — permission-guarded */}
       <RequirePermission permission="audit.view">
         <Card>
           <CardHeader>
@@ -215,12 +234,12 @@ export default function UserDetailPage() {
         </Card>
       </RequirePermission>
 
-      {/* Deactivate Dialog */}
+      {/* Dialogs */}
       <ConfirmActionDialog
         open={showDeactivate}
         onOpenChange={setShowDeactivate}
         title="Deactivate User"
-        description={`This will deactivate ${profile.display_name ?? 'this user'}'s account and revoke all active sessions. The user will not be able to sign in until reactivated.`}
+        description={`This will deactivate ${profile.display_name ?? 'this user'}'s account and revoke all active sessions.`}
         confirmLabel="Deactivate"
         destructive
         requireReason
@@ -228,8 +247,6 @@ export default function UserDetailPage() {
         onConfirm={handleDeactivate}
         loading={deactivateMutation.isPending}
       />
-
-      {/* Reactivate Dialog */}
       <ConfirmActionDialog
         open={showReactivate}
         onOpenChange={setShowReactivate}
@@ -241,6 +258,23 @@ export default function UserDetailPage() {
         reasonLabel="Reason for reactivation (required)"
         onConfirm={handleReactivate}
         loading={reactivateMutation.isPending}
+      />
+      <AssignRoleDialog
+        open={showAssignRole}
+        onOpenChange={setShowAssignRole}
+        availableRoles={availableRoles}
+        onConfirm={handleAssignRole}
+        loading={assignRoleMutation.isPending}
+      />
+      <ConfirmActionDialog
+        open={!!revokeRoleTarget}
+        onOpenChange={(open) => !open && setRevokeRoleTarget(null)}
+        title="Revoke Role"
+        description={`Remove "${revokeRoleTarget?.role_name}" from this user? This action is audited.`}
+        confirmLabel="Revoke"
+        destructive
+        onConfirm={handleRevokeRole}
+        loading={revokeRoleMutation.isPending}
       />
     </div>
   );
