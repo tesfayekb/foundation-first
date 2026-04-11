@@ -34,8 +34,8 @@ export default function SecurityPage() {
 
   // SCENARIO-3: Build unenroll warning based on current MFA state
   const unenrollDescription = hasMfa && verifiedFactors.length === 1
-    ? 'This will remove the only authenticator app from your account. Your next sign-in will no longer require MFA, reducing your account security. You'll need to set up a new one to re-enable MFA.'
-    : 'This will remove the authenticator app from your account. You'll need to set up a new one to re-enable MFA.';
+    ? "This will remove the only authenticator app from your account. Your next sign-in will no longer require MFA, reducing your account security. You'll need to set up a new one to re-enable MFA."
+    : "This will remove the authenticator app from your account. You'll need to set up a new one to re-enable MFA.";
 
   return (
     <>
