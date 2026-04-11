@@ -1,6 +1,6 @@
 # Action Tracker
 
-> **Owner:** Project Lead | **Last Reviewed:** 2026-04-10
+> **Owner:** Project Lead | **Last Reviewed:** 2026-04-11
 
 ## Purpose
 
@@ -1088,7 +1088,7 @@ Each action must include:
 
 | Type | Count | High Impact |
 |------|-------|-------------|
-| Feature | 8 | 8 |
+| Feature | 9 | 9 |
 | Documentation | 14 | 13 |
 | Fix | 4 | 2 |
 | Security | 10 | 10 |
@@ -1099,7 +1099,7 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 36 |
+| Verified | 37 |
 | Superseded | 2 (ACT-027, ACT-028) |
 | In Progress | 0 |
 | Rolled Back | 0 |
@@ -1109,7 +1109,7 @@ Each action must include:
 - Regressions introduced: 0
 - Regressions resolved: 1 (reactivation auth-unban gap — ACT-029)
 - Open (unverified) actions: 0
-- High-impact actions this period: 35
+- High-impact actions this period: 36
 
 _Updated as actions are added._
 
