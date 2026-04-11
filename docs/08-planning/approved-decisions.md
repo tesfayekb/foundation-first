@@ -307,6 +307,17 @@ If any field is missing → the decision is **INVALID**.
 
 ---
 
+### DEC-026: Static Permission Model — Permissions Are System-Defined
+- **Plan Section:** PLAN-RBAC-001
+- **Decision Type:** architecture
+- **Date Approved:** 2026-04-11
+- **Decision:** Permissions are statically defined by developers at build time, registered in `permission-index.md` (the SSOT), and seeded into the database at deploy time. Admins cannot create, delete, or modify permissions at runtime — they can only assign/revoke existing permissions to/from roles. This matches the model used by AWS IAM, GitHub, Stripe, and Kubernetes. Permission CRUD UI is explicitly out of scope and is NOT a gap. The `rbac.md` line "Every resource must define permissions at creation" refers to development-time module creation, not runtime admin actions. This is confirmed by line 55: "No permission may exist at runtime unless it is registered in the Permission Index with an immutable key."
+- **Affected Modules / Systems:** RBAC, Admin Panel, Permission Index
+- **Status:** active
+- **Superseded By:** —
+
+---
+
 ## Decision Integrity Rules
 
 - Every approved plan section MUST have a corresponding `DEC-NNN` entry

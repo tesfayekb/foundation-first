@@ -719,6 +719,22 @@ At each phase boundary (before advancing to the next phase):
 
 ---
 
+### DW-027: Admin Edit User Profile (users.edit_any UI)
+
+| Field | Value |
+|-------|-------|
+| **ID** | DW-027 |
+| **Date Deferred** | 2026-04-11 |
+| **Source Plan Section** | PLAN-ADMIN-001 (admin-panel.md documents admin user editing as planned capability) |
+| **Original Description** | Allow admins with `users.edit_any` permission to edit another user's display name and avatar via the admin UI. The `update-profile` edge function already partially supports admin edits (it accepts `user_id` param). The `users.edit_any` permission is seeded in the DB. Only the admin-side UI form on UserDetailPage is missing. |
+| **Why Deferred** | Stage 4B scope covered view/deactivate/reactivate only. Admin profile editing was not scheduled into any stage. |
+| **Blocking Dependencies** | Stage 4E (user self-service profile edit) should land first to establish the profile editing pattern. |
+| **Target Phase** | Phase 6 (hardening) |
+| **Risk If Forgotten** | Medium — `users.edit_any` permission exists but is non-functional from UI; admins must use direct DB access to edit user profiles. |
+| **Status** | `assigned` |
+
+---
+
 ## Used By / Affects
 
 - Phase gate closure decisions
