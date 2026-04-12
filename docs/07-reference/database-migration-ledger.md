@@ -508,9 +508,42 @@ All SQL migrations applied to the external Supabase database, whether from `sql/
 | **Sequence Order** | 28 |
 | **Purpose** | Schedule 4 pg_cron jobs: health_check (*/1m), alert_evaluation (*/1m), metrics_aggregate (*/5m), audit_cleanup (weekly Sun 3AM) |
 | **Objects Affected** | Data: 4 rows in `cron.job` |
-| **Status** | `active` |
+| **Status** | `superseded` |
+| **Superseded By** | MIG-030 (unscheduled due to missing X-Cron-Secret) |
 | **Linked Actions** | ACT-061 |
 | **Notes** | Contains project-specific URLs and anon key — not portable across environments |
+
+---
+
+### MIG-029: Failed — Vault Secret for Cron Auth
+
+| Field | Value |
+|-------|-------|
+| **Ledger ID** | MIG-029 |
+| **Migration File** | (failed — not applied) |
+| **Source Dir** | `supabase/migrations/` |
+| **Applied Date** | 2026-04-12 |
+| **Sequence Order** | 29 |
+| **Purpose** | Attempted to use `vault.secrets` for CRON_SECRET — failed due to `_crypto_aead_det_noncegen` permission denied |
+| **Status** | `failed` |
+| **Notes** | Vault INSERT requires elevated permissions not available via migration tool. Alternative: CRON_SECRET stored as edge function secret + passed in pg_cron headers via SQL Editor. |
+| **Linked Actions** | ACT-062 |
+
+---
+
+### MIG-030: Unschedule Insecure Cron Jobs
+
+| Field | Value |
+|-------|-------|
+| **Ledger ID** | MIG-030 |
+| **Migration File** | (inline via migration tool) |
+| **Source Dir** | `supabase/migrations/` |
+| **Applied Date** | 2026-04-12 |
+| **Sequence Order** | 30 |
+| **Purpose** | Unschedule 4 cron jobs that lacked X-Cron-Secret authentication. Jobs to be rescheduled via SQL Editor with secret header. |
+| **Objects Affected** | Removed: 4 rows from `cron.job` |
+| **Status** | `active` |
+| **Linked Actions** | ACT-062 |
 
 ---
 
