@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -11,18 +11,29 @@ export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, user, mfaStatus } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
 
+  // Redirect when auth state confirms user is signed in
+  useEffect(() => {
+    if (user) {
+      if (mfaStatus === 'challenge_required') {
+        navigate('/mfa-challenge', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
+    }
+  }, [user, mfaStatus, from, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const { error, mfaChallengeRequired } = await signIn(email, password);
+    const { error } = await signIn(email, password);
 
     if (error) {
       toast({
@@ -31,11 +42,9 @@ export default function SignIn() {
         description: error.message,
       });
       setLoading(false);
-    } else if (mfaChallengeRequired) {
-      navigate('/mfa-challenge', { replace: true });
-    } else {
-      navigate(from, { replace: true });
     }
+    // On success: don't navigate here — the useEffect above handles it
+    // once onAuthStateChange propagates the user state
   };
 
   return (
@@ -62,7 +71,7 @@ export default function SignIn() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-primary">
+                <Link to="/forgot-password" tabIndex={-1} className="text-sm text-muted-foreground hover:text-primary">
                   Forgot password?
                 </Link>
               </div>
