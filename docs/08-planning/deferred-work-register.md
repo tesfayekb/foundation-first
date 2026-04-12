@@ -321,7 +321,7 @@ At each phase boundary (before advancing to the next phase):
 | DW-004 | DB-Level RLS Verification | Phase 2 | Phase 3 | `implemented` |
 | DW-005 | Cross-Tenant Isolation Scope | Phase 2 | N/A (DEC-022) | `cancelled` |
 | DW-006 | Cache Invalidation Verification | Phase 2 | Phase 3 | `implemented` |
-| DW-007 | Moderator Role | Phase 2 | `unassigned` (v2) | `deferred` |
+| DW-007 | Moderator Role | Phase 2 | `unassigned` (v2) | `deferred (v2)` |
 | DW-008 | MFA Recovery Codes | Phase 1 | Phase 4 | `assigned` |
 | DW-009 | requireRole() Shared Function | Phase 2 | Phase 3 | `implemented` |
 | DW-010 | requireSelfScope() Shared Function | Phase 2 | Phase 3 | `implemented` |
@@ -334,7 +334,7 @@ At each phase boundary (before advancing to the next phase):
 | DW-017 | Admin Jobs/Config UI | Phase 4 | Phase 5 | `implemented` |
 | DW-018 | User Password Change Flow | Phase 4 | Phase 4 (Stage 4J) | `implemented` |
 | DW-019 | User Session Revocation | Phase 4 | Phase 5 | `implemented` |
-| DW-020 | User Notification Preferences | Phase 4 | Phase 5+ | `assigned` |
+| DW-020 | User Notification Preferences | Phase 4 | `unassigned` (v2) | `deferred (v2)` |
 | DW-021 | DB-level admin user search (replace auth.admin.listUsers) | Phase 4 | Phase 6 | `assigned` |
 | DW-022 | Server-shaped admin user DTO/view | Phase 4 | Phase 6 | `assigned` |
 | DW-023 | Audit actor-scope display shaping | Phase 4 | Phase 5+ | `assigned` |
@@ -582,15 +582,16 @@ At each phase boundary (before advancing to the next phase):
 | **Reason Deferred** | No notification system backend exists |
 | **Blocking Dependencies** | Notification system backend, preference storage schema |
 | **Impact on Source Phase** | Phase 4 delivers core user panel; notification preferences deferred |
-| **Future Owner Phase** | Phase 5+ |
+| **Future Owner Phase** | `unassigned` — v2 scope |
 | **Future Owner Module** | PLAN-USRPNL-001 |
 | **Required Plan Realignment** | Requires new notification module or extension to user-management |
 | **Related Decisions** | — |
 | **Related Actions** | — |
 | **Required Tests for Closure** | Preference CRUD, notification delivery based on preferences |
-| **Status** | `assigned` |
+| **Status** | `deferred (v2)` |
 | **Implemented by Action** | — |
 | **Implemented in Plan Version** | — |
+| **Resolution Note** | Deferred to v2 — no notification backend exists. Implementing from scratch is beyond Phase 6 hardening scope. |
 
 ---
 
