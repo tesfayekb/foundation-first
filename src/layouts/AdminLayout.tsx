@@ -9,6 +9,9 @@ import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ROUTES } from '@/config/routes';
 import { ROLES_QUERY_KEY, rolesQueryFn, PERMISSIONS_QUERY_KEY, permissionsQueryFn } from '@/hooks/useRoles';
+import { USER_STATS_QUERY_KEY, userStatsQueryFn } from '@/hooks/useUserStats';
+import { USER_ROLES_KEY } from '@/hooks/useUserRoles';
+import { supabase } from '@/integrations/supabase/client';
 import { apiClient } from '@/lib/api-client';
 
 /**
