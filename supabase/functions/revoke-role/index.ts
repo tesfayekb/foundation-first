@@ -43,7 +43,7 @@ Deno.serve(createHandler(async (req: Request) => {
     return apiError(404, 'Role not found', { correlationId: ctx.correlationId })
   }
 
-  // Gap 1 fix: Base role is irrevocable
+  // Gap 1 fix: Base roles are irrevocable
   if (role.is_base && role.key === 'user') {
     const { apiError } = await import('../_shared/api-error.ts')
     return apiError(409, 'Cannot revoke the base user role', {
