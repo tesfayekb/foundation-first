@@ -196,6 +196,27 @@ Each watchlist item must include:
 | **Last Verified** | 2026-04-10 (ACT-029: 8/8 lifecycle tests passed) |
 | **Status** | Active |
 
+### RW-008: PERMISSION_DEPS Map Drift Across 3 Copies
+
+| Field | Value |
+|-------|-------|
+| **Area** | RBAC / Configuration |
+| **Risk Description** | The PERMISSION_DEPS map exists in 3 locations: `src/config/permission-deps.ts`, `assign-permission-to-role/index.ts`, and `revoke-permission-from-role/index.ts`. Adding or removing a dependency in one copy without updating the others causes silent enforcement inconsistency — client may allow what server blocks, or server may not enforce what client shows. |
+| **Regression Class** | Authorization / Data Integrity |
+| **Priority** | High |
+| **Affected Modules** | rbac, admin-panel |
+| **Trigger Conditions** | Any change to permission dependencies, adding new permissions, modifying PERMISSION_DEPS in any of the 3 files |
+| **Detection** | Manual diff of all 3 copies, automated hash comparison (future) |
+| **Required Checks** | 1) All 3 PERMISSION_DEPS maps have identical entries. 2) Any new permission with dependencies is added to all 3 files. 3) permission-index.md `depends_on` field matches. |
+| **Verification Type** | Manual (automated drift detection deferred — DW-027) |
+| **Related Tests** | — |
+| **Related Risk** | — |
+| **Recurrence Count** | 0 |
+| **Owner** | Project Lead |
+| **Added Date** | 2026-04-12 |
+| **Last Verified** | 2026-04-12 (all 3 copies confirmed identical — 23 entries each) |
+| **Status** | Active |
+
 ---
 
 ## Pre-Change Verification Workflow
