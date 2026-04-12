@@ -101,4 +101,4 @@ Deno.serve(createHandler(async (req: Request) => {
     correlation_id: ctx.correlationId,
     message: `Role "${name}" created successfully`,
   }, 201)
-}))
+}, { rateLimit: 'strict' }))

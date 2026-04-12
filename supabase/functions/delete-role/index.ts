@@ -137,4 +137,4 @@ Deno.serve(createHandler(async (req: Request) => {
     correlation_id: ctx.correlationId,
     message: `Role "${role.name}" deleted successfully`,
   })
-}))
+}, { rateLimit: 'strict' }))

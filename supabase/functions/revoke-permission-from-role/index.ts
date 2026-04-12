@@ -203,4 +203,4 @@ Deno.serve(createHandler(async (req: Request) => {
     correlation_id: ctx.correlationId,
     message: `Permission ${permission.key} revoked from role ${role.key}`,
   })
-}))
+}, { rateLimit: 'strict' }))
