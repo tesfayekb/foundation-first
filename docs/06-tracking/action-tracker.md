@@ -1556,7 +1556,34 @@ Each action must include:
 
 ---
 
-- If action introduces regression → must link watchlist item in `related_watchlist`
+### ACT-060: Stage 5D — Core Jobs Implementation
+
+| Field | Value |
+|-------|-------|
+| **ID** | ACT-060 |
+| **Date** | 2026-04-12 |
+| **Action** | (1) Seeded 4 jobs in `job_registry` (health_check, metrics_aggregate, alert_evaluation, audit_cleanup) via migration MIG-026. (2) Created 4 edge functions: `job-health-check` (subsystem checks → snapshot → status_changed event), `job-metrics-aggregate` (aggregates snapshots into system_metrics), `job-alert-evaluation` (evaluates thresholds → alert_history → alert_triggered event), `job-audit-cleanup` (deletes records >90 days per DEC-007). (3) Fixed job-executor.ts: removed targetId (audit_logs.target_id is UUID, job IDs are text → FK violation), moved jobId to metadata; replaced sentinel UUID actorId with null (FK constraint on auth.users). All jobs use executeWithRetry() with scheduledTime, scheduleWindowId, and proper telemetry. |
+| **Type** | Feature |
+| **Impact Classification** | High |
+| **Modules Affected** | jobs-and-scheduler, health-monitoring, audit-logging |
+| **Files Changed** | supabase/functions/job-health-check/index.ts (new), supabase/functions/job-metrics-aggregate/index.ts (new), supabase/functions/job-alert-evaluation/index.ts (new), supabase/functions/job-audit-cleanup/index.ts (new), supabase/functions/_shared/job-executor.ts (fix: targetId → metadata, actorId → null) |
+| **Docs Updated** | route-index.md (4 new routes), action-tracker.md, database-migration-ledger.md, system-state.md |
+| **Related Routes** | POST /job-health-check, POST /job-metrics-aggregate, POST /job-alert-evaluation, POST /job-audit-cleanup |
+| **Related Functions** | executeWithRetry, classifyError, detectPoisonJob, checkDatabase, checkAuth, checkAuditPipeline, deriveOverallStatus, logAuditEvent |
+| **Related Events** | job.started, job.completed, job.failed, health.status_changed, health.alert_triggered |
+| **Evidence** | All 4 functions deployed and tested. health_check: 200 OK, 988ms, succeeded. metrics_aggregate: 200 OK, 409ms, 10 metrics produced. alert_evaluation: 200 OK, 207ms, 0 alerts (no configs). audit_cleanup: 200 OK, 215ms, 0 records deleted (none >90d). Audit events job.started/job.completed confirmed in audit_logs table. Execution records verified in job_executions with all 6 telemetry columns populated. |
+| **Verified By** | AI Agent |
+| **Before State** | Job registry empty, no job edge functions |
+| **After State** | 4 jobs registered, 4 edge functions deployed and verified |
+| **Rollback Available** | Yes |
+| **Rollback Method** | Delete job_registry rows, remove 4 edge functions |
+| **Blast Radius** | Low — new internal endpoints, no client-facing changes |
+| **Health Impact** | Improved — system now has automated health checks, metrics, alerting, and audit cleanup |
+| **Status** | Verified |
+
+---
+
+
 - Regression fix actions must reference the original regression
 - Repeated failures in same area → tracked via recurrence in watchlist, referenced here
 

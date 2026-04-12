@@ -465,6 +465,22 @@ All SQL migrations applied to the external Supabase database, whether from `sql/
 
 ---
 
+### MIG-026: Seed Job Registry — 4 Core Jobs
+
+| Field | Value |
+|-------|-------|
+| **Ledger ID** | MIG-026 |
+| **Migration File** | `20260412051417_33c01c56-64cd-4507-a3b1-9fb890a1d3ae.sql` |
+| **Source Dir** | `supabase/migrations/` |
+| **Applied Date** | 2026-04-12 |
+| **Sequence Order** | 26 |
+| **Purpose** | Seed `job_registry` with 4 core jobs: health_check, metrics_aggregate, alert_evaluation, audit_cleanup (Stage 5D) |
+| **Objects Affected** | Data: 4 rows in `job_registry` |
+| **Status** | `active` |
+| **Linked Actions** | ACT-060 |
+
+---
+
 ### Tables (12)
 
 | Table | Created By | Status |

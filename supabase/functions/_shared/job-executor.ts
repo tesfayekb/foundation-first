@@ -280,11 +280,10 @@ export async function executeWithRetry(
 
   // Emit job start audit event
   await logAuditEvent({
-    actorId: actorId ?? '00000000-0000-0000-0000-000000000000',
+    actorId: actorId ?? null,
     action: 'job.started',
     targetType: 'job',
-    targetId: jobId,
-    metadata: { executionId, attempt: 1, scheduleWindowId },
+    metadata: { jobId, executionId, attempt: 1, scheduleWindowId },
     ipAddress: ipAddress ?? '0.0.0.0',
     userAgent: userAgent ?? 'system/job-executor',
     correlationId: correlationId ?? executionId,
@@ -315,11 +314,10 @@ export async function executeWithRetry(
 
       // Emit job completed audit event
       await logAuditEvent({
-        actorId: actorId ?? '00000000-0000-0000-0000-000000000000',
+        actorId: actorId ?? null,
         action: 'job.completed',
         targetType: 'job',
-        targetId: jobId,
-        metadata: { executionId, attempt, durationMs, affectedRecords: result.affectedRecords },
+        metadata: { jobId, executionId, attempt, durationMs, affectedRecords: result.affectedRecords },
         ipAddress: ipAddress ?? '0.0.0.0',
         userAgent: userAgent ?? 'system/job-executor',
         correlationId: correlationId ?? executionId,
@@ -376,11 +374,10 @@ export async function executeWithRetry(
 
   // Emit job failed audit event
   await logAuditEvent({
-    actorId: actorId ?? '00000000-0000-0000-0000-000000000000',
+    actorId: actorId ?? null,
     action: 'job.failed',
     targetType: 'job',
-    targetId: jobId,
-    metadata: { executionId, attempt, durationMs, failureType: lastFailureType, terminalState },
+    metadata: { jobId, executionId, attempt, durationMs, failureType: lastFailureType, terminalState },
     ipAddress: ipAddress ?? '0.0.0.0',
     userAgent: userAgent ?? 'system/job-executor',
     correlationId: correlationId ?? executionId,
