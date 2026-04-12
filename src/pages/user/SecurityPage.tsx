@@ -7,9 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ROUTES } from '@/config/routes';
-import { ShieldCheck, ShieldOff, Trash2, KeyRound, Clock, LogIn, AlertTriangle, Lock } from 'lucide-react';
+import { ShieldCheck, ShieldOff, Trash2, KeyRound, Clock, LogIn, AlertTriangle, Lock, Monitor, LogOut } from 'lucide-react';
 import { PasswordChangeCard } from '@/components/user/PasswordChangeCard';
 import { ReauthDialog } from '@/components/auth/ReauthDialog';
+import { ConfirmActionDialog } from '@/components/dashboard/ConfirmActionDialog';
+import { apiClient } from '@/lib/api-client';
+import { toast } from 'sonner';
 
 export default function SecurityPage() {
   const { user, mfaStatus, checkMfaStatus } = useAuth();
@@ -17,6 +20,9 @@ export default function SecurityPage() {
   const navigate = useNavigate();
   const [factorToRemove, setFactorToRemove] = useState<MfaFactor | null>(null);
   const [showReauth, setShowReauth] = useState(false);
+  const [showRevokeOthers, setShowRevokeOthers] = useState(false);
+  const [showRevokeAll, setShowRevokeAll] = useState(false);
+  const [revoking, setRevoking] = useState(false);
 
   const handleRequestUnenroll = (factor: MfaFactor) => {
     setFactorToRemove(factor);
@@ -34,6 +40,26 @@ export default function SecurityPage() {
 
   const verifiedFactors = factors.filter((f) => f.status === 'verified');
   const hasMfa = mfaStatus === 'enrolled' || verifiedFactors.length > 0;
+
+  const handleRevokeSessions = async (scope: 'others' | 'global') => {
+    setRevoking(true);
+    try {
+      await apiClient.post('revoke-sessions', { scope });
+      if (scope === 'global') {
+        toast.success('All sessions revoked. Redirecting to sign-in…');
+        setTimeout(() => navigate(ROUTES.SIGN_IN), 1500);
+      } else {
+        toast.success('Other sessions have been revoked.');
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to revoke sessions';
+      toast.error(msg);
+    } finally {
+      setRevoking(false);
+      setShowRevokeOthers(false);
+      setShowRevokeAll(false);
+    }
+  };
 
   return (
     <>
