@@ -189,7 +189,7 @@ export default function UserDetailPage() {
                       <div key={role.id} className="flex items-center justify-between rounded-md border border-border px-3 py-2">
                         <Badge variant="secondary" className="text-sm">{role.role_name}</Badge>
                         {canRevokeRoles && (
-                          isBaseRole ? (
+                          isIrrevocableForActor ? (
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-7 w-7 items-center justify-center text-muted-foreground">
