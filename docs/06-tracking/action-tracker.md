@@ -1397,6 +1397,31 @@ Each action must include:
 
 ---
 
+### ACT-054: RLS Policy Fix + Performance Index + Server-Side Dependency Enforcement
+
+| Field | Value |
+|-------|-------|
+| **ID** | ACT-054 |
+| **Date** | 2026-04-12 |
+| **Action** | (1) Updated permissions_select_policy RLS to check permissions.view instead of roles.view — closes bypass where roles.view holders could query permissions catalog directly via Supabase client. (2) Added idx_audit_logs_target_id index for UserDetailPage audit queries. (3) Added depends_on field to permission-index schema and populated all 31 entries. (4) Added server-side dependency enforcement to revoke-permission-from-role edge function — refuses revocation if another assigned permission depends on the target (returns 409 DEPENDENCY_VIOLATION). |
+| **Type** | Security, Performance, Documentation |
+| **Impact Classification** | High |
+| **Modules Affected** | rbac, audit-logging |
+| **Files Changed** | Migration (DROP/CREATE permissions_select_policy, CREATE INDEX idx_audit_logs_target_id), supabase/functions/revoke-permission-from-role/index.ts, docs/07-reference/permission-index.md, sql/03_rbac_rls_policies.sql |
+| **Docs Updated** | permission-index.md, phase-04-closure.md, action-tracker.md |
+| **Related Permissions** | permissions.view, permissions.revoke |
+| **Evidence** | RLS policy confirmed via Supabase schema. Edge function deployed and returns 409 on dependency violation. All 31 permission entries have depends_on field. |
+| **Verified By** | AI Agent |
+| **Before State** | permissions RLS checked roles.view; no audit_logs.target_id index; no depends_on in permission-index; revoke-permission had no server-side dep check |
+| **After State** | permissions RLS checks permissions.view; index exists; all entries have depends_on; server refuses revocation of dependency permissions |
+| **Rollback Available** | Yes |
+| **Rollback Method** | Revert migration + redeploy previous edge function version |
+| **Blast Radius** | Medium |
+| **Health Impact** | Improved |
+| **Status** | Verified |
+
+---
+
 - If action introduces regression → must link watchlist item in `related_watchlist`
 - Regression fix actions must reference the original regression
 - Repeated failures in same area → tracked via recurrence in watchlist, referenced here
