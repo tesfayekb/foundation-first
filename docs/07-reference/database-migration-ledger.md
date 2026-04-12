@@ -443,6 +443,7 @@ All SQL migrations applied to the external Supabase database, whether from `sql/
 | `role_permissions` | MIG-001 | Active |
 | `audit_logs` | MIG-001 | Active |
 | `profiles` | (pre-existing) | Active — status column added MIG-011 |
+| `system_health_snapshots` | MIG-023 | Active |
 
 ### Functions (12)
 
