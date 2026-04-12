@@ -38,7 +38,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 function deriveMfaStatusFromSession(session: Session | null): MfaStatus {
   if (!session) return 'none';
 
-  // The Supabase JWT includes aal (authenticator assurance level)
   const factors = session.user?.factors;
   const hasVerifiedTotpFactor = factors?.some(
     f => f.factor_type === 'totp' && f.status === 'verified'
@@ -46,11 +45,15 @@ function deriveMfaStatusFromSession(session: Session | null): MfaStatus {
 
   if (!hasVerifiedTotpFactor) return 'none';
 
-  // User has MFA enrolled — check if current session is aal2
-  const aal = (session as unknown as { aal?: string }).aal
-    ?? session.user?.app_metadata?.aal;
-
-  if (aal === 'aal2') return 'enrolled';
+  // Parse the JWT to read the aal claim — it's not exposed on the Session object
+  try {
+    const payload = JSON.parse(atob(session.access_token.split('.')[1]));
+    if (payload.aal === 'aal2') return 'enrolled';
+  } catch {
+    // If JWT parsing fails, fall back to amr array check
+    const amr = (session as unknown as { amr?: Array<{ method: string }> }).amr;
+    if (amr?.some(a => a.method === 'totp')) return 'enrolled';
+  }
 
   // Has factor but session is aal1 → needs challenge
   return 'challenge_required';
