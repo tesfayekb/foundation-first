@@ -65,16 +65,17 @@ Deno.serve(createHandler(async (req: Request) => {
     })
   }
 
-  // Capture cascade metadata before deletion
-  const { count: userCount } = await supabaseAdmin
-    .from('user_roles')
-    .select('id', { count: 'exact', head: true })
-    .eq('role_id', role_id)
-
-  const { count: permCount } = await supabaseAdmin
-    .from('role_permissions')
-    .select('id', { count: 'exact', head: true })
-    .eq('role_id', role_id)
+  // Capture cascade metadata before deletion (parallelized)
+  const [{ count: userCount }, { count: permCount }] = await Promise.all([
+    supabaseAdmin
+      .from('user_roles')
+      .select('id', { count: 'exact', head: true })
+      .eq('role_id', role_id),
+    supabaseAdmin
+      .from('role_permissions')
+      .select('id', { count: 'exact', head: true })
+      .eq('role_id', role_id),
+  ])
 
   // Delete the role (cascades user_roles + role_permissions)
   const { error: deleteErr } = await supabaseAdmin

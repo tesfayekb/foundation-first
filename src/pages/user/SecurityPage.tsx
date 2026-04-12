@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,24 +33,24 @@ export default function SecurityPage() {
   // OAuth linking state
   const [linkingProvider, setLinkingProvider] = useState<string | null>(null);
 
-  const handleRequestUnenroll = (factor: MfaFactor) => {
+  const handleRequestUnenroll = useCallback((factor: MfaFactor) => {
     setFactorToRemove(factor);
     setShowReauth(true);
-  };
+  }, []);
 
-  const handleReauthVerified = async () => {
+  const handleReauthVerified = useCallback(async () => {
     if (!factorToRemove) return;
     const success = await unenrollFactor(factorToRemove.id);
     if (success) {
       await checkMfaStatus();
     }
     setFactorToRemove(null);
-  };
+  }, [factorToRemove, unenrollFactor, checkMfaStatus]);
 
   const verifiedFactors = factors.filter((f) => f.status === 'verified');
   const hasMfa = mfaStatus === 'enrolled' || verifiedFactors.length > 0;
 
-  const handleRevokeSessions = async (scope: 'others' | 'global') => {
+  const handleRevokeSessions = useCallback(async (scope: 'others' | 'global') => {
     setRevoking(true);
     try {
       await apiClient.post('revoke-sessions', { scope });
@@ -68,9 +68,9 @@ export default function SecurityPage() {
       setShowRevokeOthers(false);
       setShowRevokeAll(false);
     }
-  };
+  }, [navigate]);
 
-  const handleGenerateRecoveryCodes = async () => {
+  const handleGenerateRecoveryCodes = useCallback(async () => {
     setGeneratingCodes(true);
     try {
       const result = await apiClient.post<{ codes: string[]; message: string }>('mfa-recovery-generate');
@@ -83,13 +83,13 @@ export default function SecurityPage() {
       setGeneratingCodes(false);
       setShowRegenerateConfirm(false);
     }
-  };
+  }, []);
 
-  const handleCopyRecoveryCodes = () => {
+  const handleCopyRecoveryCodes = useCallback(() => {
     if (!recoveryCodes) return;
     navigator.clipboard.writeText(recoveryCodes.join('\n'));
     toast.success('Recovery codes copied to clipboard');
-  };
+  }, [recoveryCodes]);
 
   // OAuth identity helpers
   const identities = user?.identities ?? [];
@@ -99,7 +99,7 @@ export default function SecurityPage() {
   const hasApple = linkedProviders.includes('apple');
   const canUnlink = identities.length > 1; // must keep at least one auth method
 
-  const handleLinkProvider = async (provider: 'google' | 'apple') => {
+  const handleLinkProvider = useCallback(async (provider: 'google' | 'apple') => {
     setLinkingProvider(provider);
     const { error } = await supabase.auth.linkIdentity({
       provider,
@@ -109,9 +109,9 @@ export default function SecurityPage() {
       toast.error(error.message);
       setLinkingProvider(null);
     }
-  };
+  }, []);
 
-  const handleUnlinkProvider = async (identityId: string, provider: string) => {
+  const handleUnlinkProvider = useCallback(async (identityId: string, provider: string) => {
     if (!canUnlink) {
       toast.error('Cannot unlink — you must keep at least one authentication method.');
       return;
@@ -124,7 +124,10 @@ export default function SecurityPage() {
       toast.success(`${provider} account unlinked.`);
     }
     setLinkingProvider(null);
-  };
+  }, [canUnlink]);
+
+  const handleRevokeOthers = useCallback(() => handleRevokeSessions('others'), [handleRevokeSessions]);
+  const handleRevokeAll = useCallback(() => handleRevokeSessions('global'), [handleRevokeSessions]);
 
   return (
     <>
@@ -196,6 +199,7 @@ export default function SecurityPage() {
                       className="h-8 w-8 text-destructive hover:text-destructive"
                       onClick={() => handleRequestUnenroll(factor)}
                       disabled={unenrolling}
+                      aria-label={`Remove MFA factor ${factor.friendly_name ?? factor.id}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -252,7 +256,7 @@ export default function SecurityPage() {
                 </p>
                 <Button
                   size="sm"
-                  onClick={() => handleGenerateRecoveryCodes()}
+                  onClick={handleGenerateRecoveryCodes}
                   disabled={!hasMfa || generatingCodes}
                 >
                   {generatingCodes ? 'Generating…' : 'Generate Recovery Codes'}
@@ -458,7 +462,7 @@ export default function SecurityPage() {
         description="This will terminate all your other active sessions. Your current session will remain active."
         confirmLabel="Sign Out Others"
         destructive={false}
-        onConfirm={() => handleRevokeSessions('others')}
+        onConfirm={handleRevokeOthers}
         loading={revoking}
       />
       <ConfirmActionDialog
@@ -468,7 +472,7 @@ export default function SecurityPage() {
         description="This will terminate ALL your active sessions, including this one. You will be redirected to the sign-in page."
         confirmLabel="Sign Out Everywhere"
         destructive
-        onConfirm={() => handleRevokeSessions('global')}
+        onConfirm={handleRevokeAll}
         loading={revoking}
       />
 

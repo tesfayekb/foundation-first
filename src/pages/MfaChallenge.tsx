@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,7 +36,7 @@ export default function MfaChallenge() {
     });
   }, [toast]);
 
-  const handleVerify = async (e: React.FormEvent) => {
+  const handleVerify = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!factorId) return;
     setLoading(true);
@@ -66,9 +66,9 @@ export default function MfaChallenge() {
 
     completeMfaChallenge();
     navigate('/', { replace: true });
-  };
+  }, [factorId, code, toast, completeMfaChallenge, navigate]);
 
-  const handleRecoveryVerify = async (e: React.FormEvent) => {
+  const handleRecoveryVerify = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -92,7 +92,13 @@ export default function MfaChallenge() {
       setRecoveryCode('');
       setLoading(false);
     }
-  };
+  }, [recoveryCode, toast, completeMfaChallenge, navigate]);
+
+  const handleSwitchToRecovery = useCallback(() => setUseRecovery(true), []);
+  const handleSwitchToAuthenticator = useCallback(() => {
+    setUseRecovery(false);
+    setRecoveryCode('');
+  }, []);
 
   if (initializing) {
     return (
@@ -135,7 +141,7 @@ export default function MfaChallenge() {
                 type="button"
                 variant="ghost"
                 className="w-full text-sm"
-                onClick={() => { setUseRecovery(false); setRecoveryCode(''); }}
+                onClick={handleSwitchToAuthenticator}
               >
                 Back to authenticator code
               </Button>
@@ -181,7 +187,7 @@ export default function MfaChallenge() {
               type="button"
               variant="ghost"
               className="w-full text-sm text-muted-foreground"
-              onClick={() => setUseRecovery(true)}
+              onClick={handleSwitchToRecovery}
             >
               Lost your authenticator? Use a recovery code
             </Button>

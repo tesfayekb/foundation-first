@@ -35,17 +35,19 @@ Deno.serve(createHandler(async (req: Request) => {
   const body = await req.json()
   const { target_user_id, role_id } = validateRequest(BodySchema, body)
 
-  // Validate target user exists
-  const { data: targetUser } = await supabaseAdmin.auth.admin.getUserById(target_user_id)
-  if (!targetUser?.user) {
+  // Validate target user and role in parallel
+  const [userResult, roleResult] = await Promise.all([
+    supabaseAdmin.auth.admin.getUserById(target_user_id),
+    supabaseAdmin.from('roles').select('id, key').eq('id', role_id).single(),
+  ])
+
+  if (!userResult.data?.user) {
     const { apiError } = await import('../_shared/api-error.ts')
     return apiError(404, 'Target user not found', { correlationId: ctx.correlationId })
   }
 
-  // Validate role exists
-  const { data: role, error: roleError } = await supabaseAdmin
-    .from('roles').select('id, key').eq('id', role_id).single()
-  if (roleError || !role) {
+  const role = roleResult.data
+  if (roleResult.error || !role) {
     const { apiError } = await import('../_shared/api-error.ts')
     return apiError(404, 'Role not found', { correlationId: ctx.correlationId })
   }
