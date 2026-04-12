@@ -58,7 +58,11 @@ export function useInactivityTimeout({
     lastActivityRef.current = Date.now();
     timerRef.current = setTimeout(handleTimeout, timeoutMs);
 
-    const onActivity = () => resetTimer();
+    const onActivity = (e: Event) => {
+      // For visibilitychange, only reset when tab becomes visible (user returning)
+      if (e.type === 'visibilitychange' && document.hidden) return;
+      resetTimer();
+    };
 
     for (const event of ACTIVITY_EVENTS) {
       document.addEventListener(event, onActivity, { passive: true });
