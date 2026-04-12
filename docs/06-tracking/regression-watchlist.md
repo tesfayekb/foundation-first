@@ -273,6 +273,10 @@ Each watchlist item should map to specific SSOT artifacts for instant test targe
 | RW-004 | Admin job management routes | `jobs.*` | Job execution functions | `job.failed`, `job.dead_lettered` |
 | RW-005 | All mutation routes | `audit.view`, `audit.export` | `logAuditEvent()` | `audit.logged`, `audit.write_failed` |
 | RW-006 | `/admin/monitoring`, `/admin/monitoring/config`, `GET /health` | `monitoring.view`, `monitoring.configure` | `getSystemHealth()`, `evaluateAlerts()`, `getMetrics()` | `health.alert_triggered`, `health.status_changed`, `health.monitoring_failed` |
+| RW-007 | `/admin/users/:id/deactivate`, `/admin/users/:id/reactivate` | `users.deactivate`, `users.reactivate` | `deactivateUser()`, `reactivateUser()` | `user.account_deactivated`, `user.account_reactivated` |
+| RW-008 | `/admin/roles/:id` (permission assign/revoke) | `permissions.assign`, `permissions.revoke` | `PERMISSION_DEPS` config | `rbac.permission_assigned`, `rbac.permission_revoked` |
+| RW-009 | All Phase 4 routes | All UI-gated permissions | All shared components | — |
+| RW-010 | `/mfa-enroll`, `/admin` | `admin.access` | `checkMfaStatus()` | `auth.mfa_enrolled` |
 
 **Rule:** When reviewing a change, match changed SSOT artifacts against watchlist traceability to identify all relevant items.
 
