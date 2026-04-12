@@ -382,12 +382,12 @@ When changing any indexed function:
 | **Owner module** | auth |
 | **Signature** | `isRecentlyAuthenticated(user: User | null, thresholdMs?: number) → boolean` |
 | **Signature (inverse)** | `requiresReauthentication(user: User | null, thresholdMs?: number) → boolean` |
-| **Returns** | `isRecentlyAuthenticated`: `true` if last sign-in within threshold (default 5 min). `requiresReauthentication`: inverse. |
+| **Returns** | `isRecentlyAuthenticated`: `true` if last sign-in within threshold (default 30 min). `requiresReauthentication`: inverse. |
 | **Purity** | pure (reads user object passed in, no DB call) |
 | **Side effects** | None — reads `user.last_sign_in_at` from provided user object |
 | **Transactional** | No |
 | **Fail behavior** | fail-secure — returns `false` / `true` (requires re-auth) if unable to determine |
-| **Used by** | admin-panel, user-panel (sensitive actions: password change, MFA disable, account deletion) |
+| **Used by** | admin-panel and user-panel sensitive actions (role creation, permission mutation, password change, MFA disable, account deletion) |
 | **Blast radius** | large |
 | **Criticality** | CRITICAL |
 | **Approval required** | Yes — Lead |
