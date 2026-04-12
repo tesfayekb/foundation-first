@@ -100,4 +100,4 @@ Deno.serve(createHandler(async (req: Request): Promise<Response> => {
     new_execution_id: newExec.id,
     job_id: deadLetter.job_id,
   })
-}, { rateLimit: 'sensitive' }))
+}, { rateLimit: 'strict' }))

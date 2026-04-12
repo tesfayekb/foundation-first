@@ -88,4 +88,4 @@ Deno.serve(createHandler(async (req: Request): Promise<Response> => {
     class: body.class ?? null,
     reason: body.reason,
   })
-}, { rateLimit: 'sensitive' }))
+}, { rateLimit: 'strict' }))

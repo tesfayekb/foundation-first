@@ -90,4 +90,4 @@ Deno.serve(createHandler(async (req: Request): Promise<Response> => {
   })
 
   return apiSuccess({ paused, reason: body.reason })
-}, { rateLimit: 'sensitive' }))
+}, { rateLimit: 'strict' }))
