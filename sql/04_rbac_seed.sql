@@ -21,6 +21,7 @@ INSERT INTO public.permissions (key, description) VALUES
   ('roles.edit', 'Allows editing role name and description for non-immutable roles'),
   ('permissions.assign', 'Allows assigning permissions to roles via privileged server-side RPCs'),
   ('permissions.revoke', 'Allows revoking permissions from roles via privileged server-side RPCs'),
+  ('permissions.view', 'Allows viewing the permissions catalog independently of role management'),
   ('users.view_all', 'Allows viewing all user profiles and account data'),
   ('users.edit_any', 'Allows editing any user profile data'),
   ('users.deactivate', 'Allows deactivating user accounts'),
