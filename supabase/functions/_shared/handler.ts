@@ -49,6 +49,13 @@ export function createHandler(
     // Generate a correlation ID for the request lifecycle
     const correlationId = crypto.randomUUID()
 
+    // Body size limit — reject payloads > 64KB to prevent memory exhaustion DoS
+    const MAX_BODY_BYTES = 64 * 1024
+    const contentLength = req.headers.get('content-length')
+    if (contentLength && parseInt(contentLength, 10) > MAX_BODY_BYTES) {
+      return apiError(413, 'Request body too large', { correlationId, _cors: cors })
+    }
+
     try {
       const response = await handler(req)
 

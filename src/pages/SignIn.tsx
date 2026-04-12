@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { safeRedirectPath } from '@/lib/safe-redirect';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
@@ -19,7 +20,10 @@ export default function SignIn() {
   const location = useLocation();
   const { toast } = useToast();
 
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
+  const from = safeRedirectPath(
+    (location.state as { from?: { pathname: string } })?.from?.pathname,
+    '/'
+  );
 
   useEffect(() => {
     if (user) {

@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '@/hooks/use-toast';
 import { emitMfaEnrolled } from '@/lib/auth-events';
 import { ROUTES } from '@/config/routes';
+import { safeRedirectPath } from '@/lib/safe-redirect';
 
 type EnrollStep = 'start' | 'verify' | 'complete';
 
@@ -32,8 +33,8 @@ export default function MfaEnroll() {
   const location = useLocation();
 
   const locationState = (location.state ?? {}) as ReturnState;
-  const hasReturnTarget = typeof locationState.returnTo === 'string' && locationState.returnTo.length > 0;
-  const returnTo = hasReturnTarget ? locationState.returnTo! : ROUTES.SETTINGS_SECURITY;
+  const returnTo = safeRedirectPath(locationState.returnTo, ROUTES.SETTINGS_SECURITY);
+  const hasReturnTarget = returnTo !== ROUTES.SETTINGS_SECURITY || (typeof locationState.returnTo === 'string' && locationState.returnTo === ROUTES.SETTINGS_SECURITY);
   const isAdminReturn = returnTo.startsWith(ROUTES.ADMIN);
 
   const verifiedFactors = useMemo(
