@@ -7,8 +7,10 @@ import { AuditActionBadge } from '@/components/admin/AuditActionBadge';
 import { AuditMetadataViewer } from '@/components/admin/AuditMetadataViewer';
 import { useAuditLogs, AuditLogEntry } from '@/hooks/useAuditLogs';
 import { useAuditExport } from '@/hooks/useAuditExport';
+import { useActorSearch } from '@/hooks/useActorSearch';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
