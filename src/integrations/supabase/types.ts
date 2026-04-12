@@ -550,6 +550,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_mfa_recovery_codes: { Args: never; Returns: undefined }
       get_my_authorization_context: { Args: never; Returns: Json }
       has_permission: {
         Args: { _permission_key: string; _user_id: string }
