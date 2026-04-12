@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const DEFAULT_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
-const ACTIVITY_EVENTS: (keyof DocumentEventMap)[] = ['mousemove', 'keydown', 'touchstart', 'scroll'];
+const ACTIVITY_EVENTS: (keyof DocumentEventMap)[] = ['mousemove', 'keydown', 'touchstart', 'scroll', 'visibilitychange'];
 // Throttle activity detection to avoid excessive timer resets
 const THROTTLE_MS = 30_000; // 30 seconds
 
