@@ -314,6 +314,7 @@ Implement health monitoring, job scheduling, and operational infrastructure. Inc
 |----|------|--------|
 | DW-020 | User Notification Preferences | No schema or backend infrastructure exists |
 | DW-023 | Audit actor-scope display shaping | Display-only improvement, no operational impact |
+| DW-024 | Per-session revocation with list view | Requires stable auth.sessions API or individual session revocation in Supabase admin SDK |
 
 ## New Permissions Summary
 
