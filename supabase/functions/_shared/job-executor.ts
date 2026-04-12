@@ -527,6 +527,12 @@ export async function executeWithRetry(
     console.error(`[JOB-EXECUTOR] Job ${jobId} marked as POISON after ${POISON_THRESHOLD} consecutive failures`)
   }
 
+  // Circuit breaker: auto-pause on repeated dependency failures
+  if (lastFailureType === 'dependency' && !isPoisoned) {
+    const cbThreshold = jobConfig.circuit_breaker_threshold ?? DEFAULT_CIRCUIT_BREAKER_THRESHOLD
+    await checkCircuitBreaker(jobId, cbThreshold, correlationId ?? executionId)
+  }
+
   return {
     success: false,
     executionId,
