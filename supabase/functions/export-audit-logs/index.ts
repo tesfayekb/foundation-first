@@ -15,7 +15,7 @@
  */
 import { createHandler } from '../_shared/handler.ts'
 import { authenticateRequest } from '../_shared/authenticate-request.ts'
-import { checkPermissionOrThrow } from '../_shared/authorization.ts'
+import { checkPermissionOrThrow, requireRecentAuth } from '../_shared/authorization.ts'
 import { validateRequest } from '../_shared/validate-request.ts'
 import { logAuditEvent } from '../_shared/audit.ts'
 import { apiError } from '../_shared/api-error.ts'
@@ -37,6 +37,7 @@ Deno.serve(createHandler(async (req: Request): Promise<Response> => {
 
   const ctx = await authenticateRequest(req)
   await checkPermissionOrThrow(ctx.user.id, 'audit.export')
+  requireRecentAuth(ctx.user.lastSignInAt, 30 * 60 * 1000, ctx.user.id)
 
   // Schema-based validation via Stage 3A shared primitive
   const url = new URL(req.url)

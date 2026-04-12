@@ -61,6 +61,7 @@ export async function logAuditEvent(
         metadata: safeMetadata,
         ip_address: params.ipAddress ?? null,
         user_agent: params.userAgent ?? null,
+        correlation_id: params.correlationId,
       })
       .select('id')
       .single()
