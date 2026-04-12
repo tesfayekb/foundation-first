@@ -46,7 +46,8 @@ The following actions require strict controls:
 
 - Permission checks enforced via `checkPermission()`
 - Audit logging required
-- Re-authentication required for: role assignment/revocation, config changes, dead-letter management, emergency kill switch, user deactivation/reactivation
+- Re-authentication required for: role creation, role assignment/revocation, permission assignment/revocation, config changes, dead-letter management, emergency kill switch, user deactivation/reactivation
+- Admin RBAC dialogs should prevent avoidable UX failures before invoking edge functions (duplicate role keys, stale-session permission changes)
 
 ## RBAC Management Responsibilities
 
@@ -55,6 +56,7 @@ Admin panel is a **control surface** — it provides the UI for RBAC management,
 Admin panel must provide:
 
 - Role creation, update, deletion
+- Duplicate-key validation for custom role creation with a direct path to the existing role
 - Permission assignment and removal
 - Role-to-permission mapping visibility
 - Safe handling of base roles (`superadmin`, `user`)
@@ -126,7 +128,7 @@ Admin panel consumes the following permissions (defined in [Permission Index](..
 | `roles.view` | View roles and mappings | No |
 | `roles.assign` | Assign roles to users | Yes |
 | `roles.revoke` | Revoke roles from users | Yes |
-| `roles.create` | Create new roles | No |
+| `roles.create` | Create new roles | Yes |
 | `roles.delete` | Delete roles | Yes |
 | `permissions.assign` | Assign permission to role | Yes |
 | `permissions.revoke` | Revoke permission from role | Yes |

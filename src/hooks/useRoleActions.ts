@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, ApiError } from '@/lib/api-client';
 import { toast } from 'sonner';
 
 interface AssignRoleParams {
@@ -91,6 +91,9 @@ export function useAssignPermission() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'permissions'] });
     },
     onError: (error: Error) => {
+      if (error instanceof ApiError && error.code === 'RECENT_AUTH_REQUIRED') {
+        return;
+      }
       toast.error(error.message || 'Failed to assign permission');
     },
   });
@@ -107,6 +110,9 @@ export function useRevokePermission() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'permissions'] });
     },
     onError: (error: Error) => {
+      if (error instanceof ApiError && error.code === 'RECENT_AUTH_REQUIRED') {
+        return;
+      }
       toast.error(error.message || 'Failed to revoke permission');
     },
   });
