@@ -662,7 +662,7 @@ Permissions classified as `destructive`, `system-wide`, or `security-critical` r
 | **Blast radius** | medium |
 | **Approval required** | Yes |
 | **Audit required** | Yes |
-| **Reauth required** | No |
+| **Reauth required** | Yes |
 | **Related routes** | `/admin/audit/export` |
 | **Related tests** | Audit export allow/deny suite |
 | **Depends on** | `audit.view`, `admin.access` |

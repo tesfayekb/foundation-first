@@ -15,7 +15,7 @@
  */
 import { createHandler } from '../_shared/handler.ts'
 import { authenticateRequest } from '../_shared/authenticate-request.ts'
-import { checkPermissionOrThrow } from '../_shared/authorization.ts'
+import { checkPermissionOrThrow, requireRecentAuth } from '../_shared/authorization.ts'
 import { validateRequest } from '../_shared/validate-request.ts'
 import { logAuditEvent } from '../_shared/audit.ts'
 import { apiError } from '../_shared/api-error.ts'
@@ -37,6 +37,7 @@ Deno.serve(createHandler(async (req: Request): Promise<Response> => {
 
   const ctx = await authenticateRequest(req)
   await checkPermissionOrThrow(ctx.user.id, 'audit.export')
+  requireRecentAuth(ctx.user.lastSignInAt, 30 * 60 * 1000, ctx.user.id)
 
   // Schema-based validation via Stage 3A shared primitive
   const url = new URL(req.url)
@@ -79,7 +80,7 @@ Deno.serve(createHandler(async (req: Request): Promise<Response> => {
   // Build query — chronological for compliance
   let query = supabaseAdmin
     .from('audit_logs')
-    .select('id, actor_id, action, target_type, target_id, metadata, ip_address, user_agent, created_at')
+    .select('id, actor_id, action, target_type, target_id, correlation_id, metadata, ip_address, user_agent, created_at')
     .order('created_at', { ascending: true })
     .limit(MAX_EXPORT_ROWS)
 
@@ -99,13 +100,14 @@ Deno.serve(createHandler(async (req: Request): Promise<Response> => {
   const rows = data ?? []
 
   // Build CSV with allowlist-sanitized metadata (defense-in-depth)
-  const csvHeader = 'id,actor_id,action,target_type,target_id,ip_address,user_agent,created_at,metadata'
+  const csvHeader = 'id,actor_id,action,target_type,target_id,correlation_id,ip_address,user_agent,created_at,metadata'
   const csvRows = rows.map(r => [
     r.id,
     r.actor_id ?? '',
     escapeCsv(r.action),
     escapeCsv(r.target_type ?? ''),
     r.target_id ?? '',
+    r.correlation_id ?? '',
     r.ip_address ?? '',
     escapeCsv(r.user_agent ?? ''),
     r.created_at,

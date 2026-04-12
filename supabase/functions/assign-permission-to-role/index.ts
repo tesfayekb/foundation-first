@@ -215,4 +215,4 @@ Deno.serve(createHandler(async (req: Request) => {
     message: `Permission ${permission.key} assigned to role ${role.key}`,
     auto_added_dependencies: autoAddedKeys,
   })
-}))
+}, { rateLimit: 'strict' }))

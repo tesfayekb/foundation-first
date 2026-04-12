@@ -1422,6 +1422,31 @@ Each action must include:
 
 ---
 
+### ACT-055: Final A+ Hardening — correlation_id Column, Reauth on Export, Strict Rate Limits, Drift Detection
+
+| Field | Value |
+|-------|-------|
+| **ID** | ACT-055 |
+| **Date** | 2026-04-12 |
+| **Action** | (1) Added `correlation_id` as top-level indexed column on `audit_logs` — backfilled from metadata JSONB, enables fast trace lookups without JSONB extraction. (2) Added `requireRecentAuth` to `export-audit-logs` — bulk PII export now requires 30-min session freshness. Updated permission-index `audit.export` reauth to Yes. (3) Changed 7 privileged RBAC mutation endpoints (assign-role, revoke-role, create-role, update-role, delete-role, assign-permission-to-role, revoke-permission-from-role) from `standard` (60/min) to `strict` (10/min) rate limit. (4) Added RW-008 to regression watchlist for PERMISSION_DEPS 3-copy drift detection. |
+| **Type** | Security, Performance, Documentation |
+| **Impact Classification** | High |
+| **Modules Affected** | audit-logging, rbac, admin-panel |
+| **Files Changed** | Migration (ALTER TABLE audit_logs ADD correlation_id, CREATE INDEX), supabase/functions/_shared/audit.ts, supabase/functions/export-audit-logs/index.ts, 7 mutation edge functions, docs/07-reference/permission-index.md, docs/06-tracking/regression-watchlist.md |
+| **Docs Updated** | permission-index.md, regression-watchlist.md, action-tracker.md |
+| **Related Permissions** | audit.export, roles.assign, roles.revoke, roles.create, roles.delete, roles.edit, permissions.assign, permissions.revoke |
+| **Evidence** | Migration applied. Edge functions updated. All 7 mutation endpoints now use strict rate limit. Export requires reauth. RW-008 added to watchlist. |
+| **Verified By** | AI Agent |
+| **Before State** | correlation_id only in metadata JSONB; export had no reauth; 7 mutation endpoints at 60/min; no drift detection for PERMISSION_DEPS |
+| **After State** | correlation_id is indexed top-level column; export requires reauth; all mutations at 10/min; RW-008 tracks drift risk |
+| **Rollback Available** | Yes |
+| **Rollback Method** | Drop column, revert edge functions, remove watchlist entry |
+| **Blast Radius** | Medium |
+| **Health Impact** | Improved |
+| **Status** | Verified |
+
+---
+
 - If action introduces regression → must link watchlist item in `related_watchlist`
 - Regression fix actions must reference the original regression
 - Repeated failures in same area → tracked via recurrence in watchlist, referenced here
