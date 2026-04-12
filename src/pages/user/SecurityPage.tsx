@@ -207,9 +207,69 @@ export default function SecurityPage() {
           </CardContent>
         </Card>
 
+        {/* Session Management (DW-019) */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Monitor className="h-4 w-4" />
+              Active Sessions
+            </CardTitle>
+            <CardDescription>
+              Manage your active sessions across devices
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowRevokeOthers(true)}
+                disabled={revoking}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign out other devices
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setShowRevokeAll(true)}
+                disabled={revoking}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign out everywhere
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              "Sign out other devices" keeps your current session. "Sign out everywhere" terminates all sessions including this one.
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Password change */}
         <PasswordChangeCard />
       </div>
+
+      {/* Session revocation confirmations */}
+      <ConfirmActionDialog
+        open={showRevokeOthers}
+        onOpenChange={setShowRevokeOthers}
+        title="Sign Out Other Devices"
+        description="This will terminate all your other active sessions. Your current session will remain active."
+        confirmLabel="Sign Out Others"
+        destructive={false}
+        onConfirm={() => handleRevokeSessions('others')}
+        loading={revoking}
+      />
+      <ConfirmActionDialog
+        open={showRevokeAll}
+        onOpenChange={setShowRevokeAll}
+        title="Sign Out Everywhere"
+        description="This will terminate ALL your active sessions, including this one. You will be redirected to the sign-in page."
+        confirmLabel="Sign Out Everywhere"
+        destructive
+        onConfirm={() => handleRevokeSessions('global')}
+        loading={revoking}
+      />
 
       {/* Re-authentication dialog for MFA removal */}
       <ReauthDialog
