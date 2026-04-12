@@ -21,10 +21,14 @@ import {
   deriveOverallStatus,
 } from '../_shared/health-checks.ts'
 import { executeWithRetry } from '../_shared/job-executor.ts'
+import { verifyCronSecret } from '../_shared/cron-auth.ts'
 
 const JOB_ID = 'health_check'
 
 Deno.serve(createHandler(async (req: Request): Promise<Response> => {
+  // Validate cron secret — reject unauthorized callers
+  const authError = verifyCronSecret(req)
+  if (authError) return authError
   // Extract scheduled time from pg_cron body (if present)
   let scheduledTime: string | undefined
   let scheduleWindowId: string | undefined
