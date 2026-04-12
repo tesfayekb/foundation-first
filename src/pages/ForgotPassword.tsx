@@ -21,14 +21,11 @@ export default function ForgotPassword() {
     const { error } = await resetPassword(email);
 
     if (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Request failed',
-        description: error.message,
-      });
-    } else {
-      setSubmitted(true);
+      // Never reveal whether an email exists — always show the same message
+      console.error('[ForgotPassword] Reset error:', error.code);
     }
+    // Always show "check your email" to prevent user enumeration
+    setSubmitted(true);
     setLoading(false);
   };
 
