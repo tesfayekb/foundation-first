@@ -1190,6 +1190,74 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 - [Action Tracker](../06-tracking/action-tracker.md) — route changes create entries
 - [Risk Register](../06-tracking/risk-register.md) — route-related risks tracked
 
+---
+
+### POST /job-health-check — Job: Health Check
+
+| Field | Value |
+|-------|-------|
+| **Path** | `POST /job-health-check` |
+| **Classification** | internal |
+| **Owner Module** | health-monitoring |
+| **Auth** | None (invoked by pg_cron via pg_net) |
+| **Permission** | — |
+| **Rate Limit** | relaxed |
+| **Audit Events** | job.started, job.completed, job.failed, health.status_changed |
+| **Request Body** | `{ time: string }` (pg_cron trigger timestamp) |
+| **Response** | `{ jobId, executionId, state, attempt, durationMs, success, error? }` |
+| **Lifecycle** | active |
+| **Added By** | ACT-060 |
+
+### POST /job-metrics-aggregate — Job: Metrics Aggregation
+
+| Field | Value |
+|-------|-------|
+| **Path** | `POST /job-metrics-aggregate` |
+| **Classification** | internal |
+| **Owner Module** | health-monitoring |
+| **Auth** | None (invoked by pg_cron via pg_net) |
+| **Permission** | — |
+| **Rate Limit** | relaxed |
+| **Audit Events** | job.started, job.completed, job.failed |
+| **Request Body** | `{ time: string }` |
+| **Response** | `{ jobId, executionId, state, attempt, durationMs, success, error? }` |
+| **Lifecycle** | active |
+| **Added By** | ACT-060 |
+
+### POST /job-alert-evaluation — Job: Alert Evaluation
+
+| Field | Value |
+|-------|-------|
+| **Path** | `POST /job-alert-evaluation` |
+| **Classification** | internal |
+| **Owner Module** | health-monitoring |
+| **Auth** | None (invoked by pg_cron via pg_net) |
+| **Permission** | — |
+| **Rate Limit** | relaxed |
+| **Audit Events** | job.started, job.completed, job.failed, health.alert_triggered |
+| **Request Body** | `{ time: string }` |
+| **Response** | `{ jobId, executionId, state, attempt, durationMs, success, error? }` |
+| **Lifecycle** | active |
+| **Added By** | ACT-060 |
+
+### POST /job-audit-cleanup — Job: Audit Cleanup
+
+| Field | Value |
+|-------|-------|
+| **Path** | `POST /job-audit-cleanup` |
+| **Classification** | internal |
+| **Owner Module** | audit-logging |
+| **Auth** | None (invoked by pg_cron via pg_net) |
+| **Permission** | — |
+| **Rate Limit** | relaxed |
+| **Audit Events** | job.started, job.completed, job.failed |
+| **Request Body** | `{ time: string }` |
+| **Response** | `{ jobId, executionId, state, attempt, durationMs, success, error? }` |
+| **Lifecycle** | active |
+| **Added By** | ACT-060 |
+
+---
+
 ## Related Documents
 
 - [Auth Module](../04-modules/auth.md)
