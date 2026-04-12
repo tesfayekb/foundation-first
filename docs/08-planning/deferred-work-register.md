@@ -82,13 +82,13 @@ At each phase boundary (before advancing to the next phase):
 | **Reason Deferred** | External Google OAuth client credentials not yet configured |
 | **Blocking Dependencies** | Google Cloud Console OAuth client ID/secret configured; Supabase Auth Google provider enabled with redirect URIs |
 | **Impact on Source Phase** | Phase 1 closed as `approved-partial` — auth foundation complete but OAuth providers deferred |
-| **Future Owner Phase** | Phase 6 — Hardening & System Validation (or dedicated Auth Completion mini-phase before release) |
+| **Future Owner Phase** | `unassigned` — deferred to v2 (provider credentials not yet available) |
 | **Future Owner Module** | PLAN-AUTH-001 |
-| **Required Plan Realignment** | Phase 6 scope must include OAuth callback verification, provider config validation, OAuth E2E tests, and auth-security.md OAuth section validation |
+| **Required Plan Realignment** | v2 planning must include OAuth callback verification, provider config validation, OAuth E2E tests, and auth-security.md OAuth section validation |
 | **Related Decisions** | DEC-020 (v1 OAuth limited to Google + Apple) |
 | **Related Actions** | ACT-011 (Phase 1 auth verification) |
 | **Required Tests for Closure** | OAuth sign-in E2E flow, OAuth account linking, OAuth error handling (denied consent, expired token), OAuth + MFA combined flow |
-| **Status** | `assigned` |
+| **Status** | `deferred (v2)` |
 | **Implemented by Action** | — |
 | **Implemented in Plan Version** | — |
 
@@ -106,13 +106,13 @@ At each phase boundary (before advancing to the next phase):
 | **Reason Deferred** | Apple Developer account configuration and Supabase provider setup not yet completed |
 | **Blocking Dependencies** | Apple Developer account with Sign-In with Apple capability; Services ID configured; Supabase Auth Apple provider enabled |
 | **Impact on Source Phase** | Phase 1 closed as `approved-partial` — auth foundation complete but OAuth providers deferred |
-| **Future Owner Phase** | Phase 6 — Hardening & System Validation (or dedicated Auth Completion mini-phase before release) |
+| **Future Owner Phase** | `unassigned` — deferred to v2 (provider credentials not yet available) |
 | **Future Owner Module** | PLAN-AUTH-001 |
 | **Required Plan Realignment** | Same as DW-001 — OAuth callback verification, provider validation, E2E tests |
 | **Related Decisions** | DEC-020 (v1 OAuth limited to Google + Apple) |
 | **Related Actions** | ACT-011 (Phase 1 auth verification) |
 | **Required Tests for Closure** | Apple Sign-In E2E flow, Apple account linking, Apple-specific email relay handling, Apple + MFA combined flow |
-| **Status** | `assigned` |
+| **Status** | `deferred (v2)` |
 | **Implemented by Action** | — |
 | **Implemented in Plan Version** | — |
 
@@ -315,14 +315,14 @@ At each phase boundary (before advancing to the next phase):
 
 | ID | Title | Source Phase | Future Phase | Status |
 |----|-------|-------------|--------------|--------|
-| DW-001 | Google OAuth | Phase 1 | Phase 6 | `assigned` |
-| DW-002 | Apple Sign-In | Phase 1 | Phase 6 | `assigned` |
+| DW-001 | Google OAuth | Phase 1 | `unassigned` (v2) | `deferred (v2)` |
+| DW-002 | Apple Sign-In | Phase 1 | `unassigned` (v2) | `deferred (v2)` |
 | DW-003 | Permission Allow/Deny Tests | Phase 2 | Phase 3 | `implemented` |
 | DW-004 | DB-Level RLS Verification | Phase 2 | Phase 3 | `implemented` |
 | DW-005 | Cross-Tenant Isolation Scope | Phase 2 | N/A (DEC-022) | `cancelled` |
 | DW-006 | Cache Invalidation Verification | Phase 2 | Phase 3 | `implemented` |
 | DW-007 | Moderator Role | Phase 2 | `unassigned` (v2) | `deferred (v2)` |
-| DW-008 | MFA Recovery Codes | Phase 1 | Phase 4 | `assigned` |
+| DW-008 | MFA Recovery Codes | Phase 1 | Phase 6 | `implemented` |
 | DW-009 | requireRole() Shared Function | Phase 2 | Phase 3 | `implemented` |
 | DW-010 | requireSelfScope() Shared Function | Phase 2 | Phase 3 | `implemented` |
 | DW-011 | Distributed Rate Limiting | Phase 3 | Phase 6 | `assigned` |
