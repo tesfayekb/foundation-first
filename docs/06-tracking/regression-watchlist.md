@@ -466,18 +466,20 @@ The following **MUST** create Action Tracker entries:
 |------|----|------|----------|------------|
 | 1 | RW-001 | Permission cache invalidation | Critical | 0 |
 | 2 | RW-002 | RLS policy visibility | Critical | 0 |
-| 3 | RW-003 | Shared function changes | High | 0 |
-| 4 | RW-004 | Job retry configuration | High | 0 |
-| 5 | RW-005 | Audit event completeness | High | 0 |
-| 6 | RW-006 | Health monitoring blind spot | High | 0 |
-| 7 | RW-007 | UI design system compliance | High | 0 |
-| 8 | RW-008 | MFA enroll route state drift | High | 1 |
+| 3 | RW-007 | User lifecycle deactivation/reactivation | Critical | 1 |
+| 4 | RW-003 | Shared function changes | High | 0 |
+| 5 | RW-004 | Job retry configuration | High | 0 |
+| 6 | RW-005 | Audit event completeness | High | 0 |
+| 7 | RW-006 | Health monitoring blind spot | High | 0 |
+| 8 | RW-008 | PERMISSION_DEPS map drift | High | 0 |
+| 9 | RW-009 | UI design system compliance | High | 0 |
+| 10 | RW-010 | MFA enroll route state drift | High | 1 |
 
 _Updated as items are added, triggered, or resolved._
 
 ---
 
-### RW-007: UI Design System Compliance
+### RW-009: UI Design System Compliance
 
 | Field | Value |
 |-------|-------|
@@ -500,7 +502,7 @@ _Updated as items are added, triggered, or resolved._
 
 ---
 
-### RW-008: MFA Enroll Route State Drift
+### RW-010: MFA Enroll Route State Drift
 
 | Field | Value |
 |-------|-------|
