@@ -742,6 +742,30 @@ At each phase boundary (before advancing to the next phase):
 
 ---
 
+### DW-028: True Fail-Closed Audit Rollback for health-alert-config Update Path
+
+| Field | Value |
+|-------|-------|
+| **ID** | DW-028 |
+| **Date Deferred** | 2026-04-12 |
+| **Source Plan Section** | PLAN-HEALTH-001 (Stage 5B — health-alert-config endpoint) |
+| **Source Phase** | Phase 5 — Operations & Reliability |
+| **Title** | True fail-closed audit rollback for alert config update |
+| **Reason Deferred** | The update path persists the DB change before calling `logAuditEvent()`. If audit fails, the change remains in DB but the caller receives 500. True rollback requires pre-fetching old values before the update statement, which adds complexity for a low-frequency operation. Practical risk is acceptable: config changes are rare, the 500 surfaces the error, and missing audit records are detectable via monitoring gap analysis. |
+| **Blocking Dependencies** | None — implementation is straightforward (pre-fetch + restore on audit failure) |
+| **Impact on Source Phase** | Minimal — alert config updates still work; only the audit trail is incomplete on failure |
+| **Future Owner Phase** | Phase 6 |
+| **Future Owner Module** | health-monitoring |
+| **Required Plan Realignment** | Add pre-fetch + restore logic to `health-alert-config` update path |
+| **Related Decisions** | — |
+| **Related Actions** | ACT-058 |
+| **Required Tests for Closure** | (1) Update with simulated audit failure restores original values. (2) Caller receives appropriate error. (3) No orphaned config changes without audit records. |
+| **Status** | `deferred` |
+| **Implemented by Action** | — |
+| **Implemented in Plan Version** | — |
+
+---
+
 ## Used By / Affects
 
 - Phase gate closure decisions
