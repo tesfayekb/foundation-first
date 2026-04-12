@@ -341,8 +341,10 @@ At each phase boundary (before advancing to the next phase):
 | DW-024 | Admin panel unbounded client-side aggregation queries | Phase 4 | Phase 6 | `assigned` |
 | DW-025 | Role creation (create-role edge function + UI) | Phase 4 | Phase 6 | `implemented` |
 | DW-026 | Role deletion (delete-role edge function + UI) | Phase 4 | Phase 6 | `implemented` |
+| DW-027 | Admin Edit User Profile | Phase 4 | Phase 4 (Stage 4K) | `implemented` |
+| DW-028 | True fail-closed audit rollback (alert config) | Phase 5 | Phase 6 | `deferred` |
+| DW-029 | Batched audit cleanup DELETE | Phase 5 | Phase 6 | `deferred` |
 
-## Registry (continued)
 
 ### DW-011: Distributed Rate Limiting
 
