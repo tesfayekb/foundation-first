@@ -13,11 +13,14 @@
 import { createHandler, apiSuccess } from '../_shared/handler.ts'
 import { supabaseAdmin } from '../_shared/supabase-admin.ts'
 import { executeWithRetry } from '../_shared/job-executor.ts'
+import { verifyCronSecret } from '../_shared/cron-auth.ts'
 
 const JOB_ID = 'audit_cleanup'
 const RETENTION_DAYS = 90
 
 Deno.serve(createHandler(async (req: Request): Promise<Response> => {
+  const authError = verifyCronSecret(req)
+  if (authError) return authError
   let scheduledTime: string | undefined
   let scheduleWindowId: string | undefined
   try {
