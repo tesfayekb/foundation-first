@@ -63,7 +63,8 @@ function PageSkeleton() {
 
 export function LoadingSkeleton({ rows = 5, variant = 'table', className }: LoadingSkeletonProps) {
   return (
-    <div className={className}>
+    <div className={className} role="status" aria-label="Loading">
+      <span className="sr-only">Loading…</span>
       {variant === 'table' && <TableSkeleton rows={rows} />}
       {variant === 'card' && <CardSkeleton rows={rows} />}
       {variant === 'page' && <PageSkeleton />}

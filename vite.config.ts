@@ -23,6 +23,8 @@ export default defineConfig(({ mode }) => ({
     target: 'es2020',
     sourcemap: false,
     cssCodeSplit: true,
+    chunkSizeWarningLimit: 200,
+    modulePreload: { polyfill: false },
     rollupOptions: {
       output: {
         manualChunks: {

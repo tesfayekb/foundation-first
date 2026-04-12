@@ -8,6 +8,10 @@
     <meta name="description" content="Institutional-grade admin console with RBAC, audit logging, and monitoring" />
     <meta name="author" content="Lovable" />
 
+    <!-- Security headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none';" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+
     <meta property="og:title" content="Admin Console" />
     <meta property="og:description" content="Institutional-grade admin console with RBAC, audit logging, and monitoring" />
     <meta property="og:type" content="website" />

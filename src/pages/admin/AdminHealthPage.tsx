@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { StatCard } from '@/components/dashboard/StatCard';
@@ -6,104 +6,78 @@ import { LoadingSkeleton } from '@/components/dashboard/LoadingSkeleton';
 import { ErrorState } from '@/components/dashboard/ErrorState';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { apiClient } from '@/lib/api-client';
 import { supabase } from '@/integrations/supabase/client';
 import { Activity, AlertTriangle, CheckCircle, XCircle, Clock, Bell } from 'lucide-react';
 import { format } from 'date-fns';
 
 type HealthStatus = 'healthy' | 'degraded' | 'unhealthy';
 
-function statusColor(status: HealthStatus) {
-  switch (status) {
-    case 'healthy': return 'bg-success/10 text-success border-success/20';
-    case 'degraded': return 'bg-warning/10 text-warning border-warning/20';
-    case 'unhealthy': return 'bg-destructive/10 text-destructive border-destructive/20';
-    default: return 'bg-muted text-muted-foreground';
-  }
-}
+const STATUS_CONFIG = {
+  healthy: { Icon: CheckCircle, className: 'text-success', badgeClass: 'bg-success/10 text-success border-success/20' },
+  degraded: { Icon: AlertTriangle, className: 'text-warning', badgeClass: 'bg-warning/10 text-warning border-warning/20' },
+  unhealthy: { Icon: XCircle, className: 'text-destructive', badgeClass: 'bg-destructive/10 text-destructive border-destructive/20' },
+} as const;
 
 function StatusIcon({ status }: { status: HealthStatus }) {
-  switch (status) {
-    case 'healthy': return <CheckCircle className="h-4 w-4 text-success" />;
-    case 'degraded': return <AlertTriangle className="h-4 w-4 text-warning" />;
-    case 'unhealthy': return <XCircle className="h-4 w-4 text-destructive" />;
-  }
+  const cfg = STATUS_CONFIG[status];
+  if (!cfg) return null;
+  const { Icon, className } = cfg;
+  return <Icon className={`h-4 w-4 ${className}`} />;
+}
+
+function statusColor(status: HealthStatus) {
+  return STATUS_CONFIG[status]?.badgeClass ?? 'bg-muted text-muted-foreground';
 }
 
 export default function AdminHealthPage() {
   const [tab, setTab] = useState('overview');
 
-  // Fetch latest health snapshot
-  const { data: snapshot, isLoading: loadingSnapshot, error: snapshotError } = useQuery({
-    queryKey: ['admin', 'health-snapshot'],
+  // Single combined query — replaces 4 independent polling queries
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['admin', 'health-all'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('system_health_snapshots')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
+      const [snapshotRes, metricsRes, alertsRes, configsRes] = await Promise.all([
+        supabase.from('system_health_snapshots').select('*').order('created_at', { ascending: false }).limit(1).maybeSingle(),
+        supabase.from('system_metrics').select('*').order('recorded_at', { ascending: false }).limit(50),
+        supabase.from('alert_history').select('*').order('created_at', { ascending: false }).limit(20),
+        supabase.from('alert_configs').select('*').order('created_at', { ascending: false }),
+      ]);
+      if (snapshotRes.error) throw snapshotRes.error;
+      return {
+        snapshot: snapshotRes.data,
+        metrics: metricsRes.data ?? [],
+        alerts: alertsRes.data ?? [],
+        alertConfigs: configsRes.data ?? [],
+      };
     },
     refetchInterval: 60_000,
+    refetchIntervalInBackground: false,
   });
 
-  // Fetch recent metrics
-  const { data: metrics } = useQuery({
-    queryKey: ['admin', 'system-metrics'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('system_metrics')
-        .select('*')
-        .order('recorded_at', { ascending: false })
-        .limit(50);
-      if (error) throw error;
-      return data ?? [];
-    },
-    refetchInterval: 60_000,
-  });
+  const snapshot = data?.snapshot;
+  const metrics = data?.metrics;
+  const alerts = data?.alerts;
+  const alertConfigs = data?.alertConfigs;
 
-  // Fetch alert history
-  const { data: alerts } = useQuery({
-    queryKey: ['admin', 'alert-history'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('alert_history')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(20);
-      if (error) throw error;
-      return data ?? [];
-    },
-    refetchInterval: 60_000,
-  });
-
-  // Fetch alert configs
-  const { data: alertConfigs } = useQuery({
-    queryKey: ['admin', 'alert-configs'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('alert_configs')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-
-  const checks = (snapshot?.checks ?? {}) as Record<string, { status: string; latency_ms?: number; error?: string }>;
+  const checks = useMemo(
+    () => (snapshot?.checks ?? {}) as Record<string, { status: string; latency_ms?: number; error?: string }>,
+    [snapshot?.checks],
+  );
   const overallStatus = (snapshot?.status ?? 'unknown') as HealthStatus;
+
+  const activeAlertCount = useMemo(
+    () => alerts?.filter(a => !a.resolved_at).length ?? 0,
+    [alerts],
+  );
 
   return (
     <div className="space-y-6">
       <PageHeader title="System Health" subtitle="Real-time infrastructure monitoring" />
 
-      {snapshotError ? (
+      {error ? (
         <ErrorState message="Failed to load health data" />
-      ) : loadingSnapshot ? (
+      ) : isLoading ? (
         <LoadingSkeleton variant="card" rows={3} />
       ) : (
         <>
@@ -121,7 +95,7 @@ export default function AdminHealthPage() {
             />
             <StatCard
               title="Active Alerts"
-              value={alerts?.filter(a => !a.resolved_at).length ?? 0}
+              value={activeAlertCount}
               icon={AlertTriangle}
             />
             <StatCard

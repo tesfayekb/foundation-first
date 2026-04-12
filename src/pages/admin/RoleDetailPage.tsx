@@ -213,7 +213,7 @@ export default function RoleDetailPage() {
     <>
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(ROUTES.ADMIN_ROLES)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(ROUTES.ADMIN_ROLES)} aria-label="Back to roles">
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <PageHeader title={role.name} subtitle={role.key} />
@@ -226,7 +226,7 @@ export default function RoleDetailPage() {
               <Shield className="h-4 w-4" />
               Role Details
               {canEditRole && !role.is_immutable && !isEditing && (
-                <Button variant="ghost" size="icon" className="ml-auto h-7 w-7" onClick={startEditing}>
+                <Button variant="ghost" size="icon" className="ml-auto h-7 w-7" onClick={startEditing} aria-label="Edit role">
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
               )}
@@ -238,20 +238,24 @@ export default function RoleDetailPage() {
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Name</label>
                   <Input
+                    id="role-name"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     className="mt-1"
                     maxLength={100}
+                    aria-label="Role name"
                   />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Description</label>
                   <Textarea
+                    id="role-description"
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
                     className="mt-1"
                     maxLength={500}
                     rows={2}
+                    aria-label="Role description"
                   />
                 </div>
                 <div className="flex gap-2">

@@ -238,6 +238,7 @@ export default function AdminAuditPage() {
               placeholder="Name, email, or UUID…"
               value={actorInput}
               onChange={(e) => { setActorInput(e.target.value); setCursorStack([]); setCurrentCursor(undefined); }}
+              aria-label="Search by actor name, email, or UUID"
             />
           </div>
           {actorSearching && <p className="text-xs text-muted-foreground">Searching…</p>}
@@ -253,6 +254,7 @@ export default function AdminAuditPage() {
             className="h-9 w-36 text-xs"
             value={dateFrom}
             onChange={(e) => { setDateFrom(e.target.value); setCursorStack([]); setCurrentCursor(undefined); }}
+            aria-label="Filter from date"
           />
         </div>
 
@@ -263,6 +265,7 @@ export default function AdminAuditPage() {
             className="h-9 w-36 text-xs"
             value={dateTo}
             onChange={(e) => { setDateTo(e.target.value); setCursorStack([]); setCurrentCursor(undefined); }}
+            aria-label="Filter to date"
           />
         </div>
 

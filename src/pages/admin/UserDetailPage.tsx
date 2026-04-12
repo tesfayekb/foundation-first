@@ -104,7 +104,7 @@ export default function UserDetailPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate(ROUTES.ADMIN_USERS)}>
+        <Button variant="ghost" size="icon" onClick={() => navigate(ROUTES.ADMIN_USERS)} aria-label="Back to users">
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <PageHeader
@@ -204,6 +204,7 @@ export default function UserDetailPage() {
                               size="icon"
                               className="h-7 w-7 text-muted-foreground hover:text-destructive"
                               onClick={() => setRevokeRoleTarget({ role_id: role.role_id, role_name: role.role_name })}
+                              aria-label={`Revoke ${role.role_name} role`}
                             >
                               <X className="h-3 w-3" />
                             </Button>
