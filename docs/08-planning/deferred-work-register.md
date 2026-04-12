@@ -326,8 +326,8 @@ At each phase boundary (before advancing to the next phase):
 | DW-009 | requireRole() Shared Function | Phase 2 | Phase 3 | `implemented` |
 | DW-010 | requireSelfScope() Shared Function | Phase 2 | Phase 3 | `implemented` |
 | DW-011 | Distributed Rate Limiting | Phase 3 | Phase 6 | `assigned` |
-| DW-012 | Authenticated lifecycle test infrastructure | Phase 3 | Phase 6 | `assigned` |
-| DW-013 | Orphaned test-user cleanup automation | Phase 3 | Phase 6 | `assigned` |
+| DW-012 | Authenticated lifecycle test infrastructure | Phase 3 | Phase 6 | `implemented` |
+| DW-013 | Orphaned test-user cleanup automation | Phase 3 | Phase 6 | `implemented` |
 | DW-014 | Denial audit logging | Phase 3 | Phase 3.5 | `implemented` |
 | DW-015 | Superadmin guardrails | Phase 3 | Phase 3.5 | `implemented` |
 | DW-016 | Admin Monitoring/Health UI | Phase 4 | Phase 5 | `implemented` |
@@ -335,15 +335,15 @@ At each phase boundary (before advancing to the next phase):
 | DW-018 | User Password Change Flow | Phase 4 | Phase 4 (Stage 4J) | `implemented` |
 | DW-019 | User Session Revocation | Phase 4 | Phase 5 | `implemented` |
 | DW-020 | User Notification Preferences | Phase 4 | `unassigned` (v2) | `deferred (v2)` |
-| DW-021 | DB-level admin user search (replace auth.admin.listUsers) | Phase 4 | Phase 6 | `assigned` |
-| DW-022 | Server-shaped admin user DTO/view | Phase 4 | Phase 6 | `assigned` |
-| DW-023 | Audit actor-scope display shaping | Phase 4 | Phase 5+ | `assigned` |
-| DW-024 | Admin panel unbounded client-side aggregation queries | Phase 4 | Phase 6 | `assigned` |
+| DW-021 | DB-level admin user search (replace auth.admin.listUsers) | Phase 4 | Phase 6 | `implemented` |
+| DW-022 | Server-shaped admin user DTO/view | Phase 4 | Phase 6 | `implemented` |
+| DW-023 | Audit actor-scope display shaping | Phase 4 | Phase 6 | `implemented` |
+| DW-024 | Admin panel unbounded client-side aggregation queries | Phase 4 | Phase 6 | `implemented` |
 | DW-025 | Role creation (create-role edge function + UI) | Phase 4 | Phase 6 | `implemented` |
 | DW-026 | Role deletion (delete-role edge function + UI) | Phase 4 | Phase 6 | `implemented` |
 | DW-027 | Admin Edit User Profile | Phase 4 | Phase 4 (Stage 4K) | `implemented` |
-| DW-028 | True fail-closed audit rollback (alert config) | Phase 5 | Phase 6 | `deferred` |
-| DW-029 | Batched audit cleanup DELETE | Phase 5 | Phase 6 | `deferred` |
+| DW-028 | True fail-closed audit rollback (alert config) | Phase 5 | Phase 6 | `implemented` |
+| DW-029 | Batched audit cleanup DELETE | Phase 5 | Phase 6 | `implemented` |
 
 
 ### DW-011: Distributed Rate Limiting
