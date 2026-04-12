@@ -145,6 +145,8 @@ export interface ExecuteOptions {
   ipAddress?: string
   /** User agent for audit */
   userAgent?: string
+  /** Scheduled time from pg_cron context (ISO string). Falls back to now() for manual triggers. */
+  scheduledTime?: string
 }
 
 export interface ExecutionResult {
@@ -167,7 +169,7 @@ export async function executeWithRetry(
   handler: () => Promise<{ affectedRecords?: number; resourceUsage?: Record<string, unknown> }>,
   options: ExecuteOptions,
 ): Promise<ExecutionResult> {
-  const { jobId, correlationId, scheduleWindowId, actorId, ipAddress, userAgent } = options
+  const { jobId, correlationId, scheduleWindowId, actorId, ipAddress, userAgent, scheduledTime } = options
 
   // Fetch job config from registry
   const { data: jobConfig, error: jobError } = await supabaseAdmin
@@ -257,7 +259,7 @@ export async function executeWithRetry(
       job_version: jobConfig.version,
       attempt: 1,
       started_at: new Date().toISOString(),
-      scheduled_time: new Date().toISOString(),
+      scheduled_time: scheduledTime ?? new Date().toISOString(),
       correlation_id: correlationId,
     })
     .select('id, execution_id')
@@ -279,7 +281,7 @@ export async function executeWithRetry(
   // Emit job start audit event
   await logAuditEvent({
     actorId: actorId ?? '00000000-0000-0000-0000-000000000000',
-    action: 'job.execution_started',
+    action: 'job.started',
     targetType: 'job',
     targetId: jobId,
     metadata: { executionId, attempt: 1, scheduleWindowId },
@@ -314,7 +316,7 @@ export async function executeWithRetry(
       // Emit job completed audit event
       await logAuditEvent({
         actorId: actorId ?? '00000000-0000-0000-0000-000000000000',
-        action: 'job.execution_completed',
+        action: 'job.completed',
         targetType: 'job',
         targetId: jobId,
         metadata: { executionId, attempt, durationMs, affectedRecords: result.affectedRecords },
@@ -375,7 +377,7 @@ export async function executeWithRetry(
   // Emit job failed audit event
   await logAuditEvent({
     actorId: actorId ?? '00000000-0000-0000-0000-000000000000',
-    action: 'job.execution_failed',
+    action: 'job.failed',
     targetType: 'job',
     targetId: jobId,
     metadata: { executionId, attempt, durationMs, failureType: lastFailureType, terminalState },
