@@ -75,13 +75,15 @@ export default function RoleDetailPage() {
       mutation.mutate(
         { role_id: id, permission_id: permissionId },
         {
+          onError: () => {
+            refetch();
+          },
           onSettled: () => {
             setPendingToggles((prev) => {
               const next = new Set(prev);
               next.delete(permissionId);
               return next;
             });
-            refetch();
           },
         },
       );
