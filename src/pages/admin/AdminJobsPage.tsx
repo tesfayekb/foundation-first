@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { StatCard } from '@/components/dashboard/StatCard';
@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { apiClient } from '@/lib/api-client';
 import {
   Cog, Play, Pause, AlertOctagon, RotateCcw, Inbox,
-  CheckCircle, XCircle, Clock, Zap, AlertTriangle,
+  AlertTriangle,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -89,6 +89,7 @@ export default function AdminJobsPage() {
       return (data ?? []) as JobExecution[];
     },
     refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
   });
 
   // Dead letters
@@ -106,10 +107,32 @@ export default function AdminJobsPage() {
     },
   });
 
-  // Kill switch status
-  const killSwitch = jobs?.find(j => j.id === '__kill_switch__');
-  const isKillSwitchActive = killSwitch ? !killSwitch.enabled : false;
-  const realJobs = jobs?.filter(j => !j.id.startsWith('__')) ?? [];
+  // Memoized derived state
+  const { killSwitch, realJobs } = useMemo(() => ({
+    killSwitch: jobs?.find(j => j.id === '__kill_switch__'),
+    realJobs: jobs?.filter(j => !j.id.startsWith('__')) ?? [],
+  }), [jobs]);
+
+  const isKillSwitchActive = useMemo(
+    () => killSwitch ? !killSwitch.enabled : false,
+    [killSwitch],
+  );
+
+  const activeJobCount = useMemo(
+    () => realJobs.filter(j => j.enabled && j.status === 'registered').length,
+    [realJobs],
+  );
+
+  const pausedPoisonCount = useMemo(
+    () => realJobs.filter(j => j.status === 'paused' || j.status === 'poison').length,
+    [realJobs],
+  );
+
+  // Memoized callbacks
+  const handleOpenKillSwitch = useCallback(() => setKillSwitchDialog(true), []);
+  const handleOpenPause = useCallback((jobId: string) => setPauseDialog({ jobId }), []);
+  const handleOpenResume = useCallback((jobId: string) => setResumeDialog({ jobId }), []);
+  const handleOpenReplay = useCallback((executionId: string) => setReplayDialog({ executionId }), []);
 
   // Mutations
   const killSwitchMutation = useMutation({
@@ -156,6 +179,26 @@ export default function AdminJobsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const handleKillSwitchConfirm = useCallback((reason?: string) => {
+    killSwitchMutation.mutate(reason ?? 'No reason provided');
+    setKillSwitchDialog(false);
+  }, [killSwitchMutation]);
+
+  const handlePauseConfirm = useCallback((reason?: string) => {
+    if (pauseDialog) pauseMutation.mutate({ jobId: pauseDialog.jobId, reason: reason ?? '' });
+    setPauseDialog(null);
+  }, [pauseDialog, pauseMutation]);
+
+  const handleResumeConfirm = useCallback((reason?: string) => {
+    if (resumeDialog) resumeMutation.mutate({ jobId: resumeDialog.jobId, reason: reason ?? '' });
+    setResumeDialog(null);
+  }, [resumeDialog, resumeMutation]);
+
+  const handleReplayConfirm = useCallback((reason?: string) => {
+    if (replayDialog) replayMutation.mutate({ executionId: replayDialog.executionId, reason: reason ?? '' });
+    setReplayDialog(null);
+  }, [replayDialog, replayMutation]);
+
   return (
     <div className="space-y-6">
       <PageHeader title="Job Management" subtitle="Scheduled jobs, executions, and emergency controls" />
@@ -189,7 +232,7 @@ export default function AdminJobsPage() {
               <Button
                 variant={isKillSwitchActive ? 'default' : 'destructive'}
                 size="sm"
-                onClick={() => setKillSwitchDialog(true)}
+                onClick={handleOpenKillSwitch}
               >
                 {isKillSwitchActive ? 'Deactivate Kill Switch' : 'Activate Kill Switch'}
               </Button>
@@ -199,8 +242,8 @@ export default function AdminJobsPage() {
           {/* Stats */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard title="Registered Jobs" value={realJobs.length} icon={Cog} />
-            <StatCard title="Active" value={realJobs.filter(j => j.enabled && j.status === 'registered').length} icon={Play} />
-            <StatCard title="Paused / Poison" value={realJobs.filter(j => j.status === 'paused' || j.status === 'poison').length} icon={Pause} />
+            <StatCard title="Active" value={activeJobCount} icon={Play} />
+            <StatCard title="Paused / Poison" value={pausedPoisonCount} icon={Pause} />
             <StatCard title="Dead Letters" value={deadLetters?.length ?? 0} icon={Inbox} />
           </div>
 
@@ -242,11 +285,11 @@ export default function AdminJobsPage() {
                             <td className="py-3 pr-4">{job.max_retries}</td>
                             <td className="py-3">
                               {job.enabled && job.status === 'registered' && job.class !== 'system_critical' ? (
-                                <Button variant="ghost" size="sm" onClick={() => setPauseDialog({ jobId: job.id })}>
+                                <Button variant="ghost" size="sm" onClick={() => handleOpenPause(job.id)}>
                                   <Pause className="h-3 w-3 mr-1" /> Pause
                                 </Button>
                               ) : job.status === 'paused' ? (
-                                <Button variant="ghost" size="sm" onClick={() => setResumeDialog({ jobId: job.id })}>
+                                <Button variant="ghost" size="sm" onClick={() => handleOpenResume(job.id)}>
                                   <Play className="h-3 w-3 mr-1" /> Resume
                                 </Button>
                               ) : job.status === 'poison' ? (
@@ -323,7 +366,7 @@ export default function AdminJobsPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setReplayDialog({ executionId: dl.id })}
+                            onClick={() => handleOpenReplay(dl.id)}
                           >
                             <RotateCcw className="h-3 w-3 mr-1" /> Replay
                           </Button>
@@ -351,10 +394,7 @@ export default function AdminJobsPage() {
         confirmLabel={isKillSwitchActive ? 'Deactivate' : 'Activate Kill Switch'}
         destructive={!isKillSwitchActive}
         requireReason
-        onConfirm={(reason) => {
-          killSwitchMutation.mutate(reason ?? 'No reason provided');
-          setKillSwitchDialog(false);
-        }}
+        onConfirm={handleKillSwitchConfirm}
         loading={killSwitchMutation.isPending}
       />
       <ConfirmActionDialog
@@ -365,10 +405,7 @@ export default function AdminJobsPage() {
         confirmLabel="Pause"
         destructive={false}
         requireReason
-        onConfirm={(reason) => {
-          if (pauseDialog) pauseMutation.mutate({ jobId: pauseDialog.jobId, reason: reason ?? '' });
-          setPauseDialog(null);
-        }}
+        onConfirm={handlePauseConfirm}
         loading={pauseMutation.isPending}
       />
       <ConfirmActionDialog
@@ -379,10 +416,7 @@ export default function AdminJobsPage() {
         confirmLabel="Resume"
         destructive={false}
         requireReason
-        onConfirm={(reason) => {
-          if (resumeDialog) resumeMutation.mutate({ jobId: resumeDialog.jobId, reason: reason ?? '' });
-          setResumeDialog(null);
-        }}
+        onConfirm={handleResumeConfirm}
         loading={resumeMutation.isPending}
       />
       <ConfirmActionDialog
@@ -393,10 +427,7 @@ export default function AdminJobsPage() {
         confirmLabel="Replay"
         destructive={false}
         requireReason
-        onConfirm={(reason) => {
-          if (replayDialog) replayMutation.mutate({ executionId: replayDialog.executionId, reason: reason ?? '' });
-          setReplayDialog(null);
-        }}
+        onConfirm={handleReplayConfirm}
         loading={replayMutation.isPending}
       />
     </div>

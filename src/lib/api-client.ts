@@ -24,7 +24,7 @@ let _cachedToken: string | null = null;
 let _tokenExpiry = 0;
 
 // Clear cache on auth state change (sign-out, token refresh)
-supabase.auth.onAuthStateChange((_event, session) => {
+const { data: { subscription: _authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
   if (session) {
     _cachedToken = session.access_token;
     _tokenExpiry = (session.expires_at ?? 0) * 1000 - 60_000; // 60s before expiry
@@ -33,6 +33,11 @@ supabase.auth.onAuthStateChange((_event, session) => {
     _tokenExpiry = 0;
   }
 });
+
+// Cleanup on HMR to prevent memory leaks in development
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => _authSubscription.unsubscribe());
+}
 
 async function getAuthHeaders(): Promise<Record<string, string>> {
   // Use cached token if still valid (60s buffer before JWT expiry)
