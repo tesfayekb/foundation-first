@@ -144,12 +144,37 @@ export default function RoleDetailPage() {
           {role.description && (
             <p className="text-sm text-muted-foreground">{role.description}</p>
           )}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {role.is_base && <Badge variant="secondary">Base Role</Badge>}
             {role.is_immutable && <Badge variant="outline">Immutable</Badge>}
+            {!role.is_base && !role.is_immutable && canDeleteRole && (
+              <Button
+                variant="destructive"
+                size="sm"
+                className="ml-auto"
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Delete Role
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
+
+      {/* Delete confirmation dialog */}
+      <ConfirmActionDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title={`Delete role "${role.name}"?`}
+        description={`This will permanently delete the "${role.key}" role. All user assignments (${role.users.length}) and permission mappings (${role.permissions.length}) will be removed via cascade. This action cannot be undone.`}
+        confirmLabel="Delete Role"
+        destructive
+        requireReason
+        reasonLabel="Reason for deletion (required)"
+        onConfirm={handleDeleteRole}
+        loading={deleteRole.isPending}
+      />
 
       {/* Superadmin auto-inherit banner */}
       {isSuperadmin && (
