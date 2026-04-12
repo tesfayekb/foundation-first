@@ -323,6 +323,29 @@ export async function executeWithRetry(
         correlationId: correlationId ?? executionId,
       })
 
+      // SLO breach detection: emit job.slo_breach if duration exceeds 80% of timeout budget
+      const sloThresholdMs = (jobConfig.timeout_seconds ?? 30) * 1000 * 0.8
+      if (durationMs > sloThresholdMs) {
+        await logAuditEvent({
+          actorId: actorId ?? null,
+          action: 'job.slo_breach',
+          targetType: 'job',
+          metadata: {
+            jobId,
+            executionId,
+            attempt,
+            durationMs,
+            sloThresholdMs,
+            timeoutSeconds: jobConfig.timeout_seconds,
+            budgetUsedPct: Math.round((durationMs / (jobConfig.timeout_seconds * 1000)) * 100),
+          },
+          ipAddress: ipAddress ?? '0.0.0.0',
+          userAgent: userAgent ?? 'system/job-executor',
+          correlationId: correlationId ?? executionId,
+        })
+        console.warn(`[JOB-EXECUTOR] SLO breach: job ${jobId} took ${durationMs}ms (threshold: ${sloThresholdMs}ms, budget: ${jobConfig.timeout_seconds}s)`)
+      }
+
       return { success: true, executionId, state: 'succeeded', attempt, durationMs }
     } catch (err) {
       lastFailureType = classifyError(err)

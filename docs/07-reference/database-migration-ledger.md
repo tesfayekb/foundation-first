@@ -481,6 +481,39 @@ All SQL migrations applied to the external Supabase database, whether from `sql/
 
 ---
 
+### MIG-027: Enable pg_cron and pg_net Extensions
+
+| Field | Value |
+|-------|-------|
+| **Ledger ID** | MIG-027 |
+| **Migration File** | `20260412052259_46421a1a-0bdc-46d4-87c6-f92e3663eccb.sql` |
+| **Source Dir** | `supabase/migrations/` |
+| **Applied Date** | 2026-04-12 |
+| **Sequence Order** | 27 |
+| **Purpose** | Enable `pg_cron` (scheduling) and `pg_net` (HTTP calls) extensions for job scheduling |
+| **Objects Affected** | Extensions: `pg_cron`, `pg_net`; Schema grants: `cron` schema to postgres |
+| **Status** | `active` |
+| **Linked Actions** | ACT-061 |
+
+---
+
+### MIG-028: Schedule 4 Core Jobs via pg_cron
+
+| Field | Value |
+|-------|-------|
+| **Ledger ID** | MIG-028 |
+| **Migration File** | `20260412052337_f27c2c7c-5730-4b11-aa13-09ad301b60df.sql` |
+| **Source Dir** | `supabase/migrations/` |
+| **Applied Date** | 2026-04-12 |
+| **Sequence Order** | 28 |
+| **Purpose** | Schedule 4 pg_cron jobs: health_check (*/1m), alert_evaluation (*/1m), metrics_aggregate (*/5m), audit_cleanup (weekly Sun 3AM) |
+| **Objects Affected** | Data: 4 rows in `cron.job` |
+| **Status** | `active` |
+| **Linked Actions** | ACT-061 |
+| **Notes** | Contains project-specific URLs and anon key — not portable across environments |
+
+---
+
 ### Tables (12)
 
 | Table | Created By | Status |

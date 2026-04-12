@@ -341,8 +341,10 @@ At each phase boundary (before advancing to the next phase):
 | DW-024 | Admin panel unbounded client-side aggregation queries | Phase 4 | Phase 6 | `assigned` |
 | DW-025 | Role creation (create-role edge function + UI) | Phase 4 | Phase 6 | `implemented` |
 | DW-026 | Role deletion (delete-role edge function + UI) | Phase 4 | Phase 6 | `implemented` |
+| DW-027 | Admin Edit User Profile | Phase 4 | Phase 4 (Stage 4K) | `implemented` |
+| DW-028 | True fail-closed audit rollback (alert config) | Phase 5 | Phase 6 | `deferred` |
+| DW-029 | Batched audit cleanup DELETE | Phase 5 | Phase 6 | `deferred` |
 
-## Registry (continued)
 
 ### DW-011: Distributed Rate Limiting
 
@@ -760,6 +762,30 @@ At each phase boundary (before advancing to the next phase):
 | **Related Decisions** | — |
 | **Related Actions** | ACT-058 |
 | **Required Tests for Closure** | (1) Update with simulated audit failure restores original values. (2) Caller receives appropriate error. (3) No orphaned config changes without audit records. |
+| **Status** | `deferred` |
+| **Implemented by Action** | — |
+| **Implemented in Plan Version** | — |
+
+---
+
+### DW-029: Batched Audit Cleanup DELETE
+
+| Field | Value |
+|-------|-------|
+| **ID** | DW-029 |
+| **Date Deferred** | 2026-04-12 |
+| **Source Plan Section** | PLAN-JOBS-001 (Stage 5D — audit_cleanup job) |
+| **Source Phase** | Phase 5 — Operations & Reliability |
+| **Title** | Batched DELETE for audit_cleanup job |
+| **Reason Deferred** | The current implementation does a single unbounded `DELETE FROM audit_logs WHERE created_at < cutoff`. The Supabase REST API does not support LIMIT on DELETE. At current scale (near-zero records) this is fine, but at millions of rows over 90 days the single DELETE will exceed the 30-second edge function timeout. The correct fix is a PostgreSQL function (via RPC) that deletes in batches of N rows and returns the count. |
+| **Blocking Dependencies** | None — requires creating an RPC function for batched delete |
+| **Impact on Source Phase** | Minimal — audit cleanup works correctly at current scale |
+| **Future Owner Phase** | Phase 6 |
+| **Future Owner Module** | jobs-and-scheduler |
+| **Required Plan Realignment** | Add `rpc_batch_delete_audit_logs(cutoff, batch_size)` DB function and update `job-audit-cleanup` to call it in a loop |
+| **Related Decisions** | DEC-007 (90-day retention) |
+| **Related Actions** | ACT-060 |
+| **Required Tests for Closure** | (1) Batch delete removes correct records. (2) Multiple batches complete within timeout. (3) No records newer than cutoff are deleted. |
 | **Status** | `deferred` |
 | **Implemented by Action** | — |
 | **Implemented in Plan Version** | — |
