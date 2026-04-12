@@ -703,10 +703,11 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Error (404)** | Target user or role not found |
 | **Error (409)** | Role already assigned |
 | **Error (500)** | Audit write failed — operation rolled back |
-| **Rate Limit** | standard (via `createHandler`) |
+| **Rate Limit** | strict |
 | **Audit Required** | Yes — `rbac.role_assigned` (fail-closed with rollback via `logAuditEvent`) |
 | **Idempotent** | No |
-| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `validateRequest()`, `logAuditEvent()` |
+| **Reauth Required** | Yes (30 min) |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `requireRecentAuth()`, `validateRequest()`, `logAuditEvent()` |
 | **Related events** | `rbac.role_assigned` |
 | **Related permissions** | `roles.assign` |
 | **Lifecycle** | active |
@@ -729,10 +730,11 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Error (404)** | Role or assignment not found |
 | **Error (409)** | Cannot revoke last superadmin |
 | **Error (500)** | Audit write failed — operation rolled back |
-| **Rate Limit** | standard (via `createHandler`) |
+| **Rate Limit** | strict |
 | **Audit Required** | Yes — `rbac.role_revoked` (fail-closed with rollback via `logAuditEvent`) |
 | **Idempotent** | No |
-| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `validateRequest()`, `logAuditEvent()` |
+| **Reauth Required** | Yes (30 min) |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `requireRecentAuth()`, `validateRequest()`, `logAuditEvent()` |
 | **Related events** | `rbac.role_revoked` |
 | **Related permissions** | `roles.revoke` |
 | **Lifecycle** | active |
@@ -753,12 +755,13 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Error (401)** | Missing/invalid token |
 | **Error (403)** | Permission denied |
 | **Error (404)** | Role or permission not found |
-| **Error (409)** | Permission already assigned to role |
+| **Error (409)** | Permission already assigned / immutable role / dependency violation |
 | **Error (500)** | Audit write failed — operation rolled back |
-| **Rate Limit** | standard (via `createHandler`) |
+| **Rate Limit** | strict |
 | **Audit Required** | Yes — `rbac.permission_assigned` (fail-closed with rollback via `logAuditEvent`) |
 | **Idempotent** | No |
-| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `validateRequest()`, `logAuditEvent()` |
+| **Reauth Required** | Yes (30 min) |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `requireRecentAuth()`, `validateRequest()`, `logAuditEvent()` |
 | **Related events** | `rbac.permission_assigned` |
 | **Related permissions** | `permissions.assign` |
 | **Lifecycle** | active |
@@ -780,10 +783,11 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Error (403)** | Permission denied |
 | **Error (404)** | Role, permission, or mapping not found |
 | **Error (500)** | Audit write failed — operation rolled back |
-| **Rate Limit** | standard (via `createHandler`) |
+| **Rate Limit** | strict |
 | **Audit Required** | Yes — `rbac.permission_revoked` (fail-closed with rollback via `logAuditEvent`) |
 | **Idempotent** | No |
-| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `validateRequest()`, `logAuditEvent()` |
+| **Reauth Required** | Yes (30 min) |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `requireRecentAuth()`, `validateRequest()`, `logAuditEvent()` |
 | **Related events** | `rbac.permission_revoked` |
 | **Related permissions** | `permissions.revoke` |
 | **Lifecycle** | active |
