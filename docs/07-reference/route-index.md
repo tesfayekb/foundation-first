@@ -703,10 +703,11 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Error (404)** | Target user or role not found |
 | **Error (409)** | Role already assigned |
 | **Error (500)** | Audit write failed — operation rolled back |
-| **Rate Limit** | standard (via `createHandler`) |
+| **Rate Limit** | strict |
 | **Audit Required** | Yes — `rbac.role_assigned` (fail-closed with rollback via `logAuditEvent`) |
 | **Idempotent** | No |
-| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `validateRequest()`, `logAuditEvent()` |
+| **Reauth Required** | Yes (30 min) |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `requireRecentAuth()`, `validateRequest()`, `logAuditEvent()` |
 | **Related events** | `rbac.role_assigned` |
 | **Related permissions** | `roles.assign` |
 | **Lifecycle** | active |
@@ -729,10 +730,11 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Error (404)** | Role or assignment not found |
 | **Error (409)** | Cannot revoke last superadmin |
 | **Error (500)** | Audit write failed — operation rolled back |
-| **Rate Limit** | standard (via `createHandler`) |
+| **Rate Limit** | strict |
 | **Audit Required** | Yes — `rbac.role_revoked` (fail-closed with rollback via `logAuditEvent`) |
 | **Idempotent** | No |
-| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `validateRequest()`, `logAuditEvent()` |
+| **Reauth Required** | Yes (30 min) |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `requireRecentAuth()`, `validateRequest()`, `logAuditEvent()` |
 | **Related events** | `rbac.role_revoked` |
 | **Related permissions** | `roles.revoke` |
 | **Lifecycle** | active |
@@ -753,12 +755,13 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Error (401)** | Missing/invalid token |
 | **Error (403)** | Permission denied |
 | **Error (404)** | Role or permission not found |
-| **Error (409)** | Permission already assigned to role |
+| **Error (409)** | Permission already assigned / immutable role / dependency violation |
 | **Error (500)** | Audit write failed — operation rolled back |
-| **Rate Limit** | standard (via `createHandler`) |
+| **Rate Limit** | strict |
 | **Audit Required** | Yes — `rbac.permission_assigned` (fail-closed with rollback via `logAuditEvent`) |
 | **Idempotent** | No |
-| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `validateRequest()`, `logAuditEvent()` |
+| **Reauth Required** | Yes (30 min) |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `requireRecentAuth()`, `validateRequest()`, `logAuditEvent()` |
 | **Related events** | `rbac.permission_assigned` |
 | **Related permissions** | `permissions.assign` |
 | **Lifecycle** | active |
@@ -780,10 +783,11 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Error (403)** | Permission denied |
 | **Error (404)** | Role, permission, or mapping not found |
 | **Error (500)** | Audit write failed — operation rolled back |
-| **Rate Limit** | standard (via `createHandler`) |
+| **Rate Limit** | strict |
 | **Audit Required** | Yes — `rbac.permission_revoked` (fail-closed with rollback via `logAuditEvent`) |
 | **Idempotent** | No |
-| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `validateRequest()`, `logAuditEvent()` |
+| **Reauth Required** | Yes (30 min) |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `requireRecentAuth()`, `validateRequest()`, `logAuditEvent()` |
 | **Related events** | `rbac.permission_revoked` |
 | **Related permissions** | `permissions.revoke` |
 | **Lifecycle** | active |
@@ -840,17 +844,97 @@ Routes classified as `destructive` or `privileged` with system-wide scope:
 | **Method** | `GET` |
 | **Classification** | privileged |
 | **Auth Model** | Bearer JWT (validated via `authenticateRequest()`) |
-| **Permission** | `roles.view` |
+| **Permission** | `permissions.view` |
 | **Scope** | system-wide |
 | **Request Body** | None |
 | **Response (200)** | `{ data: PermissionListItem[] }` — each item: `{ id, key, description, created_at, role_names[] }` |
 | **Error (401)** | Missing/invalid token |
 | **Error (403)** | Permission denied |
-| **Rate Limit** | standard (via `createHandler`) |
+| **Rate Limit** | standard |
 | **Audit Required** | No (read-only) |
 | **Idempotent** | Yes |
 | **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()` |
-| **Related permissions** | `roles.view` |
+| **Related permissions** | `permissions.view` |
+| **Lifecycle** | active |
+
+#### `POST /create-role`
+
+| Field | Value |
+|-------|-------|
+| **Path** | `/create-role` |
+| **Method** | `POST` |
+| **Classification** | privileged |
+| **Auth Model** | Bearer JWT + `requireRecentAuth()` |
+| **Permission** | `roles.create` |
+| **Scope** | system-wide |
+| **Request Body** | `{ key: string, name: string, description?: string }` — Zod-validated |
+| **Response (200)** | `{ success: true, correlation_id, role }` |
+| **Error (400)** | Validation error (Zod schema) |
+| **Error (401)** | Missing/invalid token or session too old |
+| **Error (403)** | Permission denied |
+| **Error (409)** | Duplicate role key |
+| **Error (500)** | Audit write failed — operation rolled back |
+| **Rate Limit** | strict |
+| **Audit Required** | Yes — `rbac.role_created` (fail-closed with rollback) |
+| **Reauth Required** | Yes (30 min) |
+| **Idempotent** | No |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `requireRecentAuth()`, `validateRequest()`, `logAuditEvent()` |
+| **Related events** | `rbac.role_created` |
+| **Related permissions** | `roles.create` |
+| **Lifecycle** | active |
+
+#### `POST /update-role`
+
+| Field | Value |
+|-------|-------|
+| **Path** | `/update-role` |
+| **Method** | `POST` |
+| **Classification** | privileged |
+| **Auth Model** | Bearer JWT + `requireRecentAuth()` |
+| **Permission** | `roles.edit` |
+| **Scope** | system-wide |
+| **Request Body** | `{ role_id: string (UUID), name?: string, description?: string }` — Zod-validated |
+| **Response (200)** | `{ success: true, correlation_id, role }` |
+| **Error (400)** | Validation error |
+| **Error (401)** | Missing/invalid token or session too old |
+| **Error (403)** | Permission denied |
+| **Error (404)** | Role not found |
+| **Error (409)** | Immutable role |
+| **Error (500)** | Audit write failed — operation rolled back |
+| **Rate Limit** | strict |
+| **Audit Required** | Yes — `rbac.role_updated` (fail-closed with rollback) |
+| **Reauth Required** | Yes (30 min) |
+| **Idempotent** | No |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `requireRecentAuth()`, `validateRequest()`, `logAuditEvent()` |
+| **Related events** | `rbac.role_updated` |
+| **Related permissions** | `roles.edit` |
+| **Lifecycle** | active |
+
+#### `POST /delete-role`
+
+| Field | Value |
+|-------|-------|
+| **Path** | `/delete-role` |
+| **Method** | `POST` |
+| **Classification** | privileged, destructive |
+| **Auth Model** | Bearer JWT + `requireRecentAuth()` |
+| **Permission** | `roles.delete` |
+| **Scope** | system-wide |
+| **Request Body** | `{ role_id: string (UUID) }` — Zod-validated |
+| **Response (200)** | `{ success: true, correlation_id, message }` |
+| **Error (400)** | Validation error |
+| **Error (401)** | Missing/invalid token or session too old |
+| **Error (403)** | Permission denied |
+| **Error (404)** | Role not found |
+| **Error (409)** | Immutable role / role has active users |
+| **Error (500)** | Audit write failed — operation rolled back |
+| **Rate Limit** | strict |
+| **Audit Required** | Yes — `rbac.role_deleted` (fail-closed with rollback) |
+| **Reauth Required** | Yes (30 min) |
+| **Idempotent** | No |
+| **Related functions** | `authenticateRequest()`, `checkPermissionOrThrow()`, `requireRecentAuth()`, `validateRequest()`, `logAuditEvent()` |
+| **Related events** | `rbac.role_deleted` |
+| **Related permissions** | `roles.delete` |
 | **Lifecycle** | active |
 
 ### User Management API Endpoints
