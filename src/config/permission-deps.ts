@@ -12,12 +12,6 @@
  * NOTE: permissions.assign and permissions.revoke are superadmin-only.
  * They are still listed here for completeness (superadmin auto-inherits).
  */
- * missing dependencies; the client shows a toast listing what was
- * auto-added.
- *
- * Key   = the permission being assigned
- * Value = array of permission keys that MUST also be present
- */
 export const PERMISSION_DEPS: Record<string, string[]> = {
   // RBAC
   'roles.assign':        ['roles.view', 'users.view_all', 'admin.access'],
