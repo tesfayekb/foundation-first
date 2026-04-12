@@ -1270,6 +1270,31 @@ Each action must include:
 
 ---
 
+### ACT-049: Permission Mutation Recent-Auth Alignment
+
+| Field | Value |
+|-------|-------|
+| **ID** | ACT-049 |
+| **Date** | 2026-04-12 |
+| **Action** | Aligned the `assign-permission-to-role` and `revoke-permission-from-role` edge functions from the stale default 5-minute recent-auth threshold to a 30-minute window so role-detail permission management matches the approved session hardening window and no longer fails prematurely with `RECENT_AUTH_REQUIRED`. |
+| **Type** | Fix |
+| **Impact Classification** | High |
+| **Modules Affected** | rbac, admin-panel |
+| **Files Changed** | assign-permission-to-role/index.ts, revoke-permission-from-role/index.ts |
+| **Docs Updated** | system-state.md, master-plan.md, action-tracker.md |
+| **Related Watchlist** | — |
+| **Evidence** | Runtime state query showed the reporter session at 1873.75 seconds since `last_sign_in_at`, exceeding the stale 5-minute guard but matching the approved 30-minute window. Both permission-mutation edge functions were patched and deployed successfully. |
+| **Verified By** | AI Agent |
+| **Before State** | Role-detail permission assignment/revocation still used the default 5-minute recent-auth guard and returned premature `RECENT_AUTH_REQUIRED` 403 responses. |
+| **After State** | Permission assignment and revocation now enforce a 30-minute recent-auth window consistent with the approved admin/user hardening model. |
+| **Rollback Available** | Yes |
+| **Rollback Method** | Revert the explicit 30-minute `requireRecentAuth()` arguments to the prior default behavior. |
+| **Blast Radius** | Small |
+| **Health Impact** | Improved |
+| **Status** | Verified |
+
+---
+
 - If action introduces regression → must link watchlist item in `related_watchlist`
 - Regression fix actions must reference the original regression
 - Repeated failures in same area → tracked via recurrence in watchlist, referenced here
@@ -1298,7 +1323,7 @@ Each action must include:
 |------|-------|-------------|
 | Feature | 11 | 11 |
 | Documentation | 14 | 13 |
-| Fix | 5 | 3 |
+| Fix | 6 | 4 |
 | Security | 11 | 11 |
 | Performance | 1 | 1 |
 | Regression | 0 | 0 |
@@ -1307,7 +1332,7 @@ Each action must include:
 
 | Status | Count |
 |--------|-------|
-| Verified | 40 |
+| Verified | 41 |
 | Superseded | 2 (ACT-027, ACT-028) |
 | In Progress | 0 |
 | Rolled Back | 0 |
@@ -1317,7 +1342,7 @@ Each action must include:
 - Regressions introduced: 0
 - Regressions resolved: 1 (reactivation auth-unban gap — ACT-029)
 - Open (unverified) actions: 0
-- High-impact actions this period: 39
+- High-impact actions this period: 40
 
 _Updated as actions are added._
 
