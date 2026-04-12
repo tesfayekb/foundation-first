@@ -61,7 +61,9 @@ Deno.serve(createHandler(async (req: Request): Promise<Response> => {
       return apiError(404, 'Alert config not found', { correlationId: ctx.correlationId })
     }
 
-    // Fail-closed audit: roll back update if audit write fails
+    // Fail-closed audit (partial): On audit failure the update persists in DB.
+    // Caller receives 500. True rollback deferred — requires pre-fetch of old
+    // values before update (DW-028). See also DW-024b for general pattern.
     const auditResult = await logAuditEvent({
       actorId: ctx.user.id,
       action: 'health.alert_config_updated',
