@@ -104,9 +104,9 @@ If inconsistency is detected → execution must **STOP** and be corrected.
 | Module | Status | Last Updated |
 |--------|--------|-------------|
 | auth | implemented (A+D + hardened + MFA recovery codes [Stage 6A]; B+C deferred to v2 [DW-001/002]) | 2026-04-12 |
-| rbac | implemented (Phase 2 gate 12/12 closed + Phase 3.5 hardened + ACT-049/051/052: dependency enforcement, roles.edit, permissions.view separation, permissions.assign/revoke restricted to superadmin) | 2026-04-12 |
+| rbac | implemented (Phase 2 gate 12/12 closed + Phase 3.5 hardened + ACT-049/051/052 + **RBAC governance hardening 2026-04-13**: superadmin-only permission enforcement, user-role inheritance visibility, 8 button-level gaps closed, reauth dialog fix) | 2026-04-13 |
 | user-management | implemented (Phase 3C closed [ACT-032]: lifecycle, deactivate/reactivate, auth ban/unban; Phase 3D Gate 1 runtime-verified [ACT-035]) | 2026-04-10 |
-| admin-panel | implemented (Phase 4 CLOSED [ACT-048] + post-closure: ACT-049 recent-auth alignment, ACT-050 role CRUD, ACT-051 dependency enforcement + roles.edit, ACT-052 permissions.view + superadmin restriction) | 2026-04-12 |
+| admin-panel | implemented (Phase 4 CLOSED [ACT-048] + post-closure enhancements + **RBAC governance hardening 2026-04-13**: permission inheritance badges, superadmin-only badges, effective permission counts, permission-gated action buttons) | 2026-04-13 |
 | user-panel | implemented (Phase 4 CLOSED [ACT-048]: ProfilePage, SecurityPage, UserDashboard, useProfile, useMfaFactors, ReauthDialog, useInactivityTimeout) | 2026-04-12 |
 | audit-logging | implemented (Phase 3B closed + Phase 3.5 hardened + ACT-053: removed overly permissive INSERT RLS policy) | 2026-04-12 |
 | health-monitoring | implemented (5A + 5B + 5F complete [ACT-057, ACT-058, ACT-063]) | 2026-04-12 |
