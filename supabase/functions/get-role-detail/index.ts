@@ -47,18 +47,28 @@ Deno.serve(createHandler(async (req: Request) => {
     return apiError(404, 'Role not found', { correlationId: ctx.correlationId })
   }
 
-  // Fetch permissions and users in parallel (independent queries after role is resolved)
-  const [permissions, users] = await Promise.all([
+  // Fetch permissions, users, and user-role permissions in parallel
+  const [permissions, users, userRolePerms] = await Promise.all([
     resolvePermissions(role_id, role.key),
     resolveUsers(role_id),
+    // For non-user, non-superadmin roles, get the user role's permissions for inheritance
+    (role.key !== 'user' && role.key !== 'superadmin')
+      ? resolveUserRolePermissions()
+      : Promise.resolve([]),
   ])
+
+  // Merge inherited user-role permissions into the effective count
+  const directPermIds = new Set(permissions.map((p) => p.id))
+  const inheritedPerms = userRolePerms.filter((p) => !directPermIds.has(p.id))
+  const effectivePermissions = [...permissions, ...inheritedPerms]
 
   return apiSuccess({
     ...role,
-    permission_count: permissions.length,
+    permission_count: effectivePermissions.length,
     user_count: users.length,
     permissions,
     users,
+    inherited_permissions: inheritedPerms,
   })
 }))
 
@@ -107,4 +117,29 @@ async function resolveUsers(roleId: string) {
     display_name: profileMap.get(ur.user_id) ?? null,
     assigned_at: ur.assigned_at,
   }))
+}
+
+async function resolveUserRolePermissions() {
+  const { data: userRole } = await supabaseAdmin
+    .from('roles')
+    .select('id')
+    .eq('key', 'user')
+    .single()
+
+  if (!userRole) return []
+
+  const { data: rpData } = await supabaseAdmin
+    .from('role_permissions')
+    .select('permission_id')
+    .eq('role_id', userRole.id)
+
+  const permissionIds = (rpData ?? []).map((rp) => rp.permission_id)
+  if (permissionIds.length === 0) return []
+
+  const { data } = await supabaseAdmin
+    .from('permissions')
+    .select('id, key, description')
+    .in('id', permissionIds)
+
+  return data ?? []
 }
