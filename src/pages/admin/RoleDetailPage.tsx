@@ -62,6 +62,19 @@ export default function RoleDetailPage() {
   const [pendingPermissionAction, setPendingPermissionAction] = useState<PendingPermissionAction | null>(null);
 
   const isSuperadmin = role?.key === 'superadmin';
+  const isPermissionLocked = role?.is_permission_locked ?? false;
+
+  /**
+   * The 5 permissions universally held by every user via the base 'user' role.
+   * Hardcoded — these only change via seed migration (a deployment event).
+   */
+  const USER_ROLE_PERMISSION_KEYS = new Set([
+    'users.view_self',
+    'users.edit_self',
+    'profile.self_manage',
+    'mfa.self_manage',
+    'session.self_manage',
+  ]);
 
   // Track in-flight toggles to show spinners per-permission
   const [pendingToggles, setPendingToggles] = useState<Set<string>>(new Set());
