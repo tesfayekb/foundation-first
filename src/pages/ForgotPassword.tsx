@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,7 @@ export default function ForgotPassword() {
   const { resetPassword } = useAuth();
   const { toast } = useToast();
 
-  const getTurnstileToken = async (): Promise<string | null> => {
+  const getTurnstileToken = useCallback(async (): Promise<string | null> => {
     if (turnstileToken) {
       return turnstileToken;
     }
@@ -32,9 +32,9 @@ export default function ForgotPassword() {
       });
       return null;
     }
-  };
+  }, [turnstileToken, toast]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -53,7 +53,10 @@ export default function ForgotPassword() {
     }
     setSubmitted(true);
     setLoading(false);
-  };
+  }, [email, getTurnstileToken, resetPassword]);
+
+  const handleExpire = useCallback(() => setTurnstileToken(null), []);
+  const handleError = useCallback(() => setTurnstileToken(null), []);
 
   if (submitted) {
     return (
@@ -100,8 +103,8 @@ export default function ForgotPassword() {
             <TurnstileWidget
               ref={turnstileRef}
               onVerify={setTurnstileToken}
-              onExpire={() => setTurnstileToken(null)}
-              onError={() => setTurnstileToken(null)}
+              onExpire={handleExpire}
+              onError={handleError}
             />
           </CardContent>
           <CardFooter className="flex flex-col gap-4">

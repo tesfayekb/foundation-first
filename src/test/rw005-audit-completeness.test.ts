@@ -5,7 +5,7 @@
  * Scans edge function source files for mutation patterns and checks audit calls.
  */
 import { describe, it, expect } from 'vitest';
-import { readFileSync, readdirSync, statSync } from 'fs';
+import { readFileSync } from 'fs';
 import { resolve, join } from 'path';
 
 const FUNCTIONS_DIR = resolve(__dirname, '../../supabase/functions');
@@ -28,31 +28,8 @@ const MUTATION_FUNCTIONS = [
   'update-role',
 ];
 
-/** Edge functions that are read-only or system-internal (no audit required) */
-const READ_ONLY_FUNCTIONS = [
-  'export-audit-logs',
-  'get-profile',
-  'get-role-detail',
-  'get-user-stats',
-  'health-alert-config', // GET path is read-only
-  'health-alerts',
-  'health-check',
-  'health-detailed',
-  'health-metrics',
-  'job-alert-evaluation',
-  'job-audit-cleanup',
-  'job-health-check',
-  'job-metrics-aggregate',
-  'jobs-dead-letters',
-  'jobs-kill-switch',
-  'jobs-pause',
-  'jobs-replay-dead-letter',
-  'jobs-resume',
-  'list-permissions',
-  'list-roles',
-  'list-users',
-  'query-audit-logs',
-];
+
+
 
 describe('RW-005: Audit event completeness', () => {
   for (const fn of MUTATION_FUNCTIONS) {

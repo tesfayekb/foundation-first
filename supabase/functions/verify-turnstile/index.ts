@@ -49,6 +49,7 @@ const handler = createHandler(async (req: Request): Promise<Response> => {
   const result = await fetch(TURNSTILE_VERIFY_URL, {
     method: 'POST',
     body: formData,
+    signal: AbortSignal.timeout(5000),
   })
 
   const outcome = await result.json()

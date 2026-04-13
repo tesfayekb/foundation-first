@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,7 +22,7 @@ export default function SignUp() {
   const { signUp } = useAuth();
   const { toast } = useToast();
 
-  const getTurnstileToken = async (): Promise<string | null> => {
+  const getTurnstileToken = useCallback(async (): Promise<string | null> => {
     if (turnstileToken) {
       return turnstileToken;
     }
@@ -37,9 +37,9 @@ export default function SignUp() {
       });
       return null;
     }
-  };
+  }, [turnstileToken, toast]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -64,9 +64,9 @@ export default function SignUp() {
       setSubmitted(true);
       setLoading(false);
     }
-  };
+  }, [email, password, displayName, getTurnstileToken, signUp, toast]);
 
-  const handleOAuthSignIn = async (provider: 'google' | 'apple') => {
+  const handleOAuthSignIn = useCallback(async (provider: 'google' | 'apple') => {
     setOauthLoading(provider);
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
@@ -82,7 +82,10 @@ export default function SignUp() {
       });
       setOauthLoading(null);
     }
-  };
+  }, [toast]);
+
+  const handleExpire = useCallback(() => setTurnstileToken(null), []);
+  const handleError = useCallback(() => setTurnstileToken(null), []);
 
   if (submitted) {
     return (
@@ -153,8 +156,8 @@ export default function SignUp() {
             <TurnstileWidget
               ref={turnstileRef}
               onVerify={setTurnstileToken}
-              onExpire={() => setTurnstileToken(null)}
-              onError={() => setTurnstileToken(null)}
+              onExpire={handleExpire}
+              onError={handleError}
             />
 
             <Button type="submit" className="w-full" disabled={loading}>
