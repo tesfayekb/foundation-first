@@ -116,6 +116,7 @@ If inconsistency is detected → execution must **STOP** and be corrected.
 | health-monitoring | implemented (5A + 5B + 5F complete [ACT-057, ACT-058, ACT-063]) | 2026-04-12 |
 | api | implemented (Phase 3A closed + Phase 3.5 hardened: PermissionDeniedError enriched with userId/reason, centralized denial interception in handler.ts) | 2026-04-10 |
 | jobs-and-scheduler | implemented (5C + 5D + 5E complete [ACT-059, ACT-060, ACT-062]) | 2026-04-12 |
+| user-onboarding | planned (PLAN-INVITE-001 approved, 6-phase plan in stage-invitations.md) | 2026-04-13 |
 
 ## AI Behavior Constraint
 
