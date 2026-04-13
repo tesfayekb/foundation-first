@@ -136,7 +136,7 @@ export const DashboardSidebar = React.memo(function DashboardSidebar({ sections,
           item={item}
           visibleChildren={visibleChildren}
           hasActiveChild={hasActiveChild}
-          isActive={isActive}
+          
           renderNavItem={renderNavItem}
         />
       );
