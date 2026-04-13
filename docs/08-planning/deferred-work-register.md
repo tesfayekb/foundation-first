@@ -469,6 +469,7 @@ At each phase boundary (before advancing to the next phase):
 | **Implemented by Action** | Phase 3.5B — Stage 3.5 plan execution |
 | **Implemented in Plan Version** | v9 |
 | **Resolution Note** | Added requireRecentAuth() to assign-role, revoke-role, assign-permission-to-role, revoke-permission-from-role (4 endpoints that were missing it). Self-superadmin-revocation prevention added to revoke-role (403 if actor revokes own superadmin role). No new SQL functions, no new seed data, no RBAC model changes. Existing has_permission()/is_superadmin() behavior unchanged. |
+| **Supersession Note (2026-04-13)** | This DW-015 scope was **significantly expanded** in the RBAC Governance Hardening session (2026-04-13). New work includes: (1) permanent superadmin-only permission enforcement at both server and UI layers for permissions.assign, permissions.revoke, roles.create, roles.edit, roles.delete, jobs.emergency — these can never be assigned to any non-superadmin role; (2) user-role permission inheritance visibility — base permissions from the `user` role display as inherited/disabled on all other roles with correct effective counts; (3) reauth dialog architecture fix — resolved TanStack Query v5 onError ordering conflict that prevented reauth dialog from opening; (4) 8 button-level UI gaps closed with permission-gated controls. See [RBAC Governance Hardening Closure](phase-closures/rbac-governance-hardening-closure.md) for full details. |
 
 ---
 
