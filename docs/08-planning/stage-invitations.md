@@ -254,14 +254,9 @@ On mount: call `get-system-config` (public, no auth).
 - If `signup_enabled = false` → render `InviteOnlyMessage` component (no form)
 - If `signup_enabled = true` → render existing signup form
 
-### 5B — Invite Link Flow
+### 5B — Invite Link Flow (Not Applicable)
 
-If URL has `?invite_token=...`:
-- Pre-fill email (decoded from token or fetched from invitation)
-- Show "You've been invited" heading
-- Pass `invite_token` through `user_metadata` on `signUp()` → not used by hook (bypass) but available for audit
-
-Note: The actual invite flow uses `inviteUserByEmail()` which sends a magic link. The user clicks the magic link → Supabase creates the account → `handle_new_user_role` trigger fires → role assigned. The SignUp page is only relevant for the "invitation only" message when self-signup is disabled.
+Phase 5B is not applicable. `inviteUserByEmail()` handles the full invite-to-account flow: admin sends invite → user receives magic link email from Supabase → user clicks link → Supabase hosted page to set password → redirected to app callback (`emailRedirectTo`) → `handle_new_user_role` trigger has already fired and assigned the role. The SignUp page (`/sign-up`) is not involved in the invite flow at all. Phase 5 scope is limited to: (A) checking signup mode on mount, (B) rendering `InviteOnlyMessage` when `signup_enabled = false`.
 
 ### 5C — Edge Cases
 
@@ -281,9 +276,8 @@ Refactor `SignUp.tsx` (currently 216 lines) into:
 
 ### Deliverables
 
-- Refactored `SignUp.tsx` → 3 components
+- Refactored `SignUp.tsx` → 2 components (`SignUp` orchestrator + `InviteOnlyMessage`)
 - `InviteOnlyMessage` component
-- Updated `SignUpForm` with invite awareness
 
 ---
 

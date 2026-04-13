@@ -208,6 +208,32 @@ Implement role-based access control.
 
 ---
 
+### PLAN-INVITE-001: User Onboarding & Invitations
+**Status:** `approved`
+**Risk Level:** MEDIUM
+**Module Doc:** [user-onboarding.md](../04-modules/user-onboarding.md) *(created in Phase 6)*
+
+**Purpose:**
+Implement configurable user onboarding system with open signup, invite-only, and hybrid modes. Includes invitation management, pre-signup enforcement hook, and admin UI.
+
+**Dependencies:**
+- PLAN-AUTH-001 (email/password auth)
+- PLAN-RBAC-001 (permission system)
+- PLAN-ADMIN-001 (admin panel)
+
+**Stage Plan:** [stage-invitations.md](stage-invitations.md)
+**DW Reference:** DW-035
+
+**Acceptance Criteria:**
+- Pre-signup hook enforces onboarding mode — cannot be bypassed by direct API calls
+- Invite tokens are single-use, 72-hour TTL, bcrypt-hashed at rest
+- Admin can send individual and bulk (up to 50) invitations
+- Superadmin can toggle signup/invite modes via UI with reauth
+- Both modes cannot be simultaneously disabled
+- Invited users receive email via Supabase `inviteUserByEmail()` — role assigned atomically by trigger
+
+---
+
 ## Development Phases
 
 ### Phase 1 — Foundation (Auth + Infrastructure)
@@ -440,6 +466,7 @@ Based on dependency chains and phases:
 5. **Phase 4:** PLAN-ADMIN-001, PLAN-USRPNL-001
 6. **Phase 5:** PLAN-HEALTH-001, PLAN-JOBS-001 (can overlap with Phase 3/4)
 7. **Phase 6:** System-wide hardening and validation
+8. **Phase 7:** PLAN-INVITE-001 (depends on Phases 1, 2, 4)
 
 ## Execution Rules
 
