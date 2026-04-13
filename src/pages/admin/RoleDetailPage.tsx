@@ -427,7 +427,7 @@ export default function RoleDetailPage() {
                                   {isUniversal && role.key === 'user' && (
                                     <Badge variant="secondary" className="text-[10px] px-1.5 py-0">all users</Badge>
                                   )}
-                                  {isAdminBlocked && (
+                                  {isSuperadminOnly && (
                                     <Badge variant="outline" className="ml-1 text-xs text-muted-foreground">superadmin only</Badge>
                                   )}
                                 </div>
