@@ -30,14 +30,7 @@ const BodySchema = z.object({
   permission_id: z.string().trim().regex(uuidRegex, 'Invalid UUID'),
 })
 
-/**
- * Permission dependency map — loaded from SSOT JSON.
- * ⚠️  SYNC: /permission-deps.json is the single source of truth.
- *    See RW-008 in regression-watchlist.md for drift detection protocol.
- */
-const PERMISSION_DEPS: Record<string, string[]> = JSON.parse(
-  await Deno.readTextFile(new URL('../../permission-deps.json', import.meta.url))
-)
+import { PERMISSION_DEPS } from '../_shared/permission-deps.ts'
 
 function resolveAllDeps(key: string): string[] {
   const visited = new Set<string>()
