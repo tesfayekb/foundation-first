@@ -195,7 +195,7 @@ export default function RoleDetailPage() {
 
   const handleToggle = useCallback(
     (permissionId: string, currentlyAssigned: boolean) => {
-      if (!id || role?.is_immutable || isSuperadmin) return;
+      if (!id || isPermissionLocked || isSuperadmin) return;
 
       // Block revocation of dependency permissions
       if (currentlyAssigned) {
