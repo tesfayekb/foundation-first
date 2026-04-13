@@ -17,12 +17,12 @@
 | 4 | Input Validation | 99 / 100 | ✅ |
 | 5 | CORS | 97 / 100 | ✅ |
 | 6 | Injection Attacks | 100 / 100 | ✅ |
-| 7 | Open Redirect | 98 / 100 | ✅ |
+| 7 | Open Redirect | 100 / 100 | ✅ |
 | 8 | Error Handling & Info Leakage | 100 / 100 | ✅ |
 | 9 | Audit Logging | 100 / 100 | ✅ |
 | 10 | Secrets Management | 96 / 100 | ⚠️ |
 | 11 | Rate Limiting | 85 / 100 | ⚠️ |
-| 12 | Dependency Security | 88 / 100 | ⚠️ |
+| 12 | Dependency Security | 93 / 100 | ⚠️ |
 
 ---
 
@@ -119,15 +119,14 @@
 
 ---
 
-## 7. Open Redirect — 98 / 100
+## 7. Open Redirect — 100 / 100
 
 ### Verified Controls
 - `safeRedirectPath()` applied to 7 redirect surfaces
 - All 8 attack patterns blocked: `https://`, `//`, `javascript:`, `data:`, `\evil`, `../path`, relative without `/`, non-localhost parsed URLs
+- `react-router-dom` updated to latest — CVE closed at library level (2026-04-13)
 
-### Remaining Gap (2 points) — FIXED
-- ~~`react-router-dom@6.30.1` contained CVE~~ → **Updated to latest** (2026-04-13)
-- `safeRedirectPath()` mitigation was already in place making it practically unexploitable
+**No gaps remain.**
 
 ---
 
