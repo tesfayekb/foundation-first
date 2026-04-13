@@ -944,14 +944,62 @@ At each phase boundary (before advancing to the next phase):
 | **Source Phase** | Post-Phase 6 |
 | **Title** | Admin-controlled invite-only user signup (disable open registration) |
 | **Reason Deferred** | Currently any person can register at the sign-up URL. All RBAC protections mean registered users have no admin access without explicit role assignment, but the open signup surface exists. Full invite flow requires email token generation, invite management UI, and Supabase signup restriction. |
-| **Blocking Dependencies** | Transactional email provider; invite token edge function; invite management admin UI; Supabase "Allow new users to sign up" dashboard setting coordination |
+| **Blocking Dependencies** | None remaining — all decisions resolved 2026-04-13 |
 | **Impact on Source Phase** | None — all registered users are properly RBAC-gated; open signup is a governance preference not a security vulnerability |
-| **Future Owner Phase** | `unassigned` (v2) |
+| **Future Owner Phase** | Phase 7 (PLAN-INVITE-001) |
 | **Future Owner Module** | Auth, Admin Panel |
-| **Required Plan Realignment** | v2 must include: invite token generation endpoint, invite list admin UI, email delivery of invite links, Supabase signup restriction toggle, first-signup bootstrap compatibility (first invite = superadmin) |
-| **Related Decisions** | — |
+| **Required Plan Realignment** | Full 6-phase plan documented in [stage-invitations.md](stage-invitations.md). Decisions: reuse `admin.config` (not new `system.config`); pre-signup hook manual registration; Supabase built-in email for dev; textarea bulk (CSV deferred → DW-038); lazy expiry check (cron deferred → DW-039); no `accept-invitation` endpoint (trigger-based); hook simplified (no token validation). |
+| **Related Decisions** | Q1–Q5 resolved 2026-04-13 (see stage-invitations.md Architecture Decisions table) |
 | **Related Actions** | — |
-| **Required Tests for Closure** | Non-invited email cannot create account; invited email can create account via token; expired invite rejected; invite revocation works; first invite creates superadmin correctly |
+| **Required Tests for Closure** | Non-invited email cannot create account when signup disabled; invited email can create account via `inviteUserByEmail`; expired invite rejected; invite revocation works; first-signup bootstrap compatibility; pre-signup hook rejects when `signup_enabled=false`; permission dep drift test for new permissions |
+| **Status** | `approved` |
+| **Implemented by Action** | — |
+| **Implemented in Plan Version** | — |
+
+---
+
+### DW-038: Bulk Invite CSV Upload
+
+| Field | Value |
+|-------|-------|
+| **ID** | DW-038 |
+| **Date Deferred** | 2026-04-13 |
+| **Source Plan Section** | PLAN-INVITE-001 Phase 4 |
+| **Source Phase** | Phase 7 (PLAN-INVITE-001) |
+| **Title** | CSV file upload for bulk user invitations |
+| **Reason Deferred** | Textarea approach handles 50 emails (paste, one per line). CSV upload adds file input, Papa Parse dependency (~15KB), column detection logic, preview/mapping step, and error display for malformed rows — 2+ hours of UI work for marginal benefit at current scale. |
+| **Blocking Dependencies** | PLAN-INVITE-001 Phase 4 (textarea bulk invite) must be implemented first |
+| **Impact on Source Phase** | None — textarea bulk invite covers all realistic use cases |
+| **Future Owner Phase** | `unassigned` (v2) |
+| **Future Owner Module** | Admin Panel |
+| **Required Plan Realignment** | Add CSV upload tab to BulkInviteDialog, add Papa Parse dependency, add column mapping UI |
+| **Related Decisions** | Q4 (stage-invitations.md) |
+| **Related Actions** | — |
+| **Required Tests for Closure** | CSV with valid emails parsed correctly; malformed CSV shows error; column mapping works for non-standard CSV formats; max 50 limit enforced |
+| **Status** | `deferred (v2)` |
+| **Implemented by Action** | — |
+| **Implemented in Plan Version** | — |
+
+---
+
+### DW-039: Invitation Expiry Cleanup Cron
+
+| Field | Value |
+|-------|-------|
+| **ID** | DW-039 |
+| **Date Deferred** | 2026-04-13 |
+| **Source Plan Section** | PLAN-INVITE-001 Phase 6 |
+| **Source Phase** | Phase 7 (PLAN-INVITE-001) |
+| **Title** | Scheduled job to mark expired invitations and clean up old records |
+| **Reason Deferred** | Lazy expiry check on validation is sufficient at expected scale (<200 total invitations). UI computes virtual expired status via query. No DB writes needed for expiry. |
+| **Blocking Dependencies** | PLAN-INVITE-001 implementation complete; trigger threshold: >1,000 accumulated expired invitation rows |
+| **Impact on Source Phase** | None — lazy check covers security (expired tokens rejected at validation); only cosmetic DB status is affected |
+| **Future Owner Phase** | `unassigned` (v2) |
+| **Future Owner Module** | Jobs & Scheduler |
+| **Required Plan Realignment** | Add `job-invitation-expiry` to job registry; add cron schedule; add to jobs admin UI |
+| **Related Decisions** | Q5 (stage-invitations.md) |
+| **Related Actions** | — |
+| **Required Tests for Closure** | Cron marks expired invitations; old revoked/expired records cleaned up; pending valid invitations not affected |
 | **Status** | `deferred (v2)` |
 | **Implemented by Action** | — |
 | **Implemented in Plan Version** | — |
