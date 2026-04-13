@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { AdminEditProfileCard } from '@/components/admin/AdminEditProfileCard';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/dashboard/PageHeader';
@@ -76,28 +76,28 @@ export default function UserDetailPage() {
   const isActive = profile.status === 'active';
   const initials = (profile.display_name ?? '?').split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
 
-  const handleDeactivate = (reason?: string) => {
+  const handleDeactivate = useCallback((reason?: string) => {
     deactivateMutation.mutate({ user_id: id!, reason }, { onSuccess: () => setShowDeactivate(false) });
-  };
+  }, [id, deactivateMutation]);
 
-  const handleReactivate = (reason?: string) => {
+  const handleReactivate = useCallback((reason?: string) => {
     reactivateMutation.mutate({ user_id: id!, reason }, { onSuccess: () => setShowReactivate(false) });
-  };
+  }, [id, reactivateMutation]);
 
-  const handleAssignRole = (roleId: string) => {
+  const handleAssignRole = useCallback((roleId: string) => {
     assignRoleMutation.mutate(
       { target_user_id: id!, role_id: roleId },
       { onSuccess: () => { setShowAssignRole(false); refetchRoles(); } },
     );
-  };
+  }, [id, assignRoleMutation, refetchRoles]);
 
-  const handleRevokeRole = () => {
+  const handleRevokeRole = useCallback(() => {
     if (!revokeRoleTarget) return;
     revokeRoleMutation.mutate(
       { target_user_id: id!, role_id: revokeRoleTarget.role_id },
       { onSuccess: () => { setRevokeRoleTarget(null); refetchRoles(); } },
     );
-  };
+  }, [id, revokeRoleTarget, revokeRoleMutation, refetchRoles]);
 
   const auditEntries: AuditLogEntry[] = auditData?.data ?? [];
 

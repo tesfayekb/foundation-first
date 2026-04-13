@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { LoadingSkeleton } from '@/components/dashboard/LoadingSkeleton';
 import { ErrorState } from '@/components/dashboard/ErrorState';
@@ -31,7 +31,7 @@ export default function ProfilePage() {
     (displayName !== (profile.display_name ?? '') ||
       avatarUrl !== (profile.avatar_url ?? ''));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!isDirty) return;
 
@@ -49,7 +49,7 @@ export default function ProfilePage() {
     if (avatarUrl !== (profile?.avatar_url ?? ''))
       payload.avatar_url = avatarUrl || null;
     updateProfile(payload as { display_name?: string | null; avatar_url?: string | null });
-  };
+  }, [isDirty, avatarUrl, displayName, profile, updateProfile]);
 
   if (isLoading) return <LoadingSkeleton />;
   if (isError || !profile) return <ErrorState message="Failed to load profile." onRetry={() => refetch()} />;

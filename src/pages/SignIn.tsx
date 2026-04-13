@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,7 +39,7 @@ export default function SignIn() {
     }
   }, [user, mfaStatus, from, navigate]);
 
-  const getTurnstileToken = async (): Promise<string | null> => {
+  const getTurnstileToken = useCallback(async (): Promise<string | null> => {
     if (turnstileToken) {
       return turnstileToken;
     }
@@ -54,9 +54,9 @@ export default function SignIn() {
       });
       return null;
     }
-  };
+  }, [turnstileToken, toast]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -78,9 +78,9 @@ export default function SignIn() {
       setTurnstileToken(null);
       setLoading(false);
     }
-  };
+  }, [email, password, getTurnstileToken, signIn, toast]);
 
-  const handleOAuthSignIn = async (provider: 'google' | 'apple') => {
+  const handleOAuthSignIn = useCallback(async (provider: 'google' | 'apple') => {
     setOauthLoading(provider);
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
@@ -96,7 +96,10 @@ export default function SignIn() {
       });
       setOauthLoading(null);
     }
-  };
+  }, [toast]);
+
+  const handleExpire = useCallback(() => setTurnstileToken(null), []);
+  const handleError = useCallback(() => setTurnstileToken(null), []);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -140,8 +143,8 @@ export default function SignIn() {
             <TurnstileWidget
               ref={turnstileRef}
               onVerify={setTurnstileToken}
-              onExpire={() => setTurnstileToken(null)}
-              onError={() => setTurnstileToken(null)}
+              onExpire={handleExpire}
+              onError={handleError}
             />
 
             <Button type="submit" className="w-full" disabled={loading}>

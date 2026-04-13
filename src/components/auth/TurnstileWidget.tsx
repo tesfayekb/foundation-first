@@ -198,7 +198,7 @@ const TurnstileWidget = forwardRef<TurnstileWidgetHandle, TurnstileWidgetProps>(
 
   return (
     <div className="space-y-2">
-      <div ref={containerRef} className="flex justify-center" />
+      <div ref={containerRef} className="flex justify-center" aria-label="Complete security verification" role="group" />
       <p className="text-center text-xs text-muted-foreground">
         Protected by Cloudflare Turnstile. Verification runs when you submit.
       </p>
