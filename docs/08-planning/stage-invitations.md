@@ -276,9 +276,8 @@ Refactor `SignUp.tsx` (currently 216 lines) into:
 
 ### Deliverables
 
-- Refactored `SignUp.tsx` → 3 components
+- Refactored `SignUp.tsx` → 2 components (`SignUp` orchestrator + `InviteOnlyMessage`)
 - `InviteOnlyMessage` component
-- Updated `SignUpForm` with invite awareness
 
 ---
 
