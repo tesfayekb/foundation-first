@@ -975,7 +975,7 @@ At each phase boundary (before advancing to the next phase):
 | **ID** | DW-037 |
 | **Original Plan Section** | Post-closure security hardening gap analysis (GAP 3) |
 | **Original Phase** | RBAC Governance Hardening |
-| **Deferred Reason** | Requires manual git state commands (`git rm --cached .env`) which cannot be executed by AI tooling |
+| **Deferred Reason** | Required manual git state commands (`git rm --cached .env`) which cannot be executed by AI tooling |
 | **Blocking Dependencies** | Manual developer action in local terminal |
 | **Future Phase Assignment** | Immediate — next developer session |
 | **Impact if Not Done** | `.env` pattern risk: accidental commit of real secrets (service role key, third-party API keys) to version control |
@@ -983,9 +983,10 @@ At each phase boundary (before advancing to the next phase):
 | **Related Decisions** | — |
 | **Related Actions** | — |
 | **Required Tests for Closure** | `.env` not present in `git ls-files`; `.gitignore` contains `.env` entry |
-| **Status** | `deferred (immediate)` |
-| **Implemented by Action** | — |
+| **Status** | `implemented` |
+| **Implemented by Action** | Manual git operation (2026-04-13) |
 | **Implemented in Plan Version** | — |
+| **Resolution Note** | `.env` removed from git index via `git rm --cached .env`. `.gitignore` updated with `.env` entry. Verified: `.env` not in git index, not in HEAD tree, `.gitignore` has entry, `git status` clean. Committed as `dee670e`. |
 
 ---
 
