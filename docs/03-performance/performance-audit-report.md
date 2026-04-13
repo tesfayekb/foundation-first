@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-13
 **Scope:** Full application — bundle, rendering, API, edge functions, database, load strategy, build config, accessibility
-**Overall Score:** 93 / 100
+**Overall Score:** 96 / 100 (post-fix; baseline was 93)
 
 ---
 
