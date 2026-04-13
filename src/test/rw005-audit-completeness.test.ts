@@ -29,7 +29,8 @@ const MUTATION_FUNCTIONS = [
 ];
 
 /** Edge functions that are read-only or system-internal (no audit required) */
-const _READ_ONLY_FUNCTIONS = [
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const READ_ONLY_FUNCTIONS = [
   'export-audit-logs',
   'get-profile',
   'get-role-detail',
