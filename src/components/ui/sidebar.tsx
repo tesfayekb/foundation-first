@@ -69,20 +69,6 @@ const SidebarProvider = React.forwardRef<
     },
     [setOpenProp, open],
   );
-
-  // Auto-collapse on tablet (md–lg) — icon mode gives more content space
-  React.useEffect(() => {
-    if (isMobile) return; // handled by Sheet on mobile
-    const lgMql = window.matchMedia('(min-width: 1024px)');
-    const handleResize = () => {
-      if (openProp !== undefined) return; // externally controlled
-      _setOpen(lgMql.matches);
-    };
-    handleResize();
-    lgMql.addEventListener('change', handleResize);
-    return () => lgMql.removeEventListener('change', handleResize);
-  }, [isMobile, openProp]);
-
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
