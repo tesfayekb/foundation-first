@@ -2,6 +2,7 @@
  * Centralized API client for Edge Function calls.
  * Single source of truth for auth, error handling, and response normalization.
  */
+import * as Sentry from '@sentry/react';
 import { supabase } from '@/integrations/supabase/client';
 
 class ApiError extends Error {
@@ -79,11 +80,23 @@ function buildUrl(path: string, params?: Record<string, string | number | undefi
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new ApiError(
+    const error = new ApiError(
       body.error ?? `Request failed (${res.status})`,
       res.status,
       body.code,
     );
+    if (res.status >= 500) {
+      Sentry.captureException(error, {
+        contexts: {
+          api: {
+            status: res.status,
+            code: body.code,
+            correlation_id: body.correlation_id,
+          },
+        },
+      });
+    }
+    throw error;
   }
   const json = await res.json();
   return json as T;
