@@ -121,22 +121,26 @@ const TurnstileWidget = forwardRef<TurnstileWidgetHandle, TurnstileWidgetProps>(
       appearance: 'interaction-only',
       execution: 'execute',
       callback: (token: string) => {
+        console.log('[Turnstile] Token received');
         tokenRef.current = token;
         onVerifyRef.current(token);
         resolveRef.current?.(token);
         clearPending();
       },
       'expired-callback': () => {
+        console.warn('[Turnstile] Token expired');
         tokenRef.current = null;
         onExpireRef.current?.();
         rejectPending('Verification expired. Please try again.');
       },
-      'error-callback': () => {
+      'error-callback': (errorCode: string) => {
+        console.error('[Turnstile] Error:', errorCode);
         tokenRef.current = null;
         onErrorRef.current?.();
         rejectPending('Verification failed. Please try again.');
       },
     });
+    console.log('[Turnstile] Widget rendered, id:', widgetIdRef.current);
   }, [clearPending, rejectPending]);
 
   const execute = useCallback(async (): Promise<string> => {
