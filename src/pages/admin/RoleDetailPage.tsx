@@ -211,7 +211,7 @@ export default function RoleDetailPage() {
 
       performToggle(permissionId, currentlyAssigned);
     },
-    [id, role?.is_immutable, isSuperadmin, allPermissions, requiredByDeps, user, performToggle],
+    [id, isPermissionLocked, isSuperadmin, allPermissions, requiredByDeps, user, performToggle],
   );
 
   if (isLoading) {
