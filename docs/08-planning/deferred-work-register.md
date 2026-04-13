@@ -797,9 +797,10 @@ At each phase boundary (before advancing to the next phase):
 | **Related Decisions** | DEC-007 (90-day retention) |
 | **Related Actions** | ACT-060 |
 | **Required Tests for Closure** | (1) Batch delete removes correct records. (2) Multiple batches complete within timeout. (3) No records newer than cutoff are deleted. |
-| **Status** | `deferred` |
-| **Implemented by Action** | — |
-| **Implemented in Plan Version** | — |
+| **Status** | `implemented` |
+| **Implemented by Action** | Phase 5 Stage 5D implementation |
+| **Implemented in Plan Version** | v11.0 |
+| **Resolution Note** | Batched loop implemented in `job-audit-cleanup/index.ts` with `BATCH_SIZE = 1000`, 25-second timeout budget (`TIMEOUT_BUDGET_MS = 25_000`) — time-based rather than count-based, superior to fixed MAX_ITERATIONS approach as it handles any volume within the 30s edge function limit. Break-on-empty exits when `count < BATCH_SIZE`. Execution metadata includes `totalDeleted` + `elapsed_ms`. `idx_audit_logs_created_at` index confirmed present in schema. `rpc_batch_delete_audit_logs` RPC exists via migration 20260412095151. No inter-batch pause — intentional: timeout-budget approach runs as fast as possible while respecting the time limit. |
 
 ---
 
