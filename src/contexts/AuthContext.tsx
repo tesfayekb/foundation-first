@@ -20,8 +20,8 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  signUp: (email: string, password: string, displayName?: string) => Promise<{ error: AuthError | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | null; mfaChallengeRequired?: boolean }>;
+  signUp: (email: string, password: string, displayName?: string, captchaToken?: string) => Promise<{ error: AuthError | null }>;
+  signIn: (email: string, password: string, captchaToken?: string) => Promise<{ error: AuthError | null; mfaChallengeRequired?: boolean }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
   updatePassword: (password: string) => Promise<{ error: AuthError | null }>;
