@@ -344,7 +344,7 @@ export default function RoleDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Key className="h-4 w-4" />
-              Permissions ({role.permissions.length} / {allPermissions?.length ?? '…'})
+              Permissions ({effectivePermissionCount} / {allPermissions?.length ?? '…'})
             </CardTitle>
             {isPermissionLocked && !isSuperadmin && (
               <p className="text-xs text-muted-foreground mt-1">

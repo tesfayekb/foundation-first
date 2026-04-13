@@ -47,18 +47,28 @@ Deno.serve(createHandler(async (req: Request) => {
     return apiError(404, 'Role not found', { correlationId: ctx.correlationId })
   }
 
-  // Fetch permissions and users in parallel (independent queries after role is resolved)
-  const [permissions, users] = await Promise.all([
+  // Fetch permissions, users, and user-role permissions in parallel
+  const [permissions, users, userRolePerms] = await Promise.all([
     resolvePermissions(role_id, role.key),
     resolveUsers(role_id),
+    // For non-user, non-superadmin roles, get the user role's permissions for inheritance
+    (role.key !== 'user' && role.key !== 'superadmin')
+      ? resolveUserRolePermissions()
+      : Promise.resolve([]),
   ])
+
+  // Merge inherited user-role permissions into the effective count
+  const directPermIds = new Set(permissions.map((p) => p.id))
+  const inheritedPerms = userRolePerms.filter((p) => !directPermIds.has(p.id))
+  const effectivePermissions = [...permissions, ...inheritedPerms]
 
   return apiSuccess({
     ...role,
-    permission_count: permissions.length,
+    permission_count: effectivePermissions.length,
     user_count: users.length,
     permissions,
     users,
+    inherited_permissions: inheritedPerms,
   })
 }))
 
