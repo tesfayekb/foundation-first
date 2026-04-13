@@ -185,18 +185,21 @@
 
 ---
 
-## 12. Dependency Security — 88 / 100
+## 12. Dependency Security — 93 / 100
 
 ### Verified Controls
 - Zero critical vulnerabilities
 - All external Deno imports version-pinned
+- `react-router-dom` CVE group removed (updated to latest)
 
 ### Findings
 | Package | Severity | Status |
 |---------|----------|--------|
 | react-router-dom (open redirect CVE) | HIGH | ✅ FIXED — updated to latest |
 | rollup (path traversal) | HIGH | ⚠️ Build-time only, zero runtime impact |
-| glob, minimatch, picomatch, flatted | MODERATE | ⚠️ Transitive only, no exploitable path |
+| flatted, glob, minimatch, picomatch | HIGH (transitive) | ⚠️ Build-tool only, zero direct imports in src/, no runtime exploitability |
+
+npm audit HIGH count: 8 → 5 (remaining 5 are all transitive build-tool dependencies).
 
 ---
 

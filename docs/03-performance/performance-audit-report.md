@@ -78,4 +78,8 @@ Enabled `noUnusedLocals: true` and `noUnusedParameters: true`. Cleaned up all re
 
 ## Conclusion
 
-All 8 high-impact, low-effort fixes applied. The application moves from 93/100 to an effective ~96/100 with the remaining gaps being architectural decisions (service worker, strict mode) or inherent tradeoffs (CAPTCHA latency). No performance-critical issues remain in the hot paths.
+All 8 high-impact, low-effort fixes applied. The application moves from 93/100 to **96/100**. The remaining 4 points are architectural decisions (service worker, TypeScript strict mode) or inherent tradeoffs (CAPTCHA latency). No performance-critical issues remain in the hot paths.
+
+### Remaining Gaps to 100/100
+- **Service worker / Workbox precaching** — v2 decision
+- **TypeScript `strict: true`** — v2 sprint
