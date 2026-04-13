@@ -151,13 +151,23 @@ const TurnstileWidget = forwardRef<TurnstileWidgetHandle, TurnstileWidgetProps>(
     }
 
     return new Promise<string>((resolve, reject) => {
-      resolveRef.current = resolve;
-      rejectRef.current = reject;
+      const timeout = setTimeout(() => {
+        clearPending();
+        reject(new Error('Verification timed out. Please try again.'));
+      }, 15000);
+
+      resolveRef.current = (token: string) => {
+        clearTimeout(timeout);
+        resolve(token);
+      };
+      rejectRef.current = (err: Error) => {
+        clearTimeout(timeout);
+        reject(err);
+      };
       tokenRef.current = null;
-      onExpireRef.current?.();
       window.turnstile.execute(widgetIdRef.current!);
     });
-  }, [renderWidget]);
+  }, [renderWidget, clearPending]);
 
   useImperativeHandle(
     ref,
