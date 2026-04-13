@@ -69,20 +69,6 @@ const SidebarProvider = React.forwardRef<
     },
     [setOpenProp, open],
   );
-
-  // Auto-collapse on tablet (md–lg) — icon mode gives more content space
-  React.useEffect(() => {
-    if (isMobile) return; // handled by Sheet on mobile
-    const lgMql = window.matchMedia('(min-width: 1024px)');
-    const handleResize = () => {
-      if (openProp !== undefined) return; // externally controlled
-      _setOpen(lgMql.matches);
-    };
-    handleResize();
-    lgMql.addEventListener('change', handleResize);
-    return () => lgMql.removeEventListener('change', handleResize);
-  }, [isMobile, openProp]);
-
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
@@ -288,7 +274,7 @@ const SidebarInset = React.forwardRef<HTMLDivElement, React.ComponentProps<"main
       ref={ref}
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
-        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
+        "md:peer-data-[variant=inset]:ml-0 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2",
         className,
       )}
       {...props}
