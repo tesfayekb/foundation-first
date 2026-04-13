@@ -8,16 +8,16 @@
 
 ## Section Scores
 
-| # | Section | Score | Key Issues |
-|---|---------|-------|------------|
-| 1 | Bundle & Dependencies | 97 / 100 | Dead `@hookform/resolvers` removed; Turnstile preconnect added |
-| 2 | React Rendering | 88 / 100 | Auth pages memoized; Turnstile serial latency noted |
-| 3 | API Client | 97 / 100 | verify-turnstile timeout added |
-| 4 | Edge Functions | 95 / 100 | AbortSignal.timeout(5000) on Cloudflare fetch |
-| 5 | Database | 98 / 100 | Strong — 24 indexes, composite audit indexes |
-| 6 | Load Strategy | 85 / 100 | Cloudflare preconnect added; service worker deferred |
-| 7 | Build & Config | 93 / 100 | noUnusedLocals/noUnusedParameters enabled |
-| 8 | Accessibility | 91 / 100 | Turnstile aria-label added; aria-describedby deferred |
+| # | Section | Before | After | Key Issues |
+|---|---------|--------|-------|------------|
+| 1 | Bundle & Dependencies | 97 | 99 / 100 | Dead `@hookform/resolvers` removed; Turnstile preconnect added |
+| 2 | React Rendering | 88 | 93 / 100 | Auth pages + ProfilePage + UserDetailPage memoized; Turnstile serial latency noted |
+| 3 | API Client | 97 | 98 / 100 | verify-turnstile timeout added |
+| 4 | Edge Functions | 95 | 97 / 100 | AbortSignal.timeout(5000) on Cloudflare fetch |
+| 5 | Database | 98 | 98 / 100 | Strong — 24 indexes, composite audit indexes |
+| 6 | Load Strategy | 85 | 88 / 100 | Cloudflare preconnect added; service worker deferred |
+| 7 | Build & Config | 93 | 97 / 100 | noUnusedLocals/noUnusedParameters enabled; dead dep removed |
+| 8 | Accessibility | 91 | 94 / 100 | Turnstile aria-label added; all icon buttons confirmed labeled; aria-describedby deferred |
 
 ---
 

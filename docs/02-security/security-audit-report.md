@@ -3,7 +3,7 @@
 **Date:** 2026-04-13
 **Auditor:** Manual + AI-assisted analysis
 **Scope:** Full application — frontend, edge functions, database, auth, RBAC
-**Overall Score:** 97 / 100
+**Overall Score:** 98 / 100 (post-fix; baseline was 97)
 
 ---
 
