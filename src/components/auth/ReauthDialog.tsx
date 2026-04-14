@@ -103,9 +103,10 @@ export function ReauthDialog({
         return;
       }
 
-      // Get captcha token
+      // Reset turnstile to get a fresh token, then execute
       let captchaToken: string | undefined;
       try {
+        turnstileRef.current?.reset();
         captchaToken = await turnstileRef.current?.execute();
       } catch (captchaErr) {
         setError(captchaErr instanceof Error ? captchaErr.message : 'Captcha verification failed.');
