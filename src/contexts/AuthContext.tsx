@@ -20,7 +20,7 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  signUp: (email: string, password: string, displayName?: string, captchaToken?: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string, displayName?: string, captchaToken?: string, lastName?: string) => Promise<{ error: AuthError | null }>;
   signIn: (email: string, password: string, captchaToken?: string) => Promise<{ error: AuthError | null; mfaChallengeRequired?: boolean }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
@@ -131,12 +131,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string, displayName?: string, captchaToken?: string) => {
+  const signUp = useCallback(async (email: string, password: string, displayName?: string, captchaToken?: string, lastName?: string) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { display_name: displayName },
+        data: { display_name: displayName, last_name: lastName },
         emailRedirectTo: window.location.origin,
         captchaToken,
       },
