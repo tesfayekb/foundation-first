@@ -60,6 +60,7 @@ export function ReauthDialog({
   const [hasTotpFactor, setHasTotpFactor] = useState(false);
   const [totpFactorId, setTotpFactorId] = useState<string | null>(null);
   const [isTokenError, setIsTokenError] = useState(false);
+  const turnstileRef = useRef<TurnstileWidgetHandle>(null);
 
   useEffect(() => {
     if (!open) return;
