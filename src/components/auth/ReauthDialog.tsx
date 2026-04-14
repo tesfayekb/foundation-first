@@ -29,7 +29,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, ShieldCheck, Mail, Smartphone, RefreshCw } from 'lucide-react';
 import TurnstileWidget, { type TurnstileWidgetHandle } from '@/components/auth/TurnstileWidget';
-import { DEV_MODE } from '@/lib/dev-mode';
+import { DEV_MODE, TURNSTILE_ACTIVE } from '@/lib/dev-mode';
 
 type ReauthStep = 'idle' | 'sending' | 'awaiting_code' | 'verifying';
 type ReauthMethod = 'email' | 'totp';
@@ -116,22 +116,23 @@ export function ReauthDialog({
         return;
       }
 
-      // Reset turnstile to get a fresh token, then execute
       let captchaToken: string | undefined;
-      try {
-        turnstileRef.current?.reset();
-        captchaToken = await turnstileRef.current?.execute();
-      } catch (captchaErr) {
-        setError(captchaErr instanceof Error ? captchaErr.message : 'Captcha verification failed.');
-        setStep('idle');
-        return;
+      if (TURNSTILE_ACTIVE) {
+        try {
+          turnstileRef.current?.reset();
+          captchaToken = await turnstileRef.current?.execute();
+        } catch (captchaErr) {
+          setError(captchaErr instanceof Error ? captchaErr.message : 'Captcha verification failed.');
+          setStep('idle');
+          return;
+        }
       }
 
       const { error: sendError } = await supabase.auth.signInWithOtp({
         email,
         options: {
           shouldCreateUser: false,
-          captchaToken,
+          ...(captchaToken ? { captchaToken } : {}),
         },
       });
 
@@ -305,11 +306,13 @@ export function ReauthDialog({
               <p className="text-sm text-muted-foreground">
                 Click below to receive a one-time verification code at your registered email address.
               </p>
-              <TurnstileWidget
-                ref={turnstileRef}
-                onVerify={() => {}}
-                onError={() => setError('Captcha verification failed. Please try again.')}
-              />
+              {TURNSTILE_ACTIVE && (
+                <TurnstileWidget
+                  ref={turnstileRef}
+                  onVerify={() => {}}
+                  onError={() => setError('Captcha verification failed. Please try again.')}
+                />
+              )}
             </>
           )}
 

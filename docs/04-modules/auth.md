@@ -26,6 +26,7 @@ Authentication flows only. Authorization (permissions) is handled by the RBAC mo
 - Social login: Google and Apple
 - Email verification required before full access
 - CAPTCHA tokens must be omitted entirely when unavailable; placeholder or empty tokens must never be forwarded to Supabase Auth
+- Client-side Turnstile challenge is optional and must only render when a public `VITE_TURNSTILE_SITE_KEY` is configured for the current environment
 
 ## User Flows
 
