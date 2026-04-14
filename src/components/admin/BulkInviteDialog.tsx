@@ -50,12 +50,16 @@ export function BulkInviteDialog({ open, onOpenChange }: BulkInviteDialogProps) 
     e.preventDefault();
     if (emails.length === 0) return;
 
-    const res = await bulkInvite({
-      emails: emails.slice(0, 50),
-      role_id: roleId || undefined,
-    });
+    try {
+      const res = await bulkInvite({
+        emails: emails.slice(0, 50),
+        role_id: roleId || undefined,
+      });
 
-    setResult((res as { data: BulkResult }).data);
+      setResult((res as { data: BulkResult }).data);
+    } catch {
+      // Error handled by useInviteUser's onError (toast).
+    }
   }, [emails, roleId, bulkInvite]);
 
   const handleClose = useCallback(() => {
