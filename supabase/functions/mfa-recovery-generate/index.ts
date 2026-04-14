@@ -1,8 +1,8 @@
 /**
  * POST /mfa-recovery-generate — Generate MFA recovery codes.
  *
- * Generates 10 recovery codes, hashes them with bcrypt, stores hashes,
- * returns plaintext codes ONCE. Deletes any existing codes for the user.
+ * Generates 10 recovery codes, hashes them with SHA-256 + salt,
+ * stores hashes, returns plaintext codes ONCE. Deletes any existing codes.
  *
  * Requires: Bearer JWT + requireRecentAuth(30min)
  * Audit: auth.mfa_recovery_generated
@@ -14,7 +14,6 @@ import { authenticateRequest } from '../_shared/authenticate-request.ts'
 import { requireRecentAuth } from '../_shared/authorization.ts'
 import { supabaseAdmin } from '../_shared/supabase-admin.ts'
 import { logAuditEvent } from '../_shared/audit.ts'
-import { hash } from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts'
 
 function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // No I/O/0/1 for readability
@@ -25,6 +24,17 @@ function generateCode(): string {
     code += chars[bytes[i] % chars.length]
   }
   return code
+}
+
+/** SHA-256 hash with a random salt, stored as salt:hex */
+async function hashCode(code: string): Promise<string> {
+  const salt = crypto.randomUUID()
+  const data = new TextEncoder().encode(salt + code)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashHex = Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+  return `${salt}:${hashHex}`
 }
 
 Deno.serve(createHandler(async (req: Request): Promise<Response> => {
@@ -42,12 +52,12 @@ Deno.serve(createHandler(async (req: Request): Promise<Response> => {
   // Hash all codes
   const hashes = await Promise.all(
     codes.map(async (code) => {
-      const codeHash = await hash(code)
+      const codeHash = await hashCode(code)
       return { user_id: userId, code_hash: codeHash }
     })
   )
 
-  // Delete existing codes, then insert new ones (atomic-ish via service role)
+  // Delete existing codes, then insert new ones
   await supabaseAdmin
     .from('mfa_recovery_codes')
     .delete()
