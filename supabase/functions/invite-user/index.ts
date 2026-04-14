@@ -76,7 +76,11 @@ Deno.serve(createHandler(async (req: Request) => {
     .eq('key', 'onboarding_mode')
     .single()
 
-  const config = configRow?.value as { invite_enabled?: boolean } | null
+  const config = configRow?.value as {
+    invite_enabled?: boolean
+    followup_days?: number
+    max_followups?: number
+  } | null
   if (config && config.invite_enabled === false) {
     const { apiError } = await import('../_shared/api-error.ts')
     return apiError(400, 'Invitations are currently disabled', {
