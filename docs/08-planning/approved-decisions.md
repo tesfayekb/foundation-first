@@ -247,7 +247,18 @@ If any field is missing → the decision is **INVALID**.
 - **Date Approved:** 2026-04-09
 - **Decision:** V1 OAuth providers limited to Google and Apple only. No additional social providers (GitHub, Facebook, Discord, etc.) in v1. Email/Password is the primary method; Google and Apple are supplementary. Lovable Cloud supports these natively. Resolves OQ-001.
 - **Affected Modules / Systems:** auth, user-panel
-- **Status:** active
+- **Status:** superseded
+- **Superseded By:** DEC-025
+
+---
+
+### DEC-025: OAuth — Google Only, Apple Removed
+- **Plan Section:** PLAN-AUTH-001
+- **Decision Type:** architecture
+- **Date Approved:** 2026-04-14
+- **Decision:** Apple Sign-In removed from v1 scope. OAuth limited to Google only. Apple button removed from SignIn and SignUp pages. DW-002 cancelled. Supersedes DEC-020.
+- **Affected Modules / Systems:** auth, user-panel
+- **Status:** implemented
 - **Superseded By:** —
 
 ---
