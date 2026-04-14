@@ -952,9 +952,9 @@ At each phase boundary (before advancing to the next phase):
 | **Related Decisions** | Q1–Q5 resolved 2026-04-13 (see stage-invitations.md Architecture Decisions table) |
 | **Related Actions** | — |
 | **Required Tests for Closure** | Non-invited email cannot create account when signup disabled; invited email can create account via `inviteUserByEmail`; expired invite rejected; invite revocation works; first-signup bootstrap compatibility; pre-signup hook rejects when `signup_enabled=false`; permission dep drift test for new permissions |
-| **Status** | `approved` |
-| **Implemented by Action** | — |
-| **Implemented in Plan Version** | — |
+| **Status** | `implemented` |
+| **Implemented by Action** | PLAN-INVITE-001 Phase 6 closure |
+| **Implemented in Plan Version** | v11.0 |
 
 ---
 
