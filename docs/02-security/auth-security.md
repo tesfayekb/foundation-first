@@ -28,7 +28,7 @@ All authentication flows:
 |--------|----------|--------|
 | Email + Password | Required | Implemented (Phase 1) |
 | Google OAuth | Required | Deferred (awaiting credentials — PLAN-AUTH-001-B) |
-| Apple Sign-In | Required | Deferred (awaiting credentials — PLAN-AUTH-001-C) |
+| Apple Sign-In | Removed | Cancelled (DEC-025) |
 | MFA (TOTP) | Required | Implemented (Phase 1) |
 
 ## Password Policy
