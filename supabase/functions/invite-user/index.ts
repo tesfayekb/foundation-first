@@ -34,6 +34,7 @@ const BodySchema = z.object({
   email: z.string().trim().email().max(320),
   role_id: z.string().trim().regex(uuidRegex, 'Invalid UUID').optional(),
   display_name: z.string().trim().min(1).max(255).optional(),
+  last_name: z.string().trim().min(1).max(255).optional(),
 })
 
 /**
@@ -66,7 +67,7 @@ Deno.serve(createHandler(async (req: Request) => {
 
   const body = await req.json()
   const input = validateRequest(BodySchema, body)
-  const { email, role_id, display_name } = normalizeRequest(input)
+  const { email, role_id, display_name, last_name } = normalizeRequest(input)
 
   // Check invite_enabled
   const { data: configRow } = await supabaseAdmin
@@ -169,6 +170,7 @@ Deno.serve(createHandler(async (req: Request) => {
   // Send invite email via Supabase Auth
   const inviteMetadata: Record<string, string> = { invitation_id: invitationId }
   if (display_name) inviteMetadata.display_name = display_name
+  if (last_name) inviteMetadata.last_name = last_name
 
   const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
     data: inviteMetadata,
