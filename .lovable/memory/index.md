@@ -20,7 +20,7 @@ No new shared functions/permissions/routes/events without adding to reference in
 ⚠️ RECONCILIATION: Reference index entries MUST match actual code (routes, functions, events). Mismatches are INVALID.
 Approved plan sections cannot be dropped without explicit supersession (Constitution Rule 8).
 Execution only from approved baseline v4 (Rule 9). Plan revisions are merges, not rewrites (Rule 10).
-Audit retention: 90 days default (DEC-007). OAuth: Google + Apple only v1 (DEC-020).
+Audit retention: 90 days default (DEC-007). OAuth: Google only (DEC-025, supersedes DEC-020). Apple removed from scope.
 ⛔ External Supabase backend — do NOT suggest Lovable Cloud. SQL files in sql/ dir, edge functions in supabase/functions/.
 📋 DEFERRED WORK: All deferred plan items MUST have entry in docs/08-planning/deferred-work-register.md. Review at every phase boundary.
 📦 ARTIFACT GOVERNANCE: New migrations → update artifact-index.md + database-migration-ledger.md. Phase closures → one file in docs/08-planning/phase-closures/. Old review drafts deleted.
