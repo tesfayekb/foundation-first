@@ -129,10 +129,24 @@ Deno.serve(createHandler(async (req: Request): Promise<Response> => {
   })
 }, { rateLimit: 'strict' }))
 
-/** Escape a value for CSV — wrap in quotes if it contains comma, quote, or newline */
+/**
+ * Escape a value for CSV and neutralize spreadsheet formula prefixes.
+ * Prefixing with a single quote prevents formula execution in spreadsheet apps.
+ */
 function escapeCsv(value: string): string {
-  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-    return `"${value.replace(/"/g, '""')}"`
+  const startsWithFormulaToken =
+    value.startsWith('=') ||
+    value.startsWith('+') ||
+    value.startsWith('-') ||
+    value.startsWith('@')
+  const safeValue = startsWithFormulaToken ? `'${value}` : value
+
+  if (
+    safeValue.includes(',') ||
+    safeValue.includes('"') ||
+    safeValue.includes('\n')
+  ) {
+    return `"${safeValue.replace(/"/g, '""')}"`
   }
-  return value
+  return safeValue
 }
