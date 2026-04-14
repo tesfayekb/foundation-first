@@ -68,10 +68,17 @@ Deno.serve(createHandler(async (req: Request) => {
   const input = validateRequest(BodySchema, body)
   const role_id = input.role_id
 
-  // Deduplicate and normalize emails
-  const emails = [...new Set(input.emails.map((e: string) => e.trim().toLowerCase()))]
-
-  // Check invite_enabled
+  // Deduplicate by email, keep first occurrence
+  const seen = new Set<string>()
+  const entries = input.entries.filter((entry: { email: string }) => {
+    const e = entry.email.trim().toLowerCase()
+    if (seen.has(e)) return false
+    seen.add(e)
+    return true
+  }).map((entry: { email: string; display_name?: string; last_name?: string }) => ({
+    ...entry,
+    email: entry.email.trim().toLowerCase(),
+  }))
   const { data: configRow } = await supabaseAdmin
     .from('system_config')
     .select('value')
