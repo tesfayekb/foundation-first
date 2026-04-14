@@ -1,9 +1,10 @@
 /**
  * BulkInviteDialog — Textarea bulk invite modal (up to 50 emails).
+ * Format: email, first name, last name (one per line)
  *
  * Owner: user-onboarding module
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,28 @@ interface BulkResult {
   skipped_existing: string[];
 }
 
+interface ParsedEntry {
+  email: string;
+  display_name?: string;
+  last_name?: string;
+}
+
+function parseEntries(text: string): ParsedEntry[] {
+  return text
+    .split('\n')
+    .map(line => {
+      const parts = line.split(',').map(p => p.trim());
+      const email = parts[0]?.toLowerCase() || '';
+      if (!email || !email.includes('@')) return null;
+      return {
+        email,
+        display_name: parts[1] || undefined,
+        last_name: parts[2] || undefined,
+      };
+    })
+    .filter(Boolean) as ParsedEntry[];
+}
+
 export function BulkInviteDialog({ open, onOpenChange }: BulkInviteDialogProps) {
   const [emailsText, setEmailsText] = useState('');
   const [roleId, setRoleId] = useState<string>('');
@@ -41,28 +64,24 @@ export function BulkInviteDialog({ open, onOpenChange }: BulkInviteDialogProps) 
 
   const roles = (rolesData as RoleListItem[] | undefined)?.filter(r => r.key !== 'superadmin' && r.key !== 'user') ?? [];
 
-  const emails = emailsText
-    .split(/[\n,;]+/)
-    .map(e => e.trim().toLowerCase())
-    .filter(e => e && e.includes('@'));
+  const entries = useMemo(() => parseEntries(emailsText), [emailsText]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (emails.length === 0) return;
+    if (entries.length === 0) return;
 
     try {
       const res = await bulkInvite({
-        emails: emails.slice(0, 50),
+        entries: entries.slice(0, 50),
         role_id: roleId || undefined,
       });
 
-      // The API returns the result directly (apiClient unwraps the response)
       const data = res as unknown as BulkResult;
       setResult(data);
     } catch {
       // Error handled by useInviteUser's onError (toast).
     }
-  }, [emails, roleId, bulkInvite]);
+  }, [entries, roleId, bulkInvite]);
 
   const handleClose = useCallback(() => {
     setEmailsText('');
@@ -77,7 +96,7 @@ export function BulkInviteDialog({ open, onOpenChange }: BulkInviteDialogProps) 
         <DialogHeader>
           <DialogTitle>Bulk Invite</DialogTitle>
           <DialogDescription>
-            Enter up to 50 email addresses, one per line. Each will receive an invitation email.
+            Enter one entry per line: email, first name, last name. Only email is required.
           </DialogDescription>
         </DialogHeader>
 
@@ -134,7 +153,7 @@ export function BulkInviteDialog({ open, onOpenChange }: BulkInviteDialogProps) 
                   </div>
                   <Textarea
                     id="bulk-emails"
-                    placeholder={"user1@example.com\nuser2@example.com\nuser3@example.com"}
+                    placeholder={"john@example.com, John, Doe\njane@example.com, Jane, Smith\nuser@example.com"}
                     value={emailsText}
                     onChange={(e) => setEmailsText(e.target.value)}
                     rows={8}
@@ -143,8 +162,8 @@ export function BulkInviteDialog({ open, onOpenChange }: BulkInviteDialogProps) 
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                {emails.length} valid email{emails.length !== 1 ? 's' : ''} detected
-                {emails.length > 50 && ' — only first 50 will be sent'}
+                {entries.length} valid entr{entries.length !== 1 ? 'ies' : 'y'} detected
+                {entries.length > 50 && ' — only first 50 will be sent'}
               </p>
             </div>
             <div className="space-y-2">
@@ -169,8 +188,8 @@ export function BulkInviteDialog({ open, onOpenChange }: BulkInviteDialogProps) 
               <Button type="button" variant="outline" onClick={handleClose} disabled={isBulkInviting}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isBulkInviting || emails.length === 0}>
-                {isBulkInviting ? 'Sending…' : `Send ${Math.min(emails.length, 50)} Invitation${emails.length !== 1 ? 's' : ''}`}
+              <Button type="submit" disabled={isBulkInviting || entries.length === 0}>
+                {isBulkInviting ? 'Sending…' : `Send ${Math.min(entries.length, 50)} Invitation${entries.length !== 1 ? 's' : ''}`}
               </Button>
             </DialogFooter>
           </form>

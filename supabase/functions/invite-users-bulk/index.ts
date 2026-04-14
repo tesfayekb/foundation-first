@@ -23,8 +23,14 @@ import { validateRequest } from '../_shared/validate-request.ts'
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+const EntrySchema = z.object({
+  email: z.string().trim().email().max(320),
+  display_name: z.string().trim().max(255).optional(),
+  last_name: z.string().trim().max(255).optional(),
+})
+
 const BodySchema = z.object({
-  emails: z.array(z.string().trim().email().max(320)).min(1).max(50),
+  entries: z.array(EntrySchema).min(1).max(50),
   role_id: z.string().trim().regex(uuidRegex, 'Invalid UUID').optional(),
 })
 
@@ -62,10 +68,17 @@ Deno.serve(createHandler(async (req: Request) => {
   const input = validateRequest(BodySchema, body)
   const role_id = input.role_id
 
-  // Deduplicate and normalize emails
-  const emails = [...new Set(input.emails.map((e: string) => e.trim().toLowerCase()))]
-
-  // Check invite_enabled
+  // Deduplicate by email, keep first occurrence
+  const seen = new Set<string>()
+  const entries = input.entries.filter((entry: { email: string }) => {
+    const e = entry.email.trim().toLowerCase()
+    if (seen.has(e)) return false
+    seen.add(e)
+    return true
+  }).map((entry: { email: string; display_name?: string; last_name?: string }) => ({
+    ...entry,
+    email: entry.email.trim().toLowerCase(),
+  }))
   const { data: configRow } = await supabaseAdmin
     .from('system_config')
     .select('value')
@@ -104,29 +117,17 @@ Deno.serve(createHandler(async (req: Request) => {
   const result: BulkResult = { succeeded: [], failed: [], skipped_existing: [] }
 
   // Process sequentially to respect Supabase rate limits
-  for (const email of emails) {
+  for (const entry of entries) {
+    const email = entry.email
     try {
-      // Check existing auth user
-      const { data: listData } = await supabaseAdmin.auth.admin.listUsers({
-        page: 1,
-        perPage: 1,
-      })
-      const existingUser = listData?.users?.find(
-        (u: { email?: string }) => u.email?.toLowerCase() === email
-      )
+      // Check existing user in profiles
+      const { data: profileData } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .maybeSingle()
 
-      // Fallback: also check by direct filter if list didn't match
-      let userExists = !!existingUser
-      if (!userExists) {
-        const { data: profileData } = await supabaseAdmin
-          .from('profiles')
-          .select('id')
-          .eq('email', email)
-          .maybeSingle()
-        userExists = !!profileData
-      }
-
-      if (userExists) {
+      if (profileData) {
         result.skipped_existing.push(email)
         continue
       }
@@ -145,7 +146,6 @@ Deno.serve(createHandler(async (req: Request) => {
           result.failed.push({ email, reason: 'pending_invitation_exists' })
           continue
         }
-        // Mark expired
         await supabaseAdmin
           .from('invitations')
           .update({ status: 'expired' })
@@ -172,13 +172,17 @@ Deno.serve(createHandler(async (req: Request) => {
         continue
       }
 
+      // Build metadata for the invite email
+      const inviteMetadata: Record<string, string> = { invitation_id: invitationId }
+      if (entry.display_name) inviteMetadata.display_name = entry.display_name
+      if (entry.last_name) inviteMetadata.last_name = entry.last_name
+
       // Send invite email
       const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-        data: { invitation_id: invitationId },
+        data: inviteMetadata,
       })
 
       if (inviteError) {
-        // Rollback
         await supabaseAdmin.from('invitations').delete().eq('id', invitationId)
         result.failed.push({ email, reason: 'email_send_failed' })
         continue
@@ -196,7 +200,7 @@ Deno.serve(createHandler(async (req: Request) => {
     action: 'user.bulk_invited',
     targetType: 'invitations',
     metadata: {
-      total_requested: emails.length,
+      total_requested: entries.length,
       succeeded_count: result.succeeded.length,
       failed_count: result.failed.length,
       skipped_existing_count: result.skipped_existing.length,
