@@ -354,7 +354,7 @@ At each phase boundary (before advancing to the next phase):
 | DW-037 | Remove .env from Git Tracking | Post-Phase 6 | Immediate | `implemented` |
 | DW-038 | Bulk Invite CSV Upload | PLAN-INVITE-001 | `unassigned` (v2) | `deferred (v2)` |
 | DW-039 | Invitation Expiry Cleanup Cron | PLAN-INVITE-001 | `unassigned` (v2) | `deferred (v2)` |
-
+| DW-040 | Automated Invitation Follow-up Cron | PLAN-INVITE-001 | `unassigned` (v2) | `deferred (v2)` |
 
 ### DW-011: Distributed Rate Limiting
 
