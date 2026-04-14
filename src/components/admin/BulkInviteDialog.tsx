@@ -1,9 +1,10 @@
 /**
  * BulkInviteDialog — Textarea bulk invite modal (up to 50 emails).
+ * Format: email, first name, last name (one per line)
  *
  * Owner: user-onboarding module
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,28 @@ interface BulkResult {
   succeeded: string[];
   failed: { email: string; reason: string }[];
   skipped_existing: string[];
+}
+
+interface ParsedEntry {
+  email: string;
+  display_name?: string;
+  last_name?: string;
+}
+
+function parseEntries(text: string): ParsedEntry[] {
+  return text
+    .split('\n')
+    .map(line => {
+      const parts = line.split(',').map(p => p.trim());
+      const email = parts[0]?.toLowerCase() || '';
+      if (!email || !email.includes('@')) return null;
+      return {
+        email,
+        display_name: parts[1] || undefined,
+        last_name: parts[2] || undefined,
+      };
+    })
+    .filter((e): e is ParsedEntry => e !== null);
 }
 
 export function BulkInviteDialog({ open, onOpenChange }: BulkInviteDialogProps) {
