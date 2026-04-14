@@ -117,29 +117,17 @@ Deno.serve(createHandler(async (req: Request) => {
   const result: BulkResult = { succeeded: [], failed: [], skipped_existing: [] }
 
   // Process sequentially to respect Supabase rate limits
-  for (const email of emails) {
+  for (const entry of entries) {
+    const email = entry.email
     try {
-      // Check existing auth user
-      const { data: listData } = await supabaseAdmin.auth.admin.listUsers({
-        page: 1,
-        perPage: 1,
-      })
-      const existingUser = listData?.users?.find(
-        (u: { email?: string }) => u.email?.toLowerCase() === email
-      )
+      // Check existing user in profiles
+      const { data: profileData } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .maybeSingle()
 
-      // Fallback: also check by direct filter if list didn't match
-      let userExists = !!existingUser
-      if (!userExists) {
-        const { data: profileData } = await supabaseAdmin
-          .from('profiles')
-          .select('id')
-          .eq('email', email)
-          .maybeSingle()
-        userExists = !!profileData
-      }
-
-      if (userExists) {
+      if (profileData) {
         result.skipped_existing.push(email)
         continue
       }
@@ -158,7 +146,6 @@ Deno.serve(createHandler(async (req: Request) => {
           result.failed.push({ email, reason: 'pending_invitation_exists' })
           continue
         }
-        // Mark expired
         await supabaseAdmin
           .from('invitations')
           .update({ status: 'expired' })
@@ -185,13 +172,17 @@ Deno.serve(createHandler(async (req: Request) => {
         continue
       }
 
+      // Build metadata for the invite email
+      const inviteMetadata: Record<string, string> = { invitation_id: invitationId }
+      if (entry.display_name) inviteMetadata.display_name = entry.display_name
+      if (entry.last_name) inviteMetadata.last_name = entry.last_name
+
       // Send invite email
       const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-        data: { invitation_id: invitationId },
+        data: inviteMetadata,
       })
 
       if (inviteError) {
-        // Rollback
         await supabaseAdmin.from('invitations').delete().eq('id', invitationId)
         result.failed.push({ email, reason: 'email_send_failed' })
         continue
