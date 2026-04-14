@@ -52,7 +52,7 @@ function parseEntries(text: string): ParsedEntry[] {
         last_name: parts[2] || undefined,
       };
     })
-    .filter((e): e is ParsedEntry => e !== null);
+    .filter(Boolean) as ParsedEntry[];
 }
 
 export function BulkInviteDialog({ open, onOpenChange }: BulkInviteDialogProps) {
@@ -153,7 +153,7 @@ export function BulkInviteDialog({ open, onOpenChange }: BulkInviteDialogProps) 
                   </div>
                   <Textarea
                     id="bulk-emails"
-                    placeholder={"user1@example.com\nuser2@example.com\nuser3@example.com"}
+                    placeholder={"john@example.com, John, Doe\njane@example.com, Jane, Smith\nuser@example.com"}
                     value={emailsText}
                     onChange={(e) => setEmailsText(e.target.value)}
                     rows={8}
@@ -162,8 +162,8 @@ export function BulkInviteDialog({ open, onOpenChange }: BulkInviteDialogProps) 
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                {emails.length} valid email{emails.length !== 1 ? 's' : ''} detected
-                {emails.length > 50 && ' — only first 50 will be sent'}
+                {entries.length} valid entr{entries.length !== 1 ? 'ies' : 'y'} detected
+                {entries.length > 50 && ' — only first 50 will be sent'}
               </p>
             </div>
             <div className="space-y-2">
@@ -188,8 +188,8 @@ export function BulkInviteDialog({ open, onOpenChange }: BulkInviteDialogProps) 
               <Button type="button" variant="outline" onClick={handleClose} disabled={isBulkInviting}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isBulkInviting || emails.length === 0}>
-                {isBulkInviting ? 'Sending…' : `Send ${Math.min(emails.length, 50)} Invitation${emails.length !== 1 ? 's' : ''}`}
+              <Button type="submit" disabled={isBulkInviting || entries.length === 0}>
+                {isBulkInviting ? 'Sending…' : `Send ${Math.min(entries.length, 50)} Invitation${entries.length !== 1 ? 's' : ''}`}
               </Button>
             </DialogFooter>
           </form>
