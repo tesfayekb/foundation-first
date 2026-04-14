@@ -296,7 +296,6 @@ export function ReauthDialog({
                 ref={turnstileRef}
                 onVerify={() => {}}
                 onError={() => setError('Captcha verification failed. Please try again.')}
-                onExpire={() => turnstileRef.current?.reset()}
               />
             </>
           )}
