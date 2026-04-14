@@ -14,6 +14,7 @@
  */
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { invalidateTokenCache } from '@/lib/api-client';
 import {
   Dialog,
   DialogContent,
