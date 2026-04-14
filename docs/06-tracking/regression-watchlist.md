@@ -222,13 +222,13 @@ Each watchlist item must include:
 | Field | Value |
 |-------|-------|
 | **Area** | Auth / CAPTCHA |
-| **Risk Description** | Password auth forwards an empty or placeholder CAPTCHA payload to Supabase Auth, causing `captcha verification process failed` even when CAPTCHA is disabled or bypassed in development |
+| **Risk Description** | Auth flows treat CAPTCHA as mandatory when Turnstile is disabled or unconfigured, or forward empty/placeholder CAPTCHA payloads to Supabase Auth, causing `captcha verification process failed` and blocking sign-in, sign-up, or reauth in preview/development |
 | **Regression Class** | Functional / Security |
 | **Priority** | High |
 | **Affected Modules** | auth, user-panel, admin-panel |
-| **Trigger Conditions** | Any change to sign-in/sign-up auth payload shaping, Turnstile integration, dev-mode bypass logic, or CAPTCHA configuration handling |
-| **Detection** | Password sign-in runtime verification, network payload inspection, auth error monitoring |
-| **Required Checks** | 1) Password sign-in request omits `gotrue_meta_security` when no real CAPTCHA token exists. 2) Real CAPTCHA tokens are still forwarded when present. 3) Password sign-in succeeds with CAPTCHA disabled in Supabase. |
+| **Trigger Conditions** | Any change to sign-in/sign-up/reauth auth payload shaping, Turnstile integration, dev-mode bypass logic, or CAPTCHA configuration handling |
+| **Detection** | Password sign-in runtime verification, reauth runtime verification, network payload inspection, auth error monitoring |
+| **Required Checks** | 1) Password and OTP auth requests omit CAPTCHA fields when no real token exists. 2) UI does not render or block on Turnstile when no public site key is configured. 3) Real CAPTCHA tokens are still forwarded when present. 4) Auth succeeds with CAPTCHA disabled in Supabase. |
 | **Verification Type** | Runtime + manual |
 | **Related Tests** | `e2e/sign-in-flow.spec.ts` |
 | **Related Risk** | — |

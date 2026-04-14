@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { safeRedirectPath } from '@/lib/safe-redirect';
 import TurnstileWidget, { type TurnstileWidgetHandle } from '@/components/auth/TurnstileWidget';
-import { DEV_MODE, DEV_PASSWORD_MIN_LENGTH } from '@/lib/dev-mode';
+import { DEV_MODE, DEV_PASSWORD_MIN_LENGTH, TURNSTILE_ACTIVE } from '@/lib/dev-mode';
 
 
 export default function SignIn() {
@@ -41,6 +41,10 @@ export default function SignIn() {
   }, [user, mfaStatus, from, navigate]);
 
   const getTurnstileToken = useCallback(async (): Promise<string | null> => {
+    if (!TURNSTILE_ACTIVE) {
+      return null;
+    }
+
     if (turnstileToken) {
       return turnstileToken;
     }
@@ -62,12 +66,12 @@ export default function SignIn() {
     setLoading(true);
 
     const token = await getTurnstileToken();
-    if (!token) {
+    if (TURNSTILE_ACTIVE && !token) {
       setLoading(false);
       return;
     }
 
-    const { error } = await signIn(email, password, token);
+    const { error } = await signIn(email, password, token ?? undefined);
 
     if (error) {
       toast({
@@ -141,12 +145,14 @@ export default function SignIn() {
               />
             </div>
 
-            <TurnstileWidget
-              ref={turnstileRef}
-              onVerify={setTurnstileToken}
-              onExpire={handleExpire}
-              onError={handleError}
-            />
+            {TURNSTILE_ACTIVE && (
+              <TurnstileWidget
+                ref={turnstileRef}
+                onVerify={setTurnstileToken}
+                onExpire={handleExpire}
+                onError={handleError}
+              />
+            )}
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign in'}

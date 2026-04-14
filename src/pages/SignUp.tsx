@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import TurnstileWidget, { type TurnstileWidgetHandle } from '@/components/auth/TurnstileWidget';
-import { DEV_MODE, DEV_PASSWORD_MIN_LENGTH } from '@/lib/dev-mode';
+import { DEV_MODE, DEV_PASSWORD_MIN_LENGTH, TURNSTILE_ACTIVE } from '@/lib/dev-mode';
 import { InviteOnlyMessage } from '@/components/auth/InviteOnlyMessage';
 import { useOnboardingMode } from '@/hooks/useOnboardingMode';
 import { LoadingSkeleton } from '@/components/dashboard/LoadingSkeleton';
@@ -29,6 +29,10 @@ export default function SignUp() {
   const { data: onboardingMode, isLoading: modeLoading } = useOnboardingMode();
 
   const getTurnstileToken = useCallback(async (): Promise<string | null> => {
+    if (!TURNSTILE_ACTIVE) {
+      return null;
+    }
+
     if (turnstileToken) return turnstileToken;
     try {
       return await turnstileRef.current?.execute() ?? null;
@@ -46,8 +50,11 @@ export default function SignUp() {
     e.preventDefault();
     setLoading(true);
     const token = await getTurnstileToken();
-    if (!token) { setLoading(false); return; }
-    const { error } = await signUp(email, password, displayName, token, lastName);
+    if (TURNSTILE_ACTIVE && !token) {
+      setLoading(false);
+      return;
+    }
+    const { error } = await signUp(email, password, displayName, token ?? undefined, lastName);
     if (error) {
       toast({ variant: 'destructive', title: 'Sign up failed', description: error.message });
       turnstileRef.current?.reset();
@@ -166,12 +173,14 @@ export default function SignUp() {
               />
             </div>
 
-            <TurnstileWidget
-              ref={turnstileRef}
-              onVerify={setTurnstileToken}
-              onExpire={handleExpire}
-              onError={handleError}
-            />
+            {TURNSTILE_ACTIVE && (
+              <TurnstileWidget
+                ref={turnstileRef}
+                onVerify={setTurnstileToken}
+                onExpire={handleExpire}
+                onError={handleError}
+              />
+            )}
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Creating account…' : 'Create account'}
