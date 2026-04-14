@@ -14,6 +14,7 @@
  */
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { invalidateTokenCache } from '@/lib/api-client';
 import {
   Dialog,
   DialogContent,
@@ -133,6 +134,7 @@ export function ReauthDialog({
         return;
       }
 
+      invalidateTokenCache();
       resetState();
       onOpenChange(false);
       onVerified();
@@ -168,6 +170,7 @@ export function ReauthDialog({
         return;
       }
 
+      invalidateTokenCache();
       resetState();
       onOpenChange(false);
       onVerified();
