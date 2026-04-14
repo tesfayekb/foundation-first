@@ -30,7 +30,7 @@ Deno.serve(createHandler(async (req: Request): Promise<Response> => {
   // Use Supabase admin SDK to sign out sessions
   const { error } = await supabaseAdmin.auth.admin.signOut(
     ctx.user.id,
-    body.scope,
+    body.scope === 'global' ? 'global' : 'others',
   )
 
   if (error) {
