@@ -159,13 +159,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ? captchaToken
       : undefined;
 
-    const { data, error } = normalizedCaptchaToken
-      ? await supabase.auth.signInWithPassword({
-          email,
-          password,
-          options: { captchaToken: normalizedCaptchaToken },
-        })
-      : await signInWithPasswordWithoutCaptcha(email, password);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+      ...(normalizedCaptchaToken ? { options: { captchaToken: normalizedCaptchaToken } } : {}),
+    });
 
     if (error) {
       const reason = error.message?.toLowerCase().includes('invalid')
