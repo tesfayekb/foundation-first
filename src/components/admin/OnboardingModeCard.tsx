@@ -12,13 +12,13 @@ import { Button } from '@/components/ui/button';
 import { useSystemConfig, type OnboardingConfig } from '@/hooks/useSystemConfig';
 import { LoadingSkeleton } from '@/components/dashboard/LoadingSkeleton';
 import { ErrorState } from '@/components/dashboard/ErrorState';
-import { ConfirmActionDialog } from '@/components/dashboard/ConfirmActionDialog';
+import { ReauthDialog } from '@/components/auth/ReauthDialog';
 import { Settings } from 'lucide-react';
 
 export function OnboardingModeCard() {
   const { config, isLoading, error, updateConfig, isUpdating } = useSystemConfig();
   const [draft, setDraft] = useState<OnboardingConfig | null>(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [reauthOpen, setReauthOpen] = useState(false);
 
   const current = draft ?? config;
   const isDirty = draft !== null && config && (
@@ -40,7 +40,7 @@ export function OnboardingModeCard() {
     if (!draft) return;
     await updateConfig(draft);
     setDraft(null);
-    setConfirmOpen(false);
+    setReauthOpen(false);
   }, [draft, updateConfig]);
 
   const handleCancel = useCallback(() => {
@@ -102,7 +102,7 @@ export function OnboardingModeCard() {
               <Button variant="outline" size="sm" onClick={handleCancel} disabled={isUpdating}>
                 Cancel
               </Button>
-              <Button size="sm" onClick={() => setConfirmOpen(true)} disabled={isUpdating}>
+              <Button size="sm" onClick={() => setReauthOpen(true)} disabled={isUpdating}>
                 Save Changes
               </Button>
             </div>
@@ -110,14 +110,12 @@ export function OnboardingModeCard() {
         </CardContent>
       </Card>
 
-      <ConfirmActionDialog
-        open={confirmOpen}
-        onOpenChange={setConfirmOpen}
-        title="Update Onboarding Mode"
-        description="This will change how users can access the platform. Are you sure?"
-        confirmLabel="Confirm"
-        onConfirm={handleSave}
-        loading={isUpdating}
+      <ReauthDialog
+        open={reauthOpen}
+        onOpenChange={setReauthOpen}
+        title="Re-authenticate to Update Config"
+        description="Changing onboarding settings is a sensitive action. Please verify your identity."
+        onVerified={handleSave}
       />
     </>
   );
