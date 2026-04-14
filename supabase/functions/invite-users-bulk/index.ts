@@ -23,8 +23,14 @@ import { validateRequest } from '../_shared/validate-request.ts'
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+const EntrySchema = z.object({
+  email: z.string().trim().email().max(320),
+  display_name: z.string().trim().max(255).optional(),
+  last_name: z.string().trim().max(255).optional(),
+})
+
 const BodySchema = z.object({
-  emails: z.array(z.string().trim().email().max(320)).min(1).max(50),
+  entries: z.array(EntrySchema).min(1).max(50),
   role_id: z.string().trim().regex(uuidRegex, 'Invalid UUID').optional(),
 })
 
