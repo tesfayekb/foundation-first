@@ -150,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string, captchaToken?: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken } });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken: captchaToken === 'dev-mode-bypass-token' ? undefined : captchaToken } });
 
     if (error) {
       const reason = error.message?.toLowerCase().includes('invalid')
