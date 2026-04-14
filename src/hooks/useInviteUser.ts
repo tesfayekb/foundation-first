@@ -12,6 +12,7 @@ interface InviteUserInput {
   email: string;
   role_id?: string;
   display_name?: string;
+  last_name?: string;
 }
 
 interface BulkInviteInput {

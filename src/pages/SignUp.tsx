@@ -17,6 +17,7 @@ export default function SignUp() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -45,7 +46,7 @@ export default function SignUp() {
     setLoading(true);
     const token = await getTurnstileToken();
     if (!token) { setLoading(false); return; }
-    const { error } = await signUp(email, password, displayName, token);
+    const { error } = await signUp(email, password, displayName, token, lastName);
     if (error) {
       toast({ variant: 'destructive', title: 'Sign up failed', description: error.message });
       turnstileRef.current?.reset();
@@ -55,7 +56,7 @@ export default function SignUp() {
       setSubmitted(true);
       setLoading(false);
     }
-  }, [email, password, displayName, getTurnstileToken, signUp, toast]);
+  }, [email, password, displayName, lastName, getTurnstileToken, signUp, toast]);
 
   const handleOAuthSignIn = useCallback(async (provider: 'google' | 'apple') => {
     setOauthLoading(provider);
@@ -114,16 +115,29 @@ export default function SignUp() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="displayName">Display name</Label>
-              <Input
-                id="displayName"
-                type="text"
-                placeholder="Your name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                autoComplete="name"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="displayName">First name</Label>
+                <Input
+                  id="displayName"
+                  type="text"
+                  placeholder="First name"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  autoComplete="given-name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last name</Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  placeholder="Last name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  autoComplete="family-name"
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
