@@ -132,13 +132,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, displayName?: string, captchaToken?: string, lastName?: string) => {
+    const normalizedCaptchaToken = captchaToken && captchaToken !== 'dev-mode-bypass-token'
+      ? captchaToken
+      : undefined;
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { display_name: displayName, last_name: lastName },
         emailRedirectTo: window.location.origin,
-        captchaToken: captchaToken === 'dev-mode-bypass-token' ? undefined : captchaToken,
+        ...(normalizedCaptchaToken ? { captchaToken: normalizedCaptchaToken } : {}),
       },
     });
 
@@ -150,7 +154,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string, captchaToken?: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken: captchaToken === 'dev-mode-bypass-token' ? undefined : captchaToken } });
+    const normalizedCaptchaToken = captchaToken && captchaToken !== 'dev-mode-bypass-token'
+      ? captchaToken
+      : undefined;
+
+    const { data, error } = await supabase.auth.signInWithPassword(
+      normalizedCaptchaToken
+        ? { email, password, options: { captchaToken: normalizedCaptchaToken } }
+        : { email, password }
+    );
 
     if (error) {
       const reason = error.message?.toLowerCase().includes('invalid')
