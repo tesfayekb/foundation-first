@@ -51,45 +51,67 @@ npm install   # or: bun install
 
 ### ⚠️ Critical: Ordering
 
-The `sql/` files contain the **original baseline schema**. The `supabase/migrations/` folder contains **all incremental changes** applied on top of that baseline. You need **both**, in order.
+The database is initialized in three layers:
+1. **Baseline SQL files** (`sql/00–04`) — core schema, functions, RLS, seed data
+2. **Incremental migrations** (`supabase/migrations/`) — 42 files applied in timestamp order
+3. **Cron schedules** (`sql/05–07`) — job schedules that contain project-specific secrets
 
-### Option A — Manual (SQL Editor)
+### Step 3a — Schema & Seed (files 00–04, no secrets needed)
 
-Run these files **in order** via **Supabase Dashboard → SQL Editor**:
+Run these **in order** via **Supabase Dashboard → SQL Editor**:
 
-1. `sql/01_rbac_schema.sql` — Core tables (roles, permissions, user_roles, role_permissions, audit_logs)
-2. `sql/02_rbac_security_helpers.sql` — Security-definer helper functions
-3. `sql/03_rbac_rls_policies.sql` — Row-level security policies
-4. `sql/04_rbac_seed.sql` — Seed data (base roles, permissions)
-5. `sql/05_secure_cron_schedule.sql` — Cron job schedules
+| # | File | What it creates |
+|---|------|----------------|
+| 1 | `sql/00_auth_foundation.sql` | `app_role` enum, `profiles` table, legacy `user_roles` table, `handle_new_user` trigger, `update_updated_at` trigger |
+| 2 | `sql/00b_drop_old_user_roles.sql` | Drops the Phase 1 legacy `user_roles` table (bridge to Phase 2) |
+| 3 | `sql/01_rbac_schema.sql` | `roles`, `permissions`, `user_roles` (redesigned with role_id FK), `role_permissions`, `audit_logs`, immutability triggers |
+| 4 | `sql/02_rbac_security_helpers.sql` | `is_superadmin()`, `has_role()`, `has_permission()`, `get_my_authorization_context()` |
+| 5 | `sql/03_rbac_rls_policies.sql` | RLS policies for roles, permissions, user_roles, role_permissions, audit_logs |
+| 6 | `sql/04_rbac_seed.sql` | 3 base roles, 31 permissions, role-permission mappings, `handle_new_user_role` auto-assign trigger |
 
-Then run **all 42 migration files** from `supabase/migrations/` in timestamp order (filename sort = correct order). Each file is a standalone SQL statement.
+### Step 3b — Migrations (42 files)
 
-### Option B — Supabase CLI (recommended)
+Run **all 42 migration files** from `supabase/migrations/` in filename order (timestamp sort = correct order). Each file is a standalone SQL statement.
 
+**Alternative — Supabase CLI:**
 ```bash
-# Link to your new project
 supabase link --project-ref YOUR_PROJECT_REF
-
-# Push all migrations (handles ordering automatically)
 supabase db push
 ```
 
-> **Note:** If using CLI, the `sql/` baseline files may need to be converted to an initial migration or run manually first, depending on your migration history. Test on a branch database first.
+> **Note:** If using CLI, the `sql/` baseline files (00–04) must be run manually first via SQL Editor.
+
+### Step 3c — Cron Schedules (files 05–07, secrets needed)
+
+⚠️ **Before running:** Enable the `pg_cron` and `pg_net` extensions in **Supabase Dashboard → Database → Extensions**.
+
+| # | File | Placeholders to replace | What it schedules |
+|---|------|------------------------|-------------------|
+| 7 | `sql/05_secure_cron_schedule.sql` | `PROJECT_REF`, `YOUR_ANON_KEY`, `YOUR_CRON_SECRET_VALUE` | 4 job crons: health-check (1min), alert-evaluation (1min), metrics-aggregate (5min), audit-cleanup (weekly) |
+| 8 | `sql/06_warmup_cron_schedule.sql` | `PROJECT_REF`, `YOUR_ANON_KEY` | 5 warmup crons (4min each): list-users, list-roles, list-permissions, query-audit-logs, get-user-stats |
+| 9 | `sql/07_mfa_recovery_cron.sql` | _(none)_ | MFA recovery code cleanup (weekly Sunday 4am UTC) |
+
+**Placeholder values for your new project:**
+- `PROJECT_REF` → your new Supabase project ref (the `xxxxx` part of `https://xxxxx.supabase.co`)
+- `YOUR_ANON_KEY` → from Settings → API → anon public key
+- `YOUR_CRON_SECRET_VALUE` → the value you set as `CRON_SECRET` in Edge Function secrets
 
 ### Verification
 
 After running all SQL, confirm in SQL Editor:
 
 ```sql
--- Should return 3 roles (superadmin, admin, user)
+-- Should return 3+ roles (superadmin, admin, user)
 SELECT key, name, is_base, is_immutable FROM public.roles ORDER BY key;
 
--- Should return 20+ permissions
-SELECT key FROM public.permissions ORDER BY key;
+-- Should return 31 permissions
+SELECT count(*) FROM public.permissions;
 
--- Should have RLS enabled on all tables
+-- Should have RLS enabled on all public tables
 SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public';
+
+-- Should show 10 cron jobs scheduled
+SELECT jobname, schedule FROM cron.job ORDER BY jobname;
 ```
 
 ---
