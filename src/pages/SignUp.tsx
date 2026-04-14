@@ -17,6 +17,7 @@ export default function SignUp() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -45,7 +46,7 @@ export default function SignUp() {
     setLoading(true);
     const token = await getTurnstileToken();
     if (!token) { setLoading(false); return; }
-    const { error } = await signUp(email, password, displayName, token);
+    const { error } = await signUp(email, password, displayName, token, lastName);
     if (error) {
       toast({ variant: 'destructive', title: 'Sign up failed', description: error.message });
       turnstileRef.current?.reset();
@@ -55,7 +56,7 @@ export default function SignUp() {
       setSubmitted(true);
       setLoading(false);
     }
-  }, [email, password, displayName, getTurnstileToken, signUp, toast]);
+  }, [email, password, displayName, lastName, getTurnstileToken, signUp, toast]);
 
   const handleOAuthSignIn = useCallback(async (provider: 'google' | 'apple') => {
     setOauthLoading(provider);
