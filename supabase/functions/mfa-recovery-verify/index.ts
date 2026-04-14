@@ -15,7 +15,6 @@ import { authenticateRequest } from '../_shared/authenticate-request.ts'
 import { validateRequest, z } from '../_shared/validate-request.ts'
 import { supabaseAdmin } from '../_shared/supabase-admin.ts'
 import { logAuditEvent } from '../_shared/audit.ts'
-import { compare } from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts'
 
 const BodySchema = z.object({
   code: z.string().length(8),
@@ -23,6 +22,20 @@ const BodySchema = z.object({
 
 const MAX_FAILED_ATTEMPTS = 5
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000 // 15 minutes
+
+/** Verify a code against a salt:hex hash */
+async function verifyCode(code: string, storedHash: string): Promise<boolean> {
+  const separatorIndex = storedHash.indexOf(':')
+  if (separatorIndex === -1) return false
+  const salt = storedHash.substring(0, separatorIndex)
+  const expectedHex = storedHash.substring(separatorIndex + 1)
+  const data = new TextEncoder().encode(salt + code)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const actualHex = Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+  return actualHex === expectedHex
+}
 
 Deno.serve(createHandler(async (req: Request): Promise<Response> => {
   const ctx = await authenticateRequest(req)
@@ -72,10 +85,10 @@ Deno.serve(createHandler(async (req: Request): Promise<Response> => {
     )
   }
 
-  // ── Check each code (bcrypt compare is slow by design — 10 codes max) ──
+  // ── Check each code against SHA-256 hashes ──
   let matchedCodeId: string | null = null
   for (const entry of codes) {
-    const isMatch = await compare(body.code.toUpperCase(), entry.code_hash)
+    const isMatch = await verifyCode(body.code.toUpperCase(), entry.code_hash)
     if (isMatch) {
       matchedCodeId = entry.id
       break
