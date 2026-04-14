@@ -103,17 +103,29 @@ export function ReauthDialog({
         return;
       }
 
+      // Get captcha token
+      let captchaToken: string | undefined;
+      try {
+        captchaToken = await turnstileRef.current?.execute();
+      } catch (captchaErr) {
+        setError(captchaErr instanceof Error ? captchaErr.message : 'Captcha verification failed.');
+        setStep('idle');
+        return;
+      }
+
       const { error: sendError } = await supabase.auth.signInWithOtp({
         email,
         options: {
           shouldCreateUser: false,
           emailRedirectTo: window.location.origin,
+          captchaToken,
         },
       });
 
       if (sendError) {
         setError(sendError.message);
         setStep('idle');
+        turnstileRef.current?.reset();
         return;
       }
 
@@ -121,6 +133,7 @@ export function ReauthDialog({
     } catch {
       setError('Failed to send verification code. Please try again.');
       setStep('idle');
+      turnstileRef.current?.reset();
     }
   };
 
