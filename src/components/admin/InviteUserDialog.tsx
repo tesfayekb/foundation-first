@@ -36,6 +36,13 @@ interface ExistingUserCheck {
   displayName?: string;
 }
 
+interface ListUsersResponse {
+  users: Array<{ id: string; display_name: string | null; email: string | null }>;
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -51,13 +58,12 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
   const navigate = useNavigate();
 
   const roles = (rolesData as RoleListItem[] | undefined)?.filter(r => r.key !== 'superadmin' && r.key !== 'user') ?? [];
-
   const debouncedEmail = useDebounce(email.trim().toLowerCase(), 500);
 
-  // Real-time check: does this email already exist?
   useEffect(() => {
     if (!open || !debouncedEmail || !isValidEmail(debouncedEmail)) {
       setExistingUser(null);
+      setIsChecking(false);
       return;
     }
 
@@ -66,28 +72,37 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
 
     (async () => {
       try {
-        const res = await apiClient.get<{ data: Array<{ id: string; display_name: string | null; email: string }> }>(
-          'list-users',
-          { search: debouncedEmail, page: '1', per_page: '1' }
-        );
+        const res = await apiClient.get<ListUsersResponse>('list-users', {
+          search: debouncedEmail,
+          limit: 1,
+          offset: 0,
+        });
         if (cancelled) return;
 
-        const match = res.data?.find(
-          (u: { email: string }) => u.email?.toLowerCase() === debouncedEmail
-        );
+        const match = res.users.find((u) => u.email?.toLowerCase() === debouncedEmail);
         if (match) {
-          setExistingUser({ exists: true, userId: match.id, displayName: match.display_name ?? undefined });
+          setExistingUser({
+            exists: true,
+            userId: match.id,
+            displayName: match.display_name ?? undefined,
+          });
         } else {
           setExistingUser({ exists: false });
         }
       } catch {
-        if (!cancelled) setExistingUser(null);
+        if (!cancelled) {
+          setExistingUser(null);
+        }
       } finally {
-        if (!cancelled) setIsChecking(false);
+        if (!cancelled) {
+          setIsChecking(false);
+        }
       }
     })();
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [open, debouncedEmail]);
 
   const resetForm = useCallback(() => {
@@ -105,21 +120,19 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || existingUser?.exists) return;
+    if (!email || existingUser?.exists || isChecking) return;
 
-    try {
-      await inviteUser({
-        email: email.trim().toLowerCase(),
-        role_id: roleId || undefined,
-        display_name: displayName.trim() || undefined,
-      });
+    const success = await inviteUser({
+      email: email.trim().toLowerCase(),
+      role_id: roleId || undefined,
+      display_name: displayName.trim() || undefined,
+    });
 
-      resetForm();
-      onOpenChange(false);
-    } catch {
-      // Error is already handled by useInviteUser's onError (toast).
-    }
-  }, [email, displayName, roleId, inviteUser, onOpenChange, existingUser, resetForm]);
+    if (!success) return;
+
+    resetForm();
+    onOpenChange(false);
+  }, [email, displayName, roleId, inviteUser, onOpenChange, existingUser, isChecking, resetForm]);
 
   const handleGoToUser = useCallback(() => {
     if (existingUser?.userId) {
@@ -128,10 +141,10 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
     }
   }, [existingUser, handleClose, navigate]);
 
-  const canSubmit = email && isValidEmail(email) && !isChecking && !existingUser?.exists && !isInviting;
+  const canSubmit = Boolean(email) && isValidEmail(email) && !isChecking && !existingUser?.exists && !isInviting;
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); else onOpenChange(v); }}>
+    <Dialog open={open} onOpenChange={(nextOpen) => (nextOpen ? onOpenChange(true) : handleClose())}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Invite User</DialogTitle>
@@ -154,35 +167,30 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
                 className={existingUser?.exists ? 'border-destructive pr-10' : isChecking ? 'pr-10' : ''}
               />
               {isChecking && (
-                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
               )}
-              {existingUser?.exists && (
-                <UserCheck className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-destructive" />
+              {existingUser?.exists && !isChecking && (
+                <UserCheck className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-destructive" />
               )}
             </div>
 
             {existingUser?.exists && (
               <Alert variant="destructive" className="py-2">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertDescription className="flex items-center justify-between gap-2">
+                <AlertDescription className="flex items-center justify-between gap-3">
                   <span className="text-sm">
                     {existingUser.displayName
-                      ? `"${existingUser.displayName}" already has an account with this email.`
+                      ? `“${existingUser.displayName}” already has an account with this email.`
                       : 'A user with this email already exists.'}
                   </span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="shrink-0"
-                    onClick={handleGoToUser}
-                  >
+                  <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={handleGoToUser}>
                     Manage Roles
                   </Button>
                 </AlertDescription>
               </Alert>
             )}
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="invite-name">Display Name</Label>
             <Input
@@ -195,10 +203,11 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
               autoComplete="off"
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="invite-role">Additional Role</Label>
             <p className="text-xs text-muted-foreground">
-              All users automatically receive the "User" role. Select an additional role to assign.
+              All users automatically receive the “User” role. Select an additional role to assign.
             </p>
             <Select value={roleId} onValueChange={setRoleId}>
               <SelectTrigger id="invite-role">
@@ -213,6 +222,7 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
               </SelectContent>
             </Select>
           </div>
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose} disabled={isInviting}>
               Cancel

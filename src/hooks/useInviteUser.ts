@@ -56,8 +56,17 @@ export function useInviteUser() {
     },
   });
 
+  const inviteUser = async (input: InviteUserInput): Promise<boolean> => {
+    try {
+      await inviteMutation.mutateAsync(input);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   return {
-    inviteUser: inviteMutation.mutateAsync,
+    inviteUser,
     isInviting: inviteMutation.isPending,
     bulkInvite: bulkInviteMutation.mutateAsync,
     isBulkInviting: bulkInviteMutation.isPending,

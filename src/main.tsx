@@ -51,14 +51,31 @@ import "@fontsource/jetbrains-mono/500.css";
 
 import "./index.css";
 
-/**
- * Suppress unhandled promise rejections for expected API errors (4xx).
- * These are already handled by React Query's onError callbacks and displayed
- * as toasts — they must NOT trigger Lovable's runtime error overlay.
- */
-window.addEventListener('unhandledrejection', (event) => {
-  const reason = event.reason;
-  if (reason && typeof reason === 'object' && reason.name === 'ApiError' && reason.status < 500) {
+window.addEventListener("unhandledrejection", (event) => {
+  const reason = event.reason as
+    | { status?: number; code?: string; message?: string; name?: string }
+    | string
+    | undefined;
+
+  const status = typeof reason === "object" && reason !== null && typeof reason.status === "number"
+    ? reason.status
+    : undefined;
+  const code = typeof reason === "object" && reason !== null && typeof reason.code === "string"
+    ? reason.code
+    : undefined;
+  const message = typeof reason === "string"
+    ? reason
+    : typeof reason === "object" && reason !== null && typeof reason.message === "string"
+      ? reason.message
+      : "";
+
+  const isHandledClientError =
+    (typeof status === "number" && status >= 400 && status < 500) ||
+    code === "USER_ALREADY_EXISTS" ||
+    /Edge function returned 4\d\d/i.test(message) ||
+    /USER_ALREADY_EXISTS/i.test(message);
+
+  if (isHandledClientError) {
     event.preventDefault();
   }
 });
